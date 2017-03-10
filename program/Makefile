@@ -16,7 +16,7 @@ GDB=arm-none-eabi-gdb
 #======================================================================#
 
 #Flags
-CFLAGS=-g -O2 -mlittle-endian -mthumb
+CFLAGS=-g -O2 -mlittle-endian -mthumb -std=c99
 CFLAGS+=-mcpu=cortex-m7
 CFLAGS+=-mfpu=fpv5-sp-d16 -mfloat-abi=hard
 CFLAGS+=-ffunction-sections -fdata-sections -ffast-math
@@ -40,12 +40,19 @@ CFLAGS+=-I$(ST_LIB)/Drivers/CMSIS/Device/ST/STM32F7xx/Include
 
 FREERTOS=./lib/FreeRTOSv9.0.0/FreeRTOS
 
+DRIVER=./driver
+
 #======================================================================#
 
 SRC=./system_stm32f7xx.c
 
 CFLAGS+=-I$(ST_PERIPHERIAL)/Inc
-SRC+=$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_gpio.c
+SRC+=$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_cortex.c \
+	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal.c \
+	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_rcc.c \
+	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_dma.c \
+	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_gpio.c \
+	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_uart.c
 
 #Freertos
 CFLAGS+=-I$(FREERTOS)/Source/include \
@@ -57,6 +64,9 @@ SRC+=$(FREERTOS)/Source/croutine.c \
 	$(FREERTOS)/Source/timers.c \
 	$(FREERTOS)/Source/portable/MemMang/heap_4.c \
 	$(FREERTOS)/Source/portable/GCC/$(ARCH)/r0p1/port.c
+
+CFLAGS+=-I$(DRIVER)/peripherial
+SRC+=$(DRIVER)/peripherial/uart.c
 
 CFLAGS+=-I./
 SRC+=./main.c

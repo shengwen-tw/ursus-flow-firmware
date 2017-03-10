@@ -1,5 +1,7 @@
 #include "stm32f7xx.h"
 
+#include "uart.h"
+
 void led_on(void)
 {
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_4, GPIO_PIN_SET);
@@ -41,6 +43,7 @@ void delay(uint32_t count)
 int main(void)
 {
 	gpio_init();
+	uart_init();
 
 	int state = 1;
 
@@ -50,6 +53,8 @@ int main(void)
 		} else {
 			led_off();
 		}
+
+		uart3_puts("Hello World\n\r");
 
 		delay(1000000);
 
