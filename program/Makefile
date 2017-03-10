@@ -41,6 +41,7 @@ CFLAGS+=-I$(ST_LIB)/Drivers/CMSIS/Device/ST/STM32F7xx/Include
 FREERTOS=./lib/FreeRTOSv9.0.0/FreeRTOS
 
 DRIVER=./driver
+SYSTEM=./system
 
 #======================================================================#
 
@@ -68,8 +69,10 @@ SRC+=$(FREERTOS)/Source/croutine.c \
 CFLAGS+=-I$(DRIVER)/peripherial
 SRC+=$(DRIVER)/peripherial/uart.c
 
+CFLAGS+=-I./$(SYSTEM)
+SRC+=./$(SYSTEM)/main.c
+
 CFLAGS+=-I./
-SRC+=./main.c
 
 #======================================================================#
 
