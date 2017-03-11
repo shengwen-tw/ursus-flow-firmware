@@ -22,7 +22,7 @@ CFLAGS+=-mfpu=fpv5-sp-d16 -mfloat-abi=hard
 CFLAGS+=-ffunction-sections -fdata-sections -ffast-math
 CFLAGS+=--specs=nano.specs --specs=nosys.specs -fno-builtin-printf
 CFLAGS+=-Wall -Wno-strict-aliasing
-CFLAGS+=-D STM32F746xx \
+CFLAGS+=-D STM32F767xx \
 	-D USE_HAL_DRIVER
 
 CFLAGS+=-Wl,-T,STM32F767VI_FLASH.ld
@@ -49,6 +49,7 @@ SRC=./system_stm32f7xx.c
 
 CFLAGS+=-I$(ST_PERIPHERIAL)/Inc
 SRC+=$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_cortex.c \
+	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_pwr_ex.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_rcc.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_dma.c \
@@ -67,7 +68,9 @@ SRC+=$(FREERTOS)/Source/croutine.c \
 	$(FREERTOS)/Source/portable/GCC/$(ARCH)/r0p1/port.c
 
 CFLAGS+=-I$(DRIVER)/peripherial
-SRC+=$(DRIVER)/peripherial/uart.c
+SRC+=$(DRIVER)/peripherial/core.c \
+	$(DRIVER)/peripherial/uart.c \
+	$(DRIVER)/peripherial/gpio.c
 
 CFLAGS+=-I./$(SYSTEM)
 SRC+=./$(SYSTEM)/main.c

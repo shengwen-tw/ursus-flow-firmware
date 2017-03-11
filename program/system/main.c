@@ -1,37 +1,8 @@
 #include "stm32f7xx.h"
 
+#include "core.h"
+#include "gpio.h"
 #include "uart.h"
-
-void led_on(void)
-{
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_4, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_5, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_6, GPIO_PIN_SET);
-}
-
-
-void led_off(void)
-{
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_4, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_5, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_6, GPIO_PIN_RESET);
-}
-
-void gpio_init(void)
-{
-	__HAL_RCC_GPIOD_CLK_ENABLE();
-
-	GPIO_InitTypeDef gpio_init_struct = {
-		.Pin = GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6,
-		.Mode = GPIO_MODE_OUTPUT_PP,
-		.Pull = GPIO_PULLUP,
-		.Speed = GPIO_SPEED_HIGH
-	};
-
-	HAL_GPIO_Init(GPIOD, &gpio_init_struct);
-
-	led_off();
-}
 
 void delay(uint32_t count)
 {
@@ -49,9 +20,13 @@ int main(void)
 
 	while(1) {
 		if(state == 1) {
-			led_on();
+			gpio_on(LED_1);
+			gpio_on(LED_2);
+			gpio_on(LED_3);
 		} else {
-			led_off();
+			gpio_off(LED_1);
+			gpio_off(LED_2);
+			gpio_off(LED_3);
 		}
 
 		uart3_puts("Hello World\n\r");
