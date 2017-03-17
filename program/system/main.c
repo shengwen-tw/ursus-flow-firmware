@@ -10,13 +10,6 @@
 
 #define MILLI_TO_TICK(t) (t / portTICK_PERIOD_MS)
 
-void delay(uint32_t count)
-{
-        while(count--) {
-		__asm volatile("nop");
-	}
-}
-
 void test_task1(void)
 {
 	int state = 1;
