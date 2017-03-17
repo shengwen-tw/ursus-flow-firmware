@@ -15,8 +15,8 @@ int main(void)
 {
 	mpu_init();
 	cpu_cache_enable();
-	//HAL_Init();
-	//system_clock_init();
+	HAL_Init();
+	system_clock_init();
 
 	gpio_init();
 	uart_init();

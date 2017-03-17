@@ -70,7 +70,8 @@ SRC+=$(FREERTOS)/Source/croutine.c \
 CFLAGS+=-I$(DRIVER)/peripherial
 SRC+=$(DRIVER)/peripherial/core.c \
 	$(DRIVER)/peripherial/uart.c \
-	$(DRIVER)/peripherial/gpio.c
+	$(DRIVER)/peripherial/gpio.c \
+	$(DRIVER)/peripherial/interrupt.c
 
 CFLAGS+=-I./$(SYSTEM)
 SRC+=./$(SYSTEM)/main.c
