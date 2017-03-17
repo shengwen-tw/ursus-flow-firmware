@@ -8,10 +8,10 @@
  * APB2 Prescaler                 = 2
  * HSE Frequency(Hz)              = 8000000
  * PLL_M                          = 4
- * PLL_N                          = 96
+ * PLL_N                          = 216
  * PLL_P                          = 6
- * PLL_Q                          = 4
- * PLL_R                          = 2 (Not used)
+ * PLL_Q                          = 9
+ * PLL_R                          = X
  * VDD(V)                         = 3.3
  * Main regulator output voltage  = Scale1 mode
  * Flash Latency(WS)              = 7 
@@ -31,10 +31,9 @@ void system_clock_init(void)
 		.PLL.PLLState = RCC_PLL_ON,
 		.PLL.PLLSource = RCC_PLLSOURCE_HSE,
 		.PLL.PLLM = 4,
-		.PLL.PLLN = 96,
-		.PLL.PLLP = RCC_PLLP_DIV6,
-		.PLL.PLLQ = 4,
-		.PLL.PLLR = 2,  
+		.PLL.PLLN = 216,
+		.PLL.PLLP = RCC_PLLP_DIV2,
+		.PLL.PLLQ = 9,
 	};
   
 	if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
@@ -92,14 +91,3 @@ void cpu_cache_enable(void)
 	SCB_EnableICache();
 	SCB_EnableDCache();
 }
-
-void test(void)
-{
-  mpu_init();
-  cpu_cache_enable();
-
-  HAL_Init();
-
-  system_clock_init();
-}
-
