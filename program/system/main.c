@@ -17,11 +17,13 @@ void test_task1(void)
 	while(1) {
 		if(state == 1) {
 			gpio_on(LED_1);
+			gpio_on(LED_2);
+			gpio_on(LED_3);
 		} else {
 			gpio_off(LED_1);
+			gpio_off(LED_2);
+			gpio_off(LED_3);
 		}
-
-		uart3_puts("Hello World\n\r");
 
 		state = (state + 1) % 2;
 
@@ -31,16 +33,8 @@ void test_task1(void)
 
 void test_task2(void)
 {
-	int state = 1;
-
 	while(1) {
-		if(state == 1) {
-			gpio_on(LED_2);
-		} else {
-			gpio_off(LED_2);
-		}
-
-		state = (state + 1) % 2;
+		uart2_puts("Hello World\n\r");
 
 		vTaskDelay(MILLI_TO_TICK(500));
 	}
@@ -59,7 +53,7 @@ int main(void)
 
 	xTaskCreate((TaskFunction_t)test_task1, "blinky1",
 		1024, (void *)0, tskIDLE_PRIORITY + 1, NULL);
-	xTaskCreate((TaskFunction_t)test_task2, "blinky2",
+	xTaskCreate((TaskFunction_t)test_task2, "print",
 		1024, (void *)0, tskIDLE_PRIORITY + 2, NULL);
 		
 	vTaskStartScheduler();

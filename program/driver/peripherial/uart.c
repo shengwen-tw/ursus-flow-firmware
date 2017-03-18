@@ -38,7 +38,7 @@ void uart2_init(int baudrate)
 	HAL_GPIO_Init(GPIOA, &gpio);
 }
 
-void uart3_puts(char *str)
+void uart2_puts(char *str)
 {
 	HAL_UART_Transmit(&uart2, (uint8_t*)str, strlen(str), 100);
 }
