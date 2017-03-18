@@ -1,9 +1,16 @@
 #include <string.h>
+
 #include "stm32f7xx_hal.h"
+
+#include "FreeRTOS.h"
+#include "semphr.h"
 
 void uart2_init(int baudrate);
 
 UART_HandleTypeDef uart2;
+DMA_HandleTypeDef uart2_tx_dma;
+
+SemaphoreHandle_t uart2_tx_semaphore;
 
 void uart_init(void)
 {
@@ -12,7 +19,13 @@ void uart_init(void)
 
 void uart2_init(int baudrate)
 {
+	/* Create semaphore for serial resource */
+	uart2_tx_semaphore = xSemaphoreCreateBinary();
+	xSemaphoreGive(uart2_tx_semaphore);
+
+	/* Hardware initialization */
 	__HAL_RCC_USART2_CLK_ENABLE();
+	__HAL_RCC_DMA1_CLK_ENABLE();
 	__GPIOA_CLK_ENABLE();
 
 	uart2.Instance = USART2;
@@ -20,7 +33,7 @@ void uart2_init(int baudrate)
 	uart2.Init.WordLength = UART_WORDLENGTH_8B;
 	uart2.Init.StopBits = UART_STOPBITS_1;
 	uart2.Init.Parity = UART_PARITY_NONE;
-	uart2.Init.Mode = UART_MODE_TX_RX;
+	uart2.Init.Mode = UART_MODE_TX;
 	uart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	uart2.Init.OverSampling = UART_OVERSAMPLING_16;
 	uart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
@@ -39,24 +52,35 @@ void uart2_init(int baudrate)
 	HAL_GPIO_Init(GPIOA, &gpio);
 
 	/* DMA1 channel4 stream6 for UART2 tx */
-	DMA_HandleTypeDef uart2_tx_dma = {
-		.Instance = DMA1_Stream6, 
-		.Init.Channel = DMA_CHANNEL_4,
-		.Init.Direction = DMA_MEMORY_TO_PERIPH,
-		.Init.PeriphInc = DMA_PINC_DISABLE,
-		.Init.MemInc = DMA_MINC_ENABLE,
-		.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE,
-		.Init.MemDataAlignment = DMA_PDATAALIGN_BYTE,
-		.Init.Mode = DMA_NORMAL,
-		.Init.Priority = DMA_PRIORITY_LOW,
-	};
+	uart2_tx_dma.Instance = DMA1_Stream6;
+	uart2_tx_dma.Init.Channel = DMA_CHANNEL_4;
+	uart2_tx_dma.Init.Direction = DMA_MEMORY_TO_PERIPH;
+	uart2_tx_dma.Init.PeriphInc = DMA_PINC_DISABLE;
+	uart2_tx_dma.Init.MemInc = DMA_MINC_ENABLE;
+	uart2_tx_dma.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+	uart2_tx_dma.Init.MemDataAlignment = DMA_PDATAALIGN_BYTE;
+	uart2_tx_dma.Init.Mode = DMA_NORMAL;
+	uart2_tx_dma.Init.Priority = DMA_PRIORITY_LOW;
 
 	HAL_DMA_Init(&uart2_tx_dma);
 	__HAL_LINKDMA(&uart2, hdmatx, uart2_tx_dma);
+
+	HAL_NVIC_SetPriority(DMA1_Stream6_IRQn,
+		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1, 1);
+	HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
+}
+
+void DMA1_Stream6_IRQHandler(void)
+{
+	//HAL_NVIC_ClearPendingIRQ(DMA1_Stream6_IRQn);
+	HAL_DMA_IRQHandler(uart2.hdmatx);	
+
+	//xSemaphoreGive(uart2_tx_semaphore);
 }
 
 void uart2_puts(char *str)
 {
-	//HAL_UART_Transmit_DMA(&uart2, (uint8_t*)str, strlen(str));
-	HAL_UART_Transmit(&uart2, (uint8_t*)str, strlen(str), 100);
+	//xSemaphoreTake(uart2_tx_semaphore, portMAX_DELAY);
+
+	HAL_UART_Transmit_DMA(&uart2, (uint8_t*)str, strlen(str));
 }
