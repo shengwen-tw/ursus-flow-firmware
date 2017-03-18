@@ -35,18 +35,22 @@ ARCH=ARM_CM7
 
 ST_LIB=lib/STM32Cube_FW_F7_V1.4.0
 ST_PERIPHERIAL=$(ST_LIB)/Drivers/STM32F7xx_HAL_Driver
-CFLAGS+=-I$(ST_LIB)/Drivers/CMSIS/Include
-CFLAGS+=-I$(ST_LIB)/Drivers/CMSIS/Device/ST/STM32F7xx/Include
+ST_USB_LIB=$(ST_LIB)/Middlewares/ST/STM32_USB_Device_Library
 
 FREERTOS=./lib/FreeRTOSv9.0.0/FreeRTOS
 
 DRIVER=./driver
+PERIPH=$(DRIVER)/peripherial
+DEVICE=$(DRIVER)/device
 SYSTEM=./system
 
 #======================================================================#
 
 SRC=./system_stm32f7xx.c
 
+#ST peripherial
+CFLAGS+=-I$(ST_LIB)/Drivers/CMSIS/Include
+CFLAGS+=-I$(ST_LIB)/Drivers/CMSIS/Device/ST/STM32F7xx/Include
 CFLAGS+=-I$(ST_PERIPHERIAL)/Inc
 SRC+=$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_cortex.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_pwr_ex.c \
@@ -54,7 +58,19 @@ SRC+=$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_cortex.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_rcc.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_dma.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_gpio.c \
-	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_uart.c
+	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_uart.c \
+	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_pcd.c \
+	$(ST_PERIPHERIAL)/Src/stm32f7xx_ll_usb.c \
+	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_pcd_ex.c
+
+#ST usb library
+CFLAGS+=-I$(ST_USB_LIB)/Class/CDC/Inc
+SRC+=$(ST_USB_LIB)/Class/CDC/Src/usbd_cdc.c
+
+CFLAGS+=-I$(ST_USB_LIB)/Core/Inc
+SRC+=$(ST_USB_LIB)/Core/Src/usbd_core.c \
+	$(ST_USB_LIB)/Core/Src/usbd_ctlreq.c \
+	$(ST_USB_LIB)/Core/Src/usbd_ioreq.c
 
 #Freertos
 CFLAGS+=-I$(FREERTOS)/Source/include \
@@ -68,10 +84,15 @@ SRC+=$(FREERTOS)/Source/croutine.c \
 	$(FREERTOS)/Source/portable/GCC/$(ARCH)/r0p1/port.c
 
 CFLAGS+=-I$(DRIVER)/peripherial
+CFLAGS+=-I$(DRIVER)/peripherial/usb
 SRC+=$(DRIVER)/peripherial/core.c \
 	$(DRIVER)/peripherial/uart.c \
 	$(DRIVER)/peripherial/gpio.c \
-	$(DRIVER)/peripherial/interrupt.c
+	$(DRIVER)/peripherial/interrupt.c \
+	$(DRIVER)/peripherial/usb/usbd_cdc_if.c \
+	$(DRIVER)/peripherial/usb/usbd_conf.c \
+	$(DRIVER)/peripherial/usb/usbd_desc.c \
+	$(DRIVER)/peripherial/usb/usb_device.c
 
 CFLAGS+=-I./$(SYSTEM)
 SRC+=./$(SYSTEM)/main.c
