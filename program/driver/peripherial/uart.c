@@ -65,17 +65,26 @@ void uart2_init(int baudrate)
 	HAL_DMA_Init(&uart2_tx_dma);
 	__HAL_LINKDMA(&uart2, hdmatx, uart2_tx_dma);
 
+	HAL_NVIC_SetPriority(USART2_IRQn,
+		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1, 1);
 	HAL_NVIC_SetPriority(DMA1_Stream6_IRQn,
 		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1, 1);
 	HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
+	HAL_NVIC_EnableIRQ(USART2_IRQn);
+}
+
+void USART2_IRQHandler(void)
+{
+	HAL_UART_IRQHandler(&uart2);
+
+	//if(HAL_UART_GetState(&uart2) == HAL_UART_STATE_READY) {
+	//	xSemaphoreGive(uart2_tx_semaphore);
+	//}
 }
 
 void DMA1_Stream6_IRQHandler(void)
 {
-	//HAL_NVIC_ClearPendingIRQ(DMA1_Stream6_IRQn);
 	HAL_DMA_IRQHandler(uart2.hdmatx);	
-
-	//xSemaphoreGive(uart2_tx_semaphore);
 }
 
 void uart2_puts(char *str)
@@ -83,4 +92,6 @@ void uart2_puts(char *str)
 	//xSemaphoreTake(uart2_tx_semaphore, portMAX_DELAY);
 
 	HAL_UART_Transmit_DMA(&uart2, (uint8_t*)str, strlen(str));
+
+	while(HAL_UART_GetState(&uart2) != HAL_UART_STATE_READY);
 }
