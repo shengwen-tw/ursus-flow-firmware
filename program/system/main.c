@@ -11,7 +11,7 @@
 
 #include "delay.h"
 
-void test_task1(void)
+void flow_estimate_task(void)
 {
 	int state = 1;
 
@@ -32,7 +32,7 @@ void test_task1(void)
 	}
 }
 
-void test_task2(void)
+void flight_ctrl_board_link_task(void)
 {
 	while(1) {
 		uart2_puts("Hello World\n\r");
@@ -41,6 +41,14 @@ void test_task2(void)
 	}
 }
 
+void usb_link_task(void)
+{
+	usb_fs_init();
+
+	while(1) {
+		vTaskDelay(1);
+	}
+}
 
 int main(void)
 {
@@ -52,12 +60,15 @@ int main(void)
 	gpio_init();
 	uart_init();
 
-	usb_fs_init();
+	xTaskCreate((TaskFunction_t)flow_estimate_task, "flow estimate task",
+		1024, (void *)0, tskIDLE_PRIORITY + 3, NULL);
 
-	xTaskCreate((TaskFunction_t)test_task1, "blinky1",
-		1024, (void *)0, tskIDLE_PRIORITY + 1, NULL);
-	xTaskCreate((TaskFunction_t)test_task2, "print",
+	xTaskCreate((TaskFunction_t)flight_ctrl_board_link_task,
+		"flight control board link task",
 		1024, (void *)0, tskIDLE_PRIORITY + 2, NULL);
+
+	xTaskCreate((TaskFunction_t)usb_link_task, "usb link task",
+		1024, (void *)0, tskIDLE_PRIORITY + 1, NULL);
 		
 	vTaskStartScheduler();
 

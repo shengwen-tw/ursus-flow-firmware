@@ -3,6 +3,11 @@
 #include "usbd_def.h"
 #include "usbd_core.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
+#include "delay.h"
+
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 void Error_Handler(void);
 
@@ -19,10 +24,6 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
   GPIO_InitTypeDef GPIO_InitStruct;
   if(pcdHandle->Instance==USB_OTG_FS)
   {
-  /* USER CODE BEGIN USB_OTG_FS_MspInit 0 */
-
-  /* USER CODE END USB_OTG_FS_MspInit 0 */
-  
     /**USB_OTG_FS GPIO Configuration    
     PA9     ------> USB_OTG_FS_VBUS
     PA11     ------> USB_OTG_FS_DM
@@ -44,11 +45,9 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
 
     /* Peripheral interrupt init */
-    HAL_NVIC_SetPriority(OTG_FS_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(OTG_FS_IRQn,
+	configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 2, 0);
     HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
-  /* USER CODE BEGIN USB_OTG_FS_MspInit 1 */
-
-  /* USER CODE END USB_OTG_FS_MspInit 1 */
   }
 }
 
@@ -486,5 +485,5 @@ void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef msg)
   */
 void  USBD_LL_Delay (uint32_t Delay)
 {
-  HAL_Delay(Delay);  
+  HAL_Delay(Delay);
 }
