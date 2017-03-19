@@ -7,8 +7,9 @@
 #include "core.h"
 #include "gpio.h"
 #include "uart.h"
+#include "usb_device.h"
 
-#define MILLI_TO_TICK(t) (t / portTICK_PERIOD_MS)
+#include "delay.h"
 
 void test_task1(void)
 {
@@ -27,7 +28,7 @@ void test_task1(void)
 
 		state = (state + 1) % 2;
 
-		vTaskDelay(MILLI_TO_TICK(500));
+		vTaskDelay(MILLI_SECOND_TICK(500));
 	}
 }
 
@@ -36,7 +37,7 @@ void test_task2(void)
 	while(1) {
 		uart2_puts("Hello World\n\r");
 
-		vTaskDelay(MILLI_TO_TICK(500));
+		vTaskDelay(MILLI_SECOND_TICK(500));
 	}
 }
 
@@ -50,6 +51,8 @@ int main(void)
 
 	gpio_init();
 	uart_init();
+
+	usb_fs_init();
 
 	xTaskCreate((TaskFunction_t)test_task1, "blinky1",
 		1024, (void *)0, tskIDLE_PRIORITY + 1, NULL);

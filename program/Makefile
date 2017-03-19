@@ -42,6 +42,7 @@ FREERTOS=./lib/FreeRTOSv9.0.0/FreeRTOS
 DRIVER=./driver
 PERIPH=$(DRIVER)/peripherial
 DEVICE=$(DRIVER)/device
+COMMON=./common
 SYSTEM=./system
 
 #======================================================================#
@@ -94,7 +95,9 @@ SRC+=$(DRIVER)/peripherial/core.c \
 	$(DRIVER)/peripherial/usb/usbd_desc.c \
 	$(DRIVER)/peripherial/usb/usb_device.c
 
-CFLAGS+=-I./$(SYSTEM)
+CFLAGS+=-I$(COMMON)
+
+CFLAGS+=-I$(SYSTEM)
 SRC+=./$(SYSTEM)/main.c
 
 CFLAGS+=-I./
