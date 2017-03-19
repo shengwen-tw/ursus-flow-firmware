@@ -1,5 +1,10 @@
 #include "stm32f7xx_hal.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
+#include "delay.h"
+
 /* System Clock source            = PLL (HSE)
  * SYSCLK(Hz)                     = 216000000
  * HCLK(Hz)                       = 216000000
@@ -90,4 +95,10 @@ void cpu_cache_enable(void)
 	/* Enable i-cache and d-cache */
 	SCB_EnableICache();
 	SCB_EnableDCache();
+}
+
+/* Override HAL delay function */
+void HAL_Delay(volatile uint32_t millis)
+{
+	vTaskDelay(MILLI_SECOND_TICK(millis));
 }
