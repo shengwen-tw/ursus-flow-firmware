@@ -75,11 +75,14 @@ void uart2_init(int baudrate)
 
 void USART2_IRQHandler(void)
 {
+	long higher_priority_task_woken = pdFALSE;
+
 	HAL_UART_IRQHandler(&uart2);
 
-	//if(HAL_UART_GetState(&uart2) == HAL_UART_STATE_READY) {
-	//	xSemaphoreGive(uart2_tx_semaphore);
-	//}
+	if(HAL_UART_GetState(&uart2) == HAL_UART_STATE_READY) {
+		xSemaphoreGiveFromISR(uart2_tx_semaphore, &higher_priority_task_woken);
+		portYIELD_FROM_ISR(higher_priority_task_woken);
+	}
 }
 
 void DMA1_Stream6_IRQHandler(void)
@@ -89,9 +92,7 @@ void DMA1_Stream6_IRQHandler(void)
 
 void uart2_puts(char *str)
 {
-	//xSemaphoreTake(uart2_tx_semaphore, portMAX_DELAY);
+	xSemaphoreTake(uart2_tx_semaphore, portMAX_DELAY);
 
 	HAL_UART_Transmit_DMA(&uart2, (uint8_t*)str, strlen(str));
-
-	while(HAL_UART_GetState(&uart2) != HAL_UART_STATE_READY);
 }
