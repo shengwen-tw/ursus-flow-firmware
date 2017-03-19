@@ -2,7 +2,7 @@
 #define __USBD_DESC__H__
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #include "usbd_def.h"

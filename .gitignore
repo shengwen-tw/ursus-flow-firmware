@@ -3,5 +3,5 @@
 *.bin
 *.elf
 *.sw*
+*.orig
 tags
-startup.s

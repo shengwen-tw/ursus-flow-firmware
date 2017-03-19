@@ -19,15 +19,15 @@
  * PLL_R                          = X
  * VDD(V)                         = 3.3
  * Main regulator output voltage  = Scale1 mode
- * Flash Latency(WS)              = 7 
+ * Flash Latency(WS)              = 7
  */
 void system_clock_init(void)
 {
 	/* Enable the power control clock */
 	__HAL_RCC_PWR_CLK_ENABLE();
-  
+
 	/* The voltage scaling indicate the power consumption */
-	__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);  
+	__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
 	/* Enable hse oscillator and activate pll with hse as source */
 	RCC_OscInitTypeDef RCC_OscInitStruct = {
@@ -40,11 +40,11 @@ void system_clock_init(void)
 		.PLL.PLLP = RCC_PLLP_DIV2,
 		.PLL.PLLQ = 9,
 	};
-  
+
 	if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
 		//Error_Handler();
 	}
-  
+
 	/* Activate the over drive to reach the 216MHz frequency */
 	if(HAL_PWREx_EnableOverDrive() != HAL_OK) {
 		//Error_Handler();
@@ -53,12 +53,12 @@ void system_clock_init(void)
 	/* Select pll as system clock source and configure the hclk, pclk1 and pclk2 clocks dividers */
 	RCC_ClkInitTypeDef RCC_ClkInitStruct = {
 		.ClockType = RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK |
-			     RCC_CLOCKTYPE_PCLK1  | RCC_CLOCKTYPE_PCLK2,
+		RCC_CLOCKTYPE_PCLK1  | RCC_CLOCKTYPE_PCLK2,
 		.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK,
 		.AHBCLKDivider = RCC_SYSCLK_DIV1,
-		.APB1CLKDivider = RCC_HCLK_DIV4,  
+		.APB1CLKDivider = RCC_HCLK_DIV4,
 		.APB2CLKDivider = RCC_HCLK_DIV2
-	};  
+	};
 
 	if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_7) != HAL_OK) {
 		//Error_Handler();

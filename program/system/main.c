@@ -61,15 +61,15 @@ int main(void)
 	uart_init();
 
 	xTaskCreate((TaskFunction_t)flow_estimate_task, "flow estimate task",
-		1024, (void *)0, tskIDLE_PRIORITY + 3, NULL);
+	            1024, (void *)0, tskIDLE_PRIORITY + 3, NULL);
 
 	xTaskCreate((TaskFunction_t)flight_ctrl_board_link_task,
-		"flight control board link task",
-		1024, (void *)0, tskIDLE_PRIORITY + 2, NULL);
+	            "flight control board link task",
+	            1024, (void *)0, tskIDLE_PRIORITY + 2, NULL);
 
 	xTaskCreate((TaskFunction_t)usb_link_task, "usb link task",
-		1024, (void *)0, tskIDLE_PRIORITY + 1, NULL);
-		
+	            1024, (void *)0, tskIDLE_PRIORITY + 1, NULL);
+
 	vTaskStartScheduler();
 
 	return 0;

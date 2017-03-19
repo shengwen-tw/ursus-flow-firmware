@@ -2,7 +2,7 @@
 #define __USBD_CDC_IF_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #include "usbd_cdc.h"
@@ -14,5 +14,5 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
 #ifdef __cplusplus
 }
 #endif
-  
+
 #endif
