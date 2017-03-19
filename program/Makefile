@@ -159,6 +159,12 @@ openocd:
 gdbauto:
 	cgdb -d $(GDB) -x ./debug/openocd_gdb.gdb
 
+.ONESHELL:
+astyle:
+	cd ..
+	astyle -r --exclude=lib --style=linux --indent=tab=8  *.c *.h
+	cd program/
+
 #=====================================================================#
 
-.PHONY:all clean flash tags
+.PHONY:all clean flash astyle tags
