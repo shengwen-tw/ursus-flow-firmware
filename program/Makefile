@@ -25,7 +25,7 @@ CFLAGS+=-Wall -Wno-strict-aliasing
 CFLAGS+=-D STM32F767xx \
 	-D USE_HAL_DRIVER
 
-CFLAGS+=-Wl,-T,STM32F767VI_FLASH.ld
+CFLAGS+=-Wl,-T,stm32f767vi_flash.ld
 
 LDFLAGS=-Wl,--gc-sections -lm
 
