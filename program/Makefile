@@ -97,6 +97,9 @@ SRC+=$(DRIVER)/peripherial/core.c \
 	$(DRIVER)/peripherial/usb/usbd_desc.c \
 	$(DRIVER)/peripherial/usb/usb_device.c
 
+CFLAGS+=-I$(DRIVER)/device
+SRC+=$(DRIVER)/device/mpu9250.c
+
 CFLAGS+=-I$(COMMON)
 
 CFLAGS+=-I$(SYSTEM)

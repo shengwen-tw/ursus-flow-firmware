@@ -10,6 +10,8 @@
 #include "spi.h"
 #include "usb_device.h"
 
+#include "mpu9250.h"
+
 #include "delay.h"
 
 void flow_estimate_task(void)
@@ -64,6 +66,8 @@ int main(void)
 	gpio_init();
 	uart_init();
 	spi_init();
+
+	mpu9250_init();
 
 	xTaskCreate((TaskFunction_t)flow_estimate_task, "flow estimate task",
 	            1024, (void *)0, tskIDLE_PRIORITY + 3, NULL);
