@@ -60,6 +60,7 @@ SRC+=$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_cortex.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_dma.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_gpio.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_uart.c \
+	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_spi.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_pcd.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_ll_usb.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_pcd_ex.c
@@ -89,6 +90,7 @@ CFLAGS+=-I$(DRIVER)/peripherial/usb
 SRC+=$(DRIVER)/peripherial/core.c \
 	$(DRIVER)/peripherial/uart.c \
 	$(DRIVER)/peripherial/gpio.c \
+	$(DRIVER)/peripherial/spi.c \
 	$(DRIVER)/peripherial/interrupt.c \
 	$(DRIVER)/peripherial/usb/usbd_cdc_if.c \
 	$(DRIVER)/peripherial/usb/usbd_conf.c \
