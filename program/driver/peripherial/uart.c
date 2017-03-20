@@ -5,7 +5,7 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 
-void uart2_init(int baudrate);
+static void uart2_init(int baudrate);
 
 UART_HandleTypeDef uart2;
 DMA_HandleTypeDef uart2_tx_dma;
@@ -17,7 +17,7 @@ void uart_init(void)
 	uart2_init(57600);
 }
 
-void uart2_init(int baudrate)
+static void uart2_init(int baudrate)
 {
 	/* Create semaphore for serial resource */
 	uart2_tx_semaphore = xSemaphoreCreateBinary();
