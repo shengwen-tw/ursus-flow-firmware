@@ -47,8 +47,8 @@ void usb_link_task(void)
 	char *str = "hello usb cdc\n\r";
 
 	while(1) {
-		
-		usb_cdc_send(str, strlen(str));
+		usb_cdc_send((uint8_t *)str, strlen(str));
+
 		vTaskDelay(500);
 	}
 }

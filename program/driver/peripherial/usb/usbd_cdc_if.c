@@ -3,12 +3,7 @@
 #define APP_RX_DATA_SIZE  4
 #define APP_TX_DATA_SIZE  4
 
-/* Create buffer for reception and transmission           */
-/* It's up to user to redefine and/or remove those define */
-/* Received Data over USB are stored in this buffer       */
 uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
-
-/* Send Data over USB CDC are stored in this buffer       */
 uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
 
 extern USBD_HandleTypeDef hUsbDeviceFS;
@@ -122,27 +117,4 @@ static int8_t CDC_Receive_FS (uint8_t* Buf, uint32_t *Len)
 	USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
 	USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 	return (USBD_OK);
-}
-
-/**
-  * @brief  CDC_Transmit_FS
-  *         Data send over USB IN endpoint are sent over CDC interface
-  *         through this function.
-  *         @note
-  *
-  * @param  Buf: Buffer of data to be send
-  * @param  Len: Number of data to be send (in bytes)
-  * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL or USBD_BUSY
-  */
-uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
-{
-	uint8_t result = USBD_OK;
-
-	USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
-	if (hcdc->TxState != 0) {
-		return USBD_BUSY;
-	}
-	USBD_CDC_SetTxBuffer(&hUsbDeviceFS, Buf, Len);
-	result = USBD_CDC_TransmitPacket(&hUsbDeviceFS);
-	return result;
 }
