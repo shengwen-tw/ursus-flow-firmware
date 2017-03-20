@@ -44,9 +44,12 @@ void flight_ctrl_board_link_task(void)
 void usb_link_task(void)
 {
 	usb_fs_init();
+	char *str = "hello usb cdc\n\r";
 
 	while(1) {
-		vTaskDelay(1);
+		
+		usb_cdc_send(str, strlen(str));
+		vTaskDelay(500);
 	}
 }
 

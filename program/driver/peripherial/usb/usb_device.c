@@ -1,8 +1,7 @@
-#include "usb_device.h"
+#include "usb.h"
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_cdc.h"
-#include "usbd_cdc_if.h"
 
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
@@ -22,3 +21,16 @@ void OTG_FS_IRQHandler(void)
 	HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
 }
 
+void usb_cdc_send(uint8_t *buf, uint16_t len)
+{
+        uint8_t result = USBD_OK;
+
+        USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
+        if (hcdc->TxState != 0) {
+                //return USBD_BUSY;
+        }
+        USBD_CDC_SetTxBuffer(&hUsbDeviceFS, buf, len);
+        result = USBD_CDC_TransmitPacket(&hUsbDeviceFS);
+
+        //return result;
+}
