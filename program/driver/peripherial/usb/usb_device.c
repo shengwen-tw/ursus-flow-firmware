@@ -1,7 +1,8 @@
-#include "usb.h"
+#include "usb_device.h"
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_cdc.h"
+#include "usbd_cdc_if.h"
 
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
