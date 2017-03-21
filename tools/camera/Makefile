@@ -15,7 +15,7 @@ CFLAGS+=-static-libstdc++ \
 	-Ofast -g \
 	-fsanitize=address \
 	-fno-omit-frame-pointer
-CFLAGS+=-lusb
+CFLAGS+=-lusb-1.0
 LDFLAGS:=
 
 #===============================================================#

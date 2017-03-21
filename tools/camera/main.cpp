@@ -7,56 +7,74 @@
 #define PRODUCT_ID 0x5740
 
 /* Use lsusb -v to find the correspond values */
-static int ep_in_addr  = 0x82;
-static int ep_out_addr = 0x01;
+static int ep_in_address  = 0x81;
+static int ep_out_address = 0x01;
 
-struct usb_device *find_usb()
+static struct libusb_device_handle *dev_handle = NULL;
+
+int usb_read(uint8_t *buffer, int size, int timeout)
 {
-	struct usb_bus *busses, *bus;
-	struct usb_device *dev;
-	struct usb_device_descriptor *desc;
+	int received_len;
+	int rc = libusb_bulk_transfer(dev_handle, ep_in_address,
+	                              buffer, size, &received_len, timeout);
 
-	usb_init();
-	usb_find_busses();
-	usb_find_devices();
-
-	busses = usb_get_busses();
-
-	for(bus = busses; bus; bus = bus->next) {
-		for(dev = bus->devices; dev; dev = dev->next) {
-			desc = &(dev->descriptor);
-			if((desc->idVendor == VENDOR_ID) && (desc->idProduct == PRODUCT_ID)) {
-				return dev;
-			}
-		}
+	if (rc == LIBUSB_ERROR_TIMEOUT) {
+		return 0;
+	} else if (rc < 0) {
+		return -1;
 	}
 
-	return NULL;
+	return received_len;
 }
 
 int main()
 {
-	struct usb_device *dev;
-	struct usb_device_descriptor *desc;
+	int rc;
 
-	/* Find usb device with vendor id and product id */
-	dev = find_usb();
-	desc = &(dev->descriptor);
-
-	if (dev == NULL) {
-		printf("Can not find the usb device with provided vendor id and product id!\n");
+	/* initialize libusb */
+	rc = libusb_init(NULL);
+	if (rc < 0) {
+		printf("Failed to initialize libusb!\n");
 		return 0;
 	}
 
-	//printf("vendor/product id: %04x:%04x\n", desc->idVendor, desc->idProduct);
+	libusb_set_debug(NULL, 3);
 
-	/* Open the device and get the token */
-	struct usb_dev_handle *dev_handle = usb_open(dev);
-
-	if(dev_handle == NULL) {
-		printf("failed to open the device!\n");
+	/* open device to get the token */
+	dev_handle = libusb_open_device_with_vid_pid(NULL, VENDOR_ID, PRODUCT_ID);
+	if(!dev_handle) {
+		printf("error: device not found (please check vendor id and product id).\n");
 		return 0;
 	}
 
-	usb_close(dev_handle);
+	/* claiming interface */
+	for(int if_num = 0; if_num < 2; if_num++) {
+		if (libusb_kernel_driver_active(dev_handle, if_num)) {
+			libusb_detach_kernel_driver(dev_handle, if_num);
+		}
+
+		rc = libusb_claim_interface(dev_handle, if_num);
+		if (rc < 0) {
+			printf("error: failed to claim the usb interface.\n");
+			return false;
+		}
+	}
+
+	/* receive data from usb */
+	char buffer[65] = {'\0'};
+	while(1) {
+		int received_len = usb_read((uint8_t *)buffer, 64, 1000);
+		if(received_len > 0) {
+			printf("%s", buffer);
+		} else if(received_len == 0) {
+			printf("usb reception timeout.\n");	
+		} else {
+			printf("\n[usb disconnected]\n");
+			return 0;
+		}
+	}
+
+	/* close and exit */
+	libusb_close(dev_handle);
+	libusb_exit(NULL);
 }
