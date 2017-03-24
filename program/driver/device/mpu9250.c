@@ -39,9 +39,7 @@ int mpu9250_init(void)
 {
 	mpu9250_select();
 
-	if(mpu9250_read_who_am_i() != 0x71) {
-		return 1;	
-	}
+	if(mpu9250_read_who_am_i() != 0x71) {return 1;}
 
 	mpu9250_deselect();
 
