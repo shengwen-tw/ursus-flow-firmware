@@ -17,7 +17,7 @@ void spi_init(void)
  * SPI1 MISO             = PB4
  * MPU9250 Chip Selector = PC4
  * Clock rate            = 13.5Mhz
- * Clock polarity (idle) = high 
+ * Clock polarity (idle) = high
  * Clock phase (sample)  = low
  */
 static void spi1_init(void)
@@ -41,12 +41,12 @@ static void spi1_init(void)
 	HAL_GPIO_Init(GPIOB, &spi_gpio);
 
 	/* init gpio for spi cs */
-        GPIO_InitTypeDef mpu9250_cs_gpio = {
-                .Pin = GPIO_PIN_4,
-                .Mode = GPIO_MODE_OUTPUT_PP,
-                .Pull = GPIO_PULLUP,
-                .Speed = GPIO_SPEED_HIGH
-        };
+	GPIO_InitTypeDef mpu9250_cs_gpio = {
+		.Pin = GPIO_PIN_4,
+		.Mode = GPIO_MODE_OUTPUT_PP,
+		.Pull = GPIO_PULLUP,
+		.Speed = GPIO_SPEED_HIGH
+	};
 	HAL_GPIO_Init(GPIOC, &mpu9250_cs_gpio);
 
 	gpio_on(MPU9250_CHIP_SELECTOR);

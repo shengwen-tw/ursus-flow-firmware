@@ -7,6 +7,8 @@
 
 #include "mpu9250.h"
 
+#include "delay.h"
+
 /* mpu9250 is low active */
 inline void mpu9250_select(void)
 {
@@ -51,7 +53,19 @@ uint8_t mpu9250_read_who_am_i(void)
 
 int mpu9250_init(void)
 {
-	if(mpu9250_read_who_am_i() != 0x71) {return 1;}
+	if(mpu9250_read_who_am_i() != 0x71) {
+		return 1;
+	}
+	block_delay_ms(1000000);
+
+#if 0
+	mpu9250_write_byte(MPU9250_PWR_MGMT_1, 0x80);   //reset command     = 0x80
+	block_delay_ms(1000000);
+	mpu9250_write_byte(MPU9250_GYRO_CONFIG, 0x10);  //full scale 1000Hz = 0x10
+	block_delay_ms(1000000);
+	mpu9250_write_byte(MPU9250_ACCEL_CONFIG, 0x10); //full scale 8g     = 0x10
+	block_delay_ms(1000000);
+#endif
 
 	return 0;
 }

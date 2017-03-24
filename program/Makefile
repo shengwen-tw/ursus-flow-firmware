@@ -101,6 +101,7 @@ CFLAGS+=-I$(DRIVER)/device
 SRC+=$(DRIVER)/device/mpu9250.c
 
 CFLAGS+=-I$(COMMON)
+SRC+=$(COMMON)/delay.c
 
 CFLAGS+=-I$(SYSTEM)
 SRC+=./$(SYSTEM)/main.c
