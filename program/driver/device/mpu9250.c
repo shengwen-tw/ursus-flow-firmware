@@ -35,9 +35,15 @@ uint8_t mpu9250_read_who_am_i(void)
 	return mpu9250_read_byte(MPU9250_WHO_AM_I);
 }
 
-void mpu9250_init(void)
+int mpu9250_init(void)
 {
 	mpu9250_select();
-	uint8_t id = mpu9250_read_who_am_i();
+
+	if(mpu9250_read_who_am_i() != 0x71) {
+		return 1;	
+	}
+
 	mpu9250_deselect();
+
+	return 0;
 }

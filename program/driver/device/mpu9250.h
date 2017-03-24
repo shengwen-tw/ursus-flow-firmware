@@ -5,6 +5,6 @@
 
 extern SPI_HandleTypeDef spi1;
 
-void mpu9250_init(void);
+int mpu9250_init(void);
 
 #endif
