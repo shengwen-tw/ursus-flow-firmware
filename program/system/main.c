@@ -58,9 +58,10 @@ void usb_link_task(void)
 
 int main(void)
 {
+	HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+
 	mpu_init();
 	cpu_cache_enable();
-	HAL_Init();
 	system_clock_init();
 
 	gpio_init();
