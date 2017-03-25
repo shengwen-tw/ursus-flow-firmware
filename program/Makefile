@@ -16,7 +16,7 @@ GDB=arm-none-eabi-gdb
 #======================================================================#
 
 #Flags
-CFLAGS=-g -O2 -mlittle-endian -mthumb -std=c99
+CFLAGS=-g -O2 -mlittle-endian -mthumb -std=gnu99
 CFLAGS+=-mcpu=cortex-m7
 CFLAGS+=-mfpu=fpv5-sp-d16 -mfloat-abi=hard
 CFLAGS+=-ffunction-sections -fdata-sections -ffast-math
