@@ -102,3 +102,9 @@ void HAL_Delay(volatile uint32_t millis)
 {
 	vTaskDelay(MILLI_SECOND_TICK(millis));
 }
+
+/* The HAL_InitTick() should be override to prevent it initialize
+ * the systick  */
+HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
+{
+}
