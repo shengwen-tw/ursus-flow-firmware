@@ -57,7 +57,8 @@ uint8_t mpu9250_read_who_am_i(void)
 int mpu9250_init(void)
 {
 	if(mpu9250_read_who_am_i() != 0x71) {
-		return 1;
+		vTaskDelay(MILLI_SECOND_TICK(50));
+		return 1;	
 	}
 	vTaskDelay(MILLI_SECOND_TICK(50));	
 
