@@ -2,6 +2,9 @@
 
 #include "stm32f7xx_hal.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "gpio.h"
 #include "spi.h"
 
@@ -40,8 +43,8 @@ void mpu9250_write_byte(uint8_t address, uint8_t data)
 {
 	mpu9250_select();
 
-	HAL_SPI_Transmit(MPU9250_SPI, &address, 1, 1000);
-	HAL_SPI_Transmit(MPU9250_SPI, &data, 1, 1000);
+	HAL_SPI_Transmit(MPU9250_SPI, &address, 1, UINT32_MAX);
+	HAL_SPI_Transmit(MPU9250_SPI, &data, 1, UINT32_MAX);
 
 	mpu9250_deselect();
 }
@@ -56,16 +59,14 @@ int mpu9250_init(void)
 	if(mpu9250_read_who_am_i() != 0x71) {
 		return 1;
 	}
-	block_delay_ms(1000000);
+	vTaskDelay(MILLI_SECOND_TICK(50));	
 
-#if 0
 	mpu9250_write_byte(MPU9250_PWR_MGMT_1, 0x80);   //reset command     = 0x80
-	block_delay_ms(1000000);
+	vTaskDelay(MILLI_SECOND_TICK(50));
 	mpu9250_write_byte(MPU9250_GYRO_CONFIG, 0x10);  //full scale 1000Hz = 0x10
-	block_delay_ms(1000000);
+	vTaskDelay(MILLI_SECOND_TICK(50));
 	mpu9250_write_byte(MPU9250_ACCEL_CONFIG, 0x10); //full scale 8g     = 0x10
-	block_delay_ms(1000000);
-#endif
+	vTaskDelay(MILLI_SECOND_TICK(50));
 
 	return 0;
 }
