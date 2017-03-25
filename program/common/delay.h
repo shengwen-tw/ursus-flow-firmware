@@ -7,7 +7,7 @@
 
 #define DELAY_MS_TWEAK 0
 
-void block_delay_ms(volatile uint32_t t_ms);
+void block_delay_ms(uint32_t t_ms);
 
 
 #endif
