@@ -78,9 +78,9 @@ static void mpu9250_read_unscaled_gyro(vector3d_16_t *unscaled_gyro_data)
 
 static void mpu9250_convert_to_scale(vector3d_16_t *unscaled_gyro_data, vector3d_f_t *scaled_gyro_data)
 {
-	scaled_gyro_data->x = unscaled_gyro_data->x * MPU9250G_1000dps - MPU9250_OFFSET_X;
-	scaled_gyro_data->y = unscaled_gyro_data->y * MPU9250G_1000dps - MPU9250_OFFSET_Y;
-	scaled_gyro_data->z = unscaled_gyro_data->z * MPU9250G_1000dps - MPU9250_OFFSET_Z;
+	scaled_gyro_data->x = -unscaled_gyro_data->x * MPU9250G_1000dps - MPU9250_OFFSET_X;
+	scaled_gyro_data->y = -unscaled_gyro_data->y * MPU9250G_1000dps - MPU9250_OFFSET_Y;
+	scaled_gyro_data->z = +unscaled_gyro_data->z * MPU9250G_1000dps - MPU9250_OFFSET_Z;
 }
 
 void mpu9250_read(vector3d_f_t *gyro_data)
