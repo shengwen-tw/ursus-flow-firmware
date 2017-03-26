@@ -18,6 +18,8 @@ int usb_read(uint8_t *buffer, int size, int timeout)
 	int rc = libusb_bulk_transfer(dev_handle, ep_in_address,
 	                              buffer, size, &received_len, timeout);
 
+	buffer[received_len] = '\0';
+
 	if (rc == LIBUSB_ERROR_TIMEOUT) {
 		return 0;
 	} else if (rc < 0) {
