@@ -26,7 +26,7 @@ void usb_link_task(void)
 	while(1) {
 #if (GYRO_CALIBRATE == 1)
 		sprintf(str,
-			"gyroscope drift x:%f y:%f z:%f\n\r"
+		        "gyroscope drift x:%f y:%f z:%f\n\r"
 		        "\x1b[H\x1b[2J",
 		        drift_x,
 		        drift_y,
@@ -35,7 +35,7 @@ void usb_link_task(void)
 
 #if (GYRO_PRINT == 1)
 		sprintf(str,
-			"gyroscope x:%f y:%f z:%f\n\r"
+		        "gyroscope x:%f y:%f z:%f\n\r"
 		        "\x1b[H\x1b[2J",
 		        gyro_data.x,
 		        gyro_data.y,

@@ -107,5 +107,5 @@ void HAL_Delay(volatile uint32_t millis)
  * the systick  */
 HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 {
-	return HAL_OK;	
+	return HAL_OK;
 }
