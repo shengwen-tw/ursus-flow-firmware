@@ -16,6 +16,7 @@
 #include "imu.h"
 
 #include "usb_link.h"
+#include "fcb_link.h"
 
 TaskHandle_t fcb_link_task_handle;
 TaskHandle_t usb_link_task_handle;
@@ -63,15 +64,6 @@ void flow_estimate_task(void)
 		state = (state + 1) % 2;
 
 		vTaskDelay(MILLI_SECOND_TICK(100));
-	}
-}
-
-void flight_ctrl_board_link_task(void)
-{
-	while(1) {
-		uart2_puts("Hello World\n\r");
-
-		vTaskDelay(MILLI_SECOND_TICK(500));
 	}
 }
 

@@ -105,7 +105,8 @@ SRC+=$(COMMON)/delay.c
 
 CFLAGS+=-I$(SYSTEM)
 SRC+=$(SYSTEM)/main.c \
-	$(SYSTEM)/usb_link.c
+	$(SYSTEM)/usb_link.c \
+	$(SYSTEM)/fcb_link.c
 
 CFLAGS+=-I./
 
