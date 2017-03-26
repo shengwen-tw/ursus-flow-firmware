@@ -19,7 +19,12 @@ TaskHandle_t usb_link_task_handle;
 
 void flow_estimate_task(void)
 {
-	while(mpu9250_init());
+	/* wait until the mcu peripherial initialization is finished */
+	vTaskDelay(MILLI_SECOND_TICK(5));
+
+	if(mpu9250_init()) {
+		while(1); //This is bad
+	}
 
 	/* successfully initialize the hardware == */
 	gpio_on(LED_3); //red led
