@@ -70,3 +70,18 @@ static void spi1_init(void)
 		//Error_Handler();
 	}
 }
+
+void spi1_write_byte(uint8_t data)
+{
+	//TODO:check transmit result!
+	HAL_SPI_Transmit(&spi1, &data, 1, UINT32_MAX);
+}
+
+uint8_t spi1_read_byte(void)
+{
+	//TODO:check receive result!
+	uint8_t received_data = 0;
+	HAL_SPI_Receive(&spi1, &received_data, 1, UINT32_MAX);
+
+	return received_data;
+}
