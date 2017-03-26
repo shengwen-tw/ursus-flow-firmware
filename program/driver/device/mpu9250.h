@@ -1,6 +1,8 @@
 #ifndef __MPU9250_H__
 #define __MPU9250_H__
 
+#include "imu.h"
+
 #define MPU9250_SMPLRT_DIV     ((uint8_t)0x19)
 #define MPU9250_CONFIG         ((uint8_t)0x1A)
 #define MPU9250_GYRO_CONFIG    ((uint8_t)0x1B)
@@ -45,8 +47,8 @@
 
 #define MPU9250T_85degC        ((float)0.00294f)   // 0.00294 degC/LSB
 
-extern SPI_HandleTypeDef spi1;
-
 int mpu9250_init(void);
+
+void mpu9250_read_unscaled_gyro(vector3d_16_t *unscaled_gyro_data);
 
 #endif

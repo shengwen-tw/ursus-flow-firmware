@@ -11,15 +11,16 @@
 #include "mpu9250.h"
 
 #include "delay.h"
+#include "imu.h"
 
 /* mpu9250 is low active */
-inline void mpu9250_select(void)
+__inline__ void mpu9250_select(void)
 {
 	gpio_off(MPU9250_CHIP_SELECTOR);
 }
 
 /* mpu9250 is low active */
-inline void mpu9250_deselect(void)
+__inline__ void mpu9250_deselect(void)
 {
 	gpio_on(MPU9250_CHIP_SELECTOR);
 }
@@ -31,8 +32,8 @@ uint8_t mpu9250_read_byte(uint8_t address)
 	uint8_t buffer = '\0';
 	address |= 0x80;
 
-	HAL_SPI_Transmit(MPU9250_SPI, &address, 1, 1000);
-	HAL_SPI_Receive(MPU9250_SPI, &buffer, 1, 1000);
+	spi1_write_byte(address);
+	buffer = spi1_read_byte();
 
 	mpu9250_deselect();
 
@@ -43,8 +44,8 @@ void mpu9250_write_byte(uint8_t address, uint8_t data)
 {
 	mpu9250_select();
 
-	HAL_SPI_Transmit(MPU9250_SPI, &address, 1, UINT32_MAX);
-	HAL_SPI_Transmit(MPU9250_SPI, &data, 1, UINT32_MAX);
+	spi1_write_byte(address);
+	spi1_write_byte(data);
 
 	mpu9250_deselect();
 }
@@ -52,6 +53,27 @@ void mpu9250_write_byte(uint8_t address, uint8_t data)
 uint8_t mpu9250_read_who_am_i(void)
 {
 	return mpu9250_read_byte(MPU9250_WHO_AM_I);
+}
+
+void mpu9250_read_unscaled_gyro(vector3d_16_t *unscaled_gyro_data)
+{
+	mpu9250_select();
+
+	uint8_t buffer[6] = {0};
+
+	spi1_write_byte(MPU9250_GYRO_XOUT_H | 0x80);	
+	buffer[0] = spi1_read_byte();
+	buffer[1] = spi1_read_byte();
+	buffer[2] = spi1_read_byte();
+	buffer[3] = spi1_read_byte();
+	buffer[4] = spi1_read_byte();
+	buffer[5] = spi1_read_byte();
+
+	unscaled_gyro_data->x = ((uint16_t)buffer[0] << 8) | (uint16_t)buffer[1];
+	unscaled_gyro_data->y = ((uint16_t)buffer[2] << 8) | (uint16_t)buffer[3];
+	unscaled_gyro_data->z = ((uint16_t)buffer[4] << 8) | (uint16_t)buffer[5];
+
+	mpu9250_deselect();
 }
 
 int mpu9250_init(void)
