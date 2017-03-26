@@ -58,9 +58,9 @@ int mpu9250_init(void)
 {
 	if(mpu9250_read_who_am_i() != 0x71) {
 		vTaskDelay(MILLI_SECOND_TICK(50));
-		return 1;	
+		return 1;
 	}
-	vTaskDelay(MILLI_SECOND_TICK(50));	
+	vTaskDelay(MILLI_SECOND_TICK(50));
 
 	mpu9250_write_byte(MPU9250_PWR_MGMT_1, 0x80);   //reset command     = 0x80
 	vTaskDelay(MILLI_SECOND_TICK(50));
