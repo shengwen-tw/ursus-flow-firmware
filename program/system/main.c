@@ -15,13 +15,12 @@
 #include "delay.h"
 #include "imu.h"
 
+#include "usb_link.h"
+
 TaskHandle_t fcb_link_task_handle;
 TaskHandle_t usb_link_task_handle;
 
 vector3d_f_t gyro_data;
-
-#define GYRO_CALIBRATE 0
-#define GYRO_PRINT     1
 
 #if (GYRO_CALIBRATE == 1)
 float drift_x = 0;
@@ -73,36 +72,6 @@ void flight_ctrl_board_link_task(void)
 		uart2_puts("Hello World\n\r");
 
 		vTaskDelay(MILLI_SECOND_TICK(500));
-	}
-}
-
-void usb_link_task(void)
-{
-	usb_fs_init();
-	char str[256] = {'\0'};
-
-	while(1) {
-#if (GYRO_CALIBRATE == 1)
-		sprintf(str,
-			"gyroscope drift x:%f y:%f z:%f\n\r"
-		        "\x1b[H\x1b[2J",
-		        drift_x,
-		        drift_y,
-		        drift_z);
-#endif
-
-#if (GYRO_PRINT == 1)
-		sprintf(str,
-			"gyroscope x:%f y:%f z:%f\n\r"
-		        "\x1b[H\x1b[2J",
-		        gyro_data.x,
-		        gyro_data.y,
-		        gyro_data.z);
-#endif
-
-		usb_cdc_send((uint8_t *)str, strlen(str));
-
-		vTaskDelay(100);
 	}
 }
 

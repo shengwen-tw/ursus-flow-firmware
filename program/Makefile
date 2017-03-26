@@ -104,7 +104,8 @@ CFLAGS+=-I$(COMMON)
 SRC+=$(COMMON)/delay.c
 
 CFLAGS+=-I$(SYSTEM)
-SRC+=./$(SYSTEM)/main.c
+SRC+=$(SYSTEM)/main.c \
+	$(SYSTEM)/usb_link.c
 
 CFLAGS+=-I./
 
