@@ -16,7 +16,7 @@ void spi_init(void)
  * SPI1 MOSI             = PA7
  * SPI1 MISO             = PB4
  * MPU9250 Chip Selector = PC4
- * Clock rate            = 13.5Mhz
+ * Clock rate            = 843.75khz
  * Clock polarity (idle) = high
  * Clock phase (sample)  = low
  */
@@ -31,7 +31,7 @@ static void spi1_init(void)
 	GPIO_InitTypeDef spi_gpio = {
 		.Pin = GPIO_PIN_5 | GPIO_PIN_7,
 		.Mode = GPIO_MODE_AF_PP,
-		.Pull = GPIO_NOPULL,
+		.Pull = GPIO_PULLUP,
 		.Speed = GPIO_SPEED_FREQ_VERY_HIGH,
 		.Alternate = GPIO_AF5_SPI1
 	};
@@ -58,7 +58,7 @@ static void spi1_init(void)
 	spi1.Init.CLKPolarity = SPI_POLARITY_HIGH; //idle when logic high
 	spi1.Init.CLKPhase = SPI_PHASE_2EDGE;      //falling edge
 	spi1.Init.NSS = SPI_NSS_SOFT;
-	spi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;  //13.5Mhz
+	spi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128;  //843.75khz
 	spi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
 	spi1.Init.TIMode = SPI_TIMODE_DISABLE;
 	spi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
