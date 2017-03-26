@@ -3,6 +3,12 @@
 
 #include "imu.h"
 
+/* calibration */
+#define MPU9250_OFFSET_X +1.478230f
+#define MPU9250_OFFSET_Y -0.152614f
+#define MPU9250_OFFSET_Z +0.406175f
+
+/* mpu9250 register map */
 #define MPU9250_SMPLRT_DIV     ((uint8_t)0x19)
 #define MPU9250_CONFIG         ((uint8_t)0x1A)
 #define MPU9250_GYRO_CONFIG    ((uint8_t)0x1B)
@@ -45,9 +51,10 @@
 #define MPU9250G_1000dps       ((float)0.030487804878f)  //0.030487804878 dps/LSB
 #define MPU9250G_2000dps       ((float)0.060975609756f)  //0.060975609756 dps/LSB
 
-#define MPU9250T_85degC        ((float)0.00294f)   // 0.00294 degC/LSB
+#define MPU9250T_85degC        ((float)0.00294f)         //0.00294 degC/LSB
 
 int mpu9250_init(void);
+void mpu9250_drift_error_estimate(float *drift_x, float *drift_y, float *drift_z);
 
 void mpu9250_read(vector3d_f_t *gyro_data);
 

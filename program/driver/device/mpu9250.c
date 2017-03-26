@@ -78,10 +78,9 @@ static void mpu9250_read_unscaled_gyro(vector3d_16_t *unscaled_gyro_data)
 
 static void mpu9250_convert_to_scale(vector3d_16_t *unscaled_gyro_data, vector3d_f_t *scaled_gyro_data)
 {
-	//TODO:do calibrate!
-	scaled_gyro_data->x = unscaled_gyro_data->x * MPU9250G_1000dps;
-	scaled_gyro_data->y = unscaled_gyro_data->y * MPU9250G_1000dps;
-	scaled_gyro_data->z = unscaled_gyro_data->z * MPU9250G_1000dps;
+	scaled_gyro_data->x = unscaled_gyro_data->x * MPU9250G_1000dps - MPU9250_OFFSET_X;
+	scaled_gyro_data->y = unscaled_gyro_data->y * MPU9250G_1000dps - MPU9250_OFFSET_Y;
+	scaled_gyro_data->z = unscaled_gyro_data->z * MPU9250G_1000dps - MPU9250_OFFSET_Z;
 }
 
 void mpu9250_read(vector3d_f_t *gyro_data)
@@ -90,6 +89,23 @@ void mpu9250_read(vector3d_f_t *gyro_data)
 
 	mpu9250_read_unscaled_gyro(&unscaled_gyro_data);
 	mpu9250_convert_to_scale(&unscaled_gyro_data, gyro_data);
+}
+
+void mpu9250_drift_error_estimate(float *drift_x, float *drift_y, float *drift_z)
+{
+	vector3d_f_t gyro_data;
+	*drift_x = *drift_y = *drift_z = 0;
+
+	int n = 10000;
+	int count = n;
+
+	while(count--) {
+		mpu9250_read(&gyro_data);
+		*drift_x += gyro_data.x / n;
+		*drift_y += gyro_data.y / n;
+		*drift_z += gyro_data.z / n;
+		vTaskDelay(MILLI_SECOND_TICK(1));
+	}
 }
 
 int mpu9250_init(void)

@@ -20,6 +20,15 @@ TaskHandle_t usb_link_task_handle;
 
 vector3d_f_t gyro_data;
 
+#define GYRO_CALIBRATE 0
+#define GYRO_PRINT     1
+
+#if (GYRO_CALIBRATE == 1)
+float drift_x = 0;
+float drift_y = 0;
+float drift_z = 0;
+#endif
+
 void flow_estimate_task(void)
 {
 	/* wait until the mcu peripherial initialization is finished */
@@ -34,6 +43,10 @@ void flow_estimate_task(void)
 	vTaskResume(fcb_link_task_handle);
 	vTaskResume(usb_link_task_handle);
 	/* ======================================= */
+
+#if (GYRO_CALIBRATE == 1)
+	mpu9250_drift_error_estimate(&drift_x, &drift_y, &drift_z);
+#endif
 
 	int state = 1;
 
@@ -50,7 +63,7 @@ void flow_estimate_task(void)
 
 		state = (state + 1) % 2;
 
-		vTaskDelay(MILLI_SECOND_TICK(500));
+		vTaskDelay(MILLI_SECOND_TICK(100));
 	}
 }
 
@@ -69,16 +82,27 @@ void usb_link_task(void)
 	char str[256] = {'\0'};
 
 	while(1) {
+#if (GYRO_CALIBRATE == 1)
+		sprintf(str,
+			"gyroscope drift x:%f y:%f z:%f\n\r"
+		        "\x1b[H\x1b[2J",
+		        drift_x,
+		        drift_y,
+		        drift_z);
+#endif
+
+#if (GYRO_PRINT == 1)
 		sprintf(str,
 			"gyroscope x:%f y:%f z:%f\n\r"
 		        "\x1b[H\x1b[2J",
 		        gyro_data.x,
 		        gyro_data.y,
 		        gyro_data.z);
+#endif
 
 		usb_cdc_send((uint8_t *)str, strlen(str));
 
-		vTaskDelay(500);
+		vTaskDelay(100);
 	}
 }
 
