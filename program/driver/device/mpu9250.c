@@ -55,13 +55,13 @@ uint8_t mpu9250_read_who_am_i(void)
 	return mpu9250_read_byte(MPU9250_WHO_AM_I);
 }
 
-void mpu9250_read_unscaled_gyro(vector3d_16_t *unscaled_gyro_data)
+static void mpu9250_read_unscaled_gyro(vector3d_16_t *unscaled_gyro_data)
 {
 	mpu9250_select();
 
 	uint8_t buffer[6] = {0};
 
-	spi1_write_byte(MPU9250_GYRO_XOUT_H | 0x80);	
+	spi1_write_byte(MPU9250_GYRO_XOUT_H | 0x80);
 	buffer[0] = spi1_read_byte();
 	buffer[1] = spi1_read_byte();
 	buffer[2] = spi1_read_byte();
@@ -74,6 +74,22 @@ void mpu9250_read_unscaled_gyro(vector3d_16_t *unscaled_gyro_data)
 	unscaled_gyro_data->z = ((uint16_t)buffer[4] << 8) | (uint16_t)buffer[5];
 
 	mpu9250_deselect();
+}
+
+static void mpu9250_convert_to_scale(vector3d_16_t *unscaled_gyro_data, vector3d_f_t *scaled_gyro_data)
+{
+	//TODO:do calibrate!
+	scaled_gyro_data->x = unscaled_gyro_data->x * MPU9250G_1000dps;
+	scaled_gyro_data->y = unscaled_gyro_data->y * MPU9250G_1000dps;
+	scaled_gyro_data->z = unscaled_gyro_data->z * MPU9250G_1000dps;
+}
+
+void mpu9250_read(vector3d_f_t *gyro_data)
+{
+	vector3d_16_t unscaled_gyro_data;
+
+	mpu9250_read_unscaled_gyro(&unscaled_gyro_data);
+	mpu9250_convert_to_scale(&unscaled_gyro_data, gyro_data);
 }
 
 int mpu9250_init(void)

@@ -13,9 +13,12 @@
 #include "mpu9250.h"
 
 #include "delay.h"
+#include "imu.h"
 
 TaskHandle_t fcb_link_task_handle;
 TaskHandle_t usb_link_task_handle;
+
+vector3d_f_t gyro_data;
 
 void flow_estimate_task(void)
 {
@@ -35,6 +38,8 @@ void flow_estimate_task(void)
 	int state = 1;
 
 	while(1) {
+		mpu9250_read(&gyro_data);
+
 		if(state == 1) {
 			gpio_on(LED_1);
 			//gpio_on(LED_2);
@@ -61,9 +66,16 @@ void flight_ctrl_board_link_task(void)
 void usb_link_task(void)
 {
 	usb_fs_init();
-	char *str = "hello usb cdc\n\r";
+	char str[256] = {'\0'};
 
 	while(1) {
+		sprintf(str,
+			"gyroscope x:%f y:%f z:%f\n\r"
+		        "\x1b[H\x1b[2J",
+		        gyro_data.x,
+		        gyro_data.y,
+		        gyro_data.z);
+
 		usb_cdc_send((uint8_t *)str, strlen(str));
 
 		vTaskDelay(500);

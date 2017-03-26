@@ -49,6 +49,6 @@
 
 int mpu9250_init(void);
 
-void mpu9250_read_unscaled_gyro(vector3d_16_t *unscaled_gyro_data);
+void mpu9250_read(vector3d_f_t *gyro_data);
 
 #endif
