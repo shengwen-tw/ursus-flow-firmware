@@ -35,6 +35,8 @@ int main(void)
 	pwm_init();
 	i2c_init();
 
+	mt9v034_init();
+
 	xTaskCreate((TaskFunction_t)flow_estimate_task, "flow estimate task",
 	            1024, (void *)0, tskIDLE_PRIORITY + 3, NULL);
 
