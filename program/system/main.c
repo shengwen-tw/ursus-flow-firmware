@@ -12,6 +12,7 @@
 #include "i2c.h"
 
 #include "mpu9250.h"
+#include "mt9v034.h"
 
 #include "flow.h"
 #include "usb_link.h"
