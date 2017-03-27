@@ -6,6 +6,7 @@ I2C_HandleTypeDef i2c1;
 
 void i2c_init(void)
 {
+	i2c1_init();
 }
 
 static void i2c1_init(void)
@@ -39,4 +40,9 @@ static void i2c1_init(void)
 	if(HAL_I2CEx_ConfigAnalogFilter(&i2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
 		//Error_Handler();
 	}
+}
+
+void i2c1_read(uint16_t device_address, uint8_t *data, uint16_t size)
+{
+	HAL_I2C_Master_Receive(&i2c1, device_address, data, size, UINT32_MAX);
 }

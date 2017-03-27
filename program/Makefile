@@ -65,7 +65,9 @@ SRC+=$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_cortex.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_ll_usb.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_pcd_ex.c \
 	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_tim_ex.c \
-	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_tim.c
+	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_tim.c \
+	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_i2c.c \
+	$(ST_PERIPHERIAL)/Src/stm32f7xx_hal_i2c_ex.c
 
 #ST usb library
 CFLAGS+=-I$(ST_USB_LIB)/Class/CDC/Inc
