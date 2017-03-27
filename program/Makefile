@@ -95,6 +95,7 @@ SRC+=$(DRIVER)/peripherial/core.c \
 	$(DRIVER)/peripherial/spi.c \
 	$(DRIVER)/peripherial/interrupt.c \
 	$(DRIVER)/peripherial/pwm.c \
+	$(DRIVER)/peripherial/i2c.c \
 	$(DRIVER)/peripherial/usb/usbd_cdc_if.c \
 	$(DRIVER)/peripherial/usb/usbd_conf.c \
 	$(DRIVER)/peripherial/usb/usbd_desc.c \

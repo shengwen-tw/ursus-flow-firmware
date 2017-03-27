@@ -9,6 +9,7 @@
 #include "uart.h"
 #include "spi.h"
 #include "pwm.h"
+#include "i2c.h"
 
 #include "mpu9250.h"
 
@@ -31,6 +32,7 @@ int main(void)
 	uart_init();
 	spi_init();
 	pwm_init();
+	i2c_init();
 
 	xTaskCreate((TaskFunction_t)flow_estimate_task, "flow estimate task",
 	            1024, (void *)0, tskIDLE_PRIORITY + 3, NULL);
