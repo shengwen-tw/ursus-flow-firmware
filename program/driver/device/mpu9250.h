@@ -4,7 +4,7 @@
 #include "imu.h"
 
 /* calibration */
-#define MPU9250_OFFSET_X +1.478230f
+#define MPU9250_OFFSET_X -1.478230f
 #define MPU9250_OFFSET_Y -0.152614f
 #define MPU9250_OFFSET_Z +0.406175f
 
