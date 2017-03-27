@@ -10,11 +10,11 @@ void pwm_init(void)
 }
 
 /*
- * Timer3 channel2 - PWM
  * Generate clock signal for MT9V034
- * Frequency   : 18Mhz
- * High period : 50%
- * Low period  : 50%
+ * Timer3 channel2 : PWM
+ * Frequency       : 18Mhz
+ * High duty cycle : 50%
+ * Low duty cycle  : 50%
  */
 static void timer3_pwm_init(void)
 {
