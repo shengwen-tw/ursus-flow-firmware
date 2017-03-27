@@ -8,6 +8,7 @@
 #include "gpio.h"
 #include "uart.h"
 #include "spi.h"
+#include "pwm.h"
 
 #include "mpu9250.h"
 
@@ -29,6 +30,7 @@ int main(void)
 	gpio_init();
 	uart_init();
 	spi_init();
+	pwm_init();
 
 	xTaskCreate((TaskFunction_t)flow_estimate_task, "flow estimate task",
 	            1024, (void *)0, tskIDLE_PRIORITY + 3, NULL);
