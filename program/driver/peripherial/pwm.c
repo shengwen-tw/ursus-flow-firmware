@@ -9,6 +9,13 @@ void pwm_init(void)
 	timer3_pwm_init();
 }
 
+/*
+ * Timer3 channel2 - PWM
+ * Generate clock signal for MT9V034
+ * Frequency   : 18Mhz
+ * High period : 50%
+ * Low period  : 50%
+ */
 static void timer3_pwm_init(void)
 {
 	__HAL_RCC_TIM3_CLK_ENABLE();
@@ -26,7 +33,7 @@ static void timer3_pwm_init(void)
 	pwm_timer3.Instance = TIM3;
 	pwm_timer3.Init.Prescaler = 1 - 1;
 	pwm_timer3.Init.CounterMode = TIM_COUNTERMODE_UP;
-	pwm_timer3.Init.Period = 4 - 1;
+	pwm_timer3.Init.Period = 6 - 1;
 	pwm_timer3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 
 	if(HAL_TIM_PWM_Init(&pwm_timer3) != HAL_OK) {
@@ -44,7 +51,7 @@ static void timer3_pwm_init(void)
 
 	TIM_OC_InitTypeDef pwm_oc_config = {
 		.OCMode = TIM_OCMODE_PWM1,
-		.Pulse = 2 - 1,
+		.Pulse = 4 - 1,
 		.OCPolarity = TIM_OCPOLARITY_HIGH,
 		.OCFastMode = TIM_OCFAST_ENABLE
 	};
