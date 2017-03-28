@@ -9,6 +9,11 @@ void i2c_init(void)
 	i2c1_init();
 }
 
+/*
+ * MT9V034 control = I2C1
+ * Clock frequency = 40khz
+ * Mode            = 7-bit master
+ */
 static void i2c1_init(void)
 {
 	__HAL_RCC_I2C1_CLK_ENABLE();
@@ -24,7 +29,7 @@ static void i2c1_init(void)
 	HAL_GPIO_Init(GPIOB, &i2c_gpio);
 
 	i2c1.Instance = I2C1;
-	i2c1.Init.Timing = 0x6000030D;
+	i2c1.Init.Timing = 0x2040BEFF;
 	i2c1.Init.OwnAddress1 = 0;
 	i2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
 	i2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -40,6 +45,11 @@ static void i2c1_init(void)
 	if(HAL_I2CEx_ConfigAnalogFilter(&i2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
 		//Error_Handler();
 	}
+}
+
+void i2c1_set_flag(uint32_t flag)
+{
+	i2c1.XferOptions = flag;
 }
 
 void i2c1_write(uint16_t device_address, uint8_t *data, uint16_t size)
