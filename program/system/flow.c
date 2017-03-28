@@ -7,6 +7,7 @@
 #include "gpio.h"
 
 #include "mpu9250.h"
+#include "mt9v034.h"
 
 #include "delay.h"
 #include "imu.h"
@@ -31,6 +32,10 @@ void flow_estimate_task(void)
 	vTaskDelay(MILLI_SECOND_TICK(5));
 
 	if(mpu9250_init()) {
+		while(1); //This is bad
+	}
+
+	if(mt9v034_init()) {
 		while(1); //This is bad
 	}
 
