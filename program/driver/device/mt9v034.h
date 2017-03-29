@@ -12,7 +12,7 @@
 #define MT9V034_COLUMN_START_A             0x01
 #define MT9V034_ROW_START_A                0x02
 #define MT9V034_WINDOW_HEIGHT_A            0x03
-#define MT9V034_WINDOW_WIDTH_B             0x04
+#define MT9V034_WINDOW_WIDTH_A             0x04
 #define MT9V034_HORIZONTAL_BLANKING_A      0x05
 #define MT9V034_VERTICAL_BLANKING_A        0x06
 #define MT9V034_COARSE_SW_1_A              0x08
@@ -29,6 +29,27 @@
 #define MT9V034_V4_CTRL_A                  0x34
 #define MT9V034_ANALOG_GAIN_CTRL_A         0x35
 
+#define MT9V034_COLUMN_START_B             0xc9
+#define MT9V034_ROW_START_B                0xca
+#define MT9V034_WINDOW_HEIGHT_B            0xcb
+#define MT9V034_WINDOW_WIDTH_B             0xcc
+#define MT9V034_HORIZONTAL_BLANKING_B      0xcd
+#define MT9V034_VERTICAL_BLANKING_B        0xce
+#define MT9V034_COARSE_SW_1_B              0xcf
+#define MT9V034_COARSE_SW_2_B              0xd0
+#define MT9V034_COARSE_SW_CTRL_B           0xd1
+#define MT9V034_COARSE_SW_TOTAL_B          0xd2
+#define MT9V034_FINE_SW_1_B                0xd6
+#define MT9V034_FINE_SW_2_B                0xd7
+#define MT9V034_FINE_SW_TOTAL_B            0xd8
+#define MT9V034_READ_MODE_B                0x0e
+#define MT9V034_V1_CTRL_B                  0x39
+#define MT9V034_V2_CTRL_B                  0x3a
+#define MT9V034_V3_CTRL_B                  0x3b
+#define MT9V034_V4_CTRL_B                  0x3c
+#define MT9V034_ANALOG_GAIN_CTRL_B         0x36
+
 int mt9v034_init(void);
+bool mt9v034_calibration_is_on(void);
 
 #endif
