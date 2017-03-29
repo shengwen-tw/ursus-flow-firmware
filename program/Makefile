@@ -18,7 +18,7 @@ GDB=arm-none-eabi-gdb
 #Flags
 CFLAGS=-g -O2 -mlittle-endian -mthumb -std=gnu99
 CFLAGS+=-mcpu=cortex-m7
-CFLAGS+=-mfpu=fpv5-sp-d16 -mfloat-abi=hard
+CFLAGS+=-mfpu=fpv5-d16 -mfloat-abi=hard
 CFLAGS+=-ffunction-sections -fdata-sections -ffast-math
 CFLAGS+=--specs=nano.specs --specs=nosys.specs -fno-builtin-printf
 CFLAGS+=-Wall -Wno-strict-aliasing
