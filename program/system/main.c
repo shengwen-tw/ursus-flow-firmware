@@ -10,6 +10,7 @@
 #include "spi.h"
 #include "pwm.h"
 #include "i2c.h"
+#include "dcmi.h"
 
 #include "mpu9250.h"
 #include "mt9v034.h"
@@ -34,6 +35,7 @@ int main(void)
 	spi_init();
 	pwm_init();
 	i2c_init();
+	dcmi_init();
 
 	xTaskCreate((TaskFunction_t)flow_estimate_task, "flow estimate task",
 	            1024, (void *)0, tskIDLE_PRIORITY + 3, NULL);
