@@ -50,7 +50,6 @@ void dcmi_init(void)
 	dcmi_gpio.Pin = GPIO_PIN_7;
 	HAL_GPIO_Init(GPIOB, &dcmi_gpio);
 
-	/* Peripheral DMA init*/
 	dcmi_dma.Instance = DMA2_Stream1;
 	dcmi_dma.Init.Channel = DMA_CHANNEL_1;
 	dcmi_dma.Init.Direction = DMA_PERIPH_TO_MEMORY;
