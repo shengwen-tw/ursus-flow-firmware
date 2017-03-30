@@ -28,6 +28,7 @@ void dcmi_init(void)
 	__HAL_RCC_GPIOD_CLK_ENABLE();
 	__HAL_RCC_GPIOE_CLK_ENABLE();
 	__HAL_RCC_DCMI_CLK_ENABLE();
+	__HAL_RCC_DMA2_CLK_ENABLE();
 
 	GPIO_InitTypeDef dcmi_gpio = {
 		.Pin = GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_1,
@@ -57,7 +58,7 @@ void dcmi_init(void)
 	dcmi_dma.Init.MemInc = DMA_MINC_ENABLE;
 	dcmi_dma.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
 	dcmi_dma.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-	dcmi_dma.Init.Mode = DMA_NORMAL;
+	dcmi_dma.Init.Mode = DMA_CIRCULAR;
 	dcmi_dma.Init.Priority = DMA_PRIORITY_VERY_HIGH;
 	dcmi_dma.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
 
