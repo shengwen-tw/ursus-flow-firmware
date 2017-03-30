@@ -18,7 +18,7 @@
 extern TaskHandle_t fcb_link_task_handle;
 extern TaskHandle_t usb_link_task_handle;
 
-uint32_t image_buffer[IMG_WIDTH][IMG_HEIGHT];
+uint16_t image_buffer[IMG_WIDTH][IMG_HEIGHT];
 
 vector3d_f_t gyro_data;
 

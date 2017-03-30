@@ -96,7 +96,7 @@ void dcmi_init(void)
 void dcmi_dma_config(uint32_t buffer_address, uint32_t image_width, uint32_t image_height)
 {
 	__HAL_DCMI_ENABLE_IT(&dcmi, DCMI_IT_FRAME);
-	HAL_DCMI_Start_DMA(&dcmi, DCMI_MODE_CONTINUOUS, buffer_address, image_width * image_height);
+	HAL_DCMI_Start_DMA(&dcmi, DCMI_MODE_CONTINUOUS, buffer_address, image_width * image_height / 2);
 }
 
 void DCMI_IRQHandler(void)
