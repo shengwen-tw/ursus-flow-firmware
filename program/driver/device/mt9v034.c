@@ -7,12 +7,13 @@
 #include "task.h"
 
 #include "i2c.h"
+#include "dcmi.h"
 
 #include "mt9v034.h"
 
 #include "delay.h"
 
-bool calibration_enabled = true;
+#define CALIBRATION_ENABLED 1
 
 static uint16_t mt9v034_read_half_word(uint8_t address)
 {
@@ -49,8 +50,8 @@ static void mt9v034_context_config(void)
 	/* context b : calibration mode (full size image and no binning) */
 	mt9v034_write_half_word(MT9V034_COLUMN_START_B, 1);
 	mt9v034_write_half_word(MT9V034_ROW_START_B, 4);
-	mt9v034_write_half_word(MT9V034_WINDOW_HEIGHT_B, 480);
-	mt9v034_write_half_word(MT9V034_WINDOW_WIDTH_B, 752);
+	mt9v034_write_half_word(MT9V034_WINDOW_HEIGHT_B, 120); //480 / 4
+	mt9v034_write_half_word(MT9V034_WINDOW_WIDTH_B, 188);  //752 / 4
 	//mt9v034_write_half_word(MT9V034_HORIZONTAL_BLANKING_B, );
 	//mt9v034_write_half_word(MT9V034_VERTICAL_BLANKING_B, );
 	//mt9v034_write_half_word(MT9V034_COARSE_SW_1_B, );
@@ -60,7 +61,7 @@ static void mt9v034_context_config(void)
 	mt9v034_write_half_word(MT9V034_READ_MODE_B, 0x300); //[9:8] reserved
 
 	/* chip control register [16-bits]:
-	 * [2:0] : scan mode = progressive scan (0) 
+	 * [2:0] : scan mode = progressive scan (0)
 	 * [4:3] : sensor operating mode = master mode (1)
 	 * [5]   : stereoscopy mode = disabled (0)
 	 * [6]   : stereoscopic master/slave mode = not used (0)
@@ -69,14 +70,14 @@ static void mt9v034_context_config(void)
 	 * [9]   : reserved = (0) according to datasheet
 	 * [15]  : context a/b select = a (0) / b (1)
 	 */
-	if(calibration_enabled == true) {
-		mt9v034_write_half_word(MT9V032_CHIP_CONTROL, 0x8188);
-	} else {
-		mt9v034_write_half_word(MT9V032_CHIP_CONTROL, 0x0188);
-	}
+#if (CALIBRATION_ENABLED == 1)
+	mt9v034_write_half_word(MT9V032_CHIP_CONTROL, 0x8188);
+#else
+	mt9v034_write_half_word(MT9V032_CHIP_CONTROL, 0x0188);
+#endif
 }
 
-int mt9v034_init(void)
+int mt9v034_init(uint32_t image_buffer_address)
 {
 	uint16_t chip_version = mt9v034_read_half_word(MT9V034_CHIP_VERSION);
 
@@ -88,10 +89,12 @@ int mt9v034_init(void)
 
 	mt9v034_write_half_word(MT9V034_RESET, 0x01); //reset mt9v034
 
+	dcmi_dma_config(image_buffer_address, IMG_WIDTH, IMG_HEIGHT);
+
 	return 0;
 }
 
 bool mt9v034_calibration_is_on(void)
 {
-	return calibration_enabled;
+	return CALIBRATION_ENABLED;
 }

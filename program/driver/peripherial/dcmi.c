@@ -83,6 +83,24 @@ void dcmi_init(void)
 	}
 
 	__HAL_LINKDMA(&dcmi,DMA_Handle,dcmi_dma);
+
+	HAL_NVIC_SetPriority(DCMI_IRQn,
+	                     configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1, 1);
+	HAL_NVIC_SetPriority(DMA2_Stream1_IRQn,
+	                     configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1, 1);
+	HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
+	HAL_NVIC_EnableIRQ(DCMI_IRQn);
+}
+
+void dcmi_dma_config(uint32_t buffer_address, uint32_t image_width, uint32_t image_height)
+{
+	__HAL_DCMI_ENABLE_IT(&dcmi, DCMI_IT_FRAME);
+	HAL_DCMI_Start_DMA(&dcmi, DCMI_MODE_CONTINUOUS, buffer_address, image_width * image_height);
+}
+
+void DCMI_IRQHandler(void)
+{
+	HAL_DCMI_IRQHandler(&dcmi);
 }
 
 void DMA2_Stream1_IRQHandler(void)

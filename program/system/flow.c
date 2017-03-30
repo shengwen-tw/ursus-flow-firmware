@@ -18,6 +18,8 @@
 extern TaskHandle_t fcb_link_task_handle;
 extern TaskHandle_t usb_link_task_handle;
 
+uint32_t image_buffer[IMG_WIDTH][IMG_HEIGHT];
+
 vector3d_f_t gyro_data;
 
 #if (GYRO_CALIBRATE == 1)
@@ -35,7 +37,7 @@ void flow_estimate_task(void)
 		while(1); //This is bad
 	}
 
-	if(mt9v034_init()) {
+	if(mt9v034_init((uint32_t)image_buffer)) {
 		while(1); //This is bad
 	}
 

@@ -3,6 +3,21 @@
 
 #include "stdbool.h"
 
+/* ============= camera setting ============= */
+#define FLOW_IMG_WIDTH      64
+#define FLOW_IMG_HEIGHT     64
+#define CALIB_IMG_WIDTH     188
+#define CALIB_IMG_HEIGHT    120
+
+#if (CALIBRATION_ENABLED == 1)
+#define IMG_HEIGHT FLOW_IMG_HEIGHT
+#define IMG_WIDTH  FLOW_IMG_WIDTH
+#else
+#define IMG_HEIGHT CALIB_IMG_HEIGHT
+#define IMG_WIDTH  CALIB_IMG_WIDTH
+#endif
+
+/* ========== mt9v034 register map ========== */
 #define MT9V034_DEV_ADDRESS                0x90
 
 #define MT9V034_CHIP_VERSION               0x00
@@ -51,7 +66,7 @@
 #define MT9V034_V4_CTRL_B                  0x3c
 #define MT9V034_ANALOG_GAIN_CTRL_B         0x36
 
-int mt9v034_init(void);
+int mt9v034_init(uint32_t image_buffer_address);
 bool mt9v034_calibration_is_on(void);
 
 #endif
