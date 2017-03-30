@@ -50,8 +50,8 @@ static void mt9v034_context_config(void)
 	/* context b : calibration mode (full size image and no binning) */
 	mt9v034_write_half_word(MT9V034_COLUMN_START_B, 1);
 	mt9v034_write_half_word(MT9V034_ROW_START_B, 4);
-	mt9v034_write_half_word(MT9V034_WINDOW_HEIGHT_B, 120); //480 / 4
-	mt9v034_write_half_word(MT9V034_WINDOW_WIDTH_B, 188);  //752 / 4
+	mt9v034_write_half_word(MT9V034_WINDOW_HEIGHT_B, CALIB_IMG_HEIGHT); //120 
+	mt9v034_write_half_word(MT9V034_WINDOW_WIDTH_B, CALIB_IMG_WIDTH);  //188
 	//mt9v034_write_half_word(MT9V034_HORIZONTAL_BLANKING_B, );
 	//mt9v034_write_half_word(MT9V034_VERTICAL_BLANKING_B, );
 	//mt9v034_write_half_word(MT9V034_COARSE_SW_1_B, );
