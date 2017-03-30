@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include "stm32f7xx.h"
 #include "stm32f7xx_hal.h"
 
@@ -22,11 +24,11 @@ uint16_t image_buffer[IMG_WIDTH][IMG_HEIGHT];
 
 vector3d_f_t gyro_data;
 
-#if (GYRO_CALIBRATE == 1)
+bool do_gyro_calibrate = false; //set true to eanble the calibration function
+
 float drift_x = 0;
 float drift_y = 0;
 float drift_z = 0;
-#endif
 
 void flow_estimate_task(void)
 {
@@ -47,9 +49,9 @@ void flow_estimate_task(void)
 	vTaskResume(usb_link_task_handle);
 	/* ======================================== */
 
-#if (GYRO_CALIBRATE == 1)
-	mpu9250_drift_error_estimate(&drift_x, &drift_y, &drift_z);
-#endif
+	if(do_gyro_calibrate == true) {
+		mpu9250_drift_error_estimate(&drift_x, &drift_y, &drift_z);
+	}
 
 	int state = 1;
 
