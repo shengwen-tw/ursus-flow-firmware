@@ -25,6 +25,7 @@ int send_mode = USB_SEND_IMAGE;
 
 static void usb_send_image(void)
 {
+#if 0
 	uint16_t image_size = sizeof(image_buffer);
 
 	/* send header */
@@ -35,6 +36,7 @@ static void usb_send_image(void)
 	header[3] = image_size >> 8; //header[3:4] = image size
 	header[4] = image_size;
 	usb_cdc_send((uint8_t *)header, sizeof(header));
+#endif
 
 	/* send image */
 	usb_cdc_send((uint8_t *)image_buffer, sizeof(image_buffer));
