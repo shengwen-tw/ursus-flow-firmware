@@ -6,6 +6,9 @@
 #define VENDOR_ID  0x0483
 #define PRODUCT_ID 0x5740
 
+#define IMAGE_SIZE (188 * 120)
+#define BUFFER_SIZE (IMAGE_SIZE + 512)
+
 /* Use lsusb -v to find the correspond values */
 static int ep_in_address  = 0x81;
 static int ep_out_address = 0x01;
@@ -63,20 +66,22 @@ int main()
 	}
 
 	/* receive data from usb */
-	char buffer[65] = {'\0'};
+	uint16_t *buffer = (uint16_t *)malloc(sizeof(uint16_t) * BUFFER_SIZE);
+
 	while(1) {
-		int received_len = usb_read((uint8_t *)buffer, 64, 1000);
+		int received_len = usb_read((uint8_t *)buffer, IMAGE_SIZE * sizeof(buffer[0]), 1000);
 		if(received_len > 0) {
-			printf("%s", buffer);
+			printf("received new image, size = %d bytes\n", received_len);
 		} else if(received_len == 0) {
 			printf("usb reception timeout.\n");	
 		} else {
 			printf("\n[usb disconnected]\n");
-			return 0;
+			break;
 		}
 	}
 
 	/* close and exit */
+	free(buffer);
 	libusb_close(dev_handle);
 	libusb_exit(NULL);
 }
