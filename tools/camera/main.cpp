@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <usb.h>
 #include <libusb-1.0/libusb.h>
+#include "opencv2/opencv.hpp"
 
 #define VENDOR_ID  0x0483
 #define PRODUCT_ID 0x5740
@@ -67,11 +68,22 @@ int main()
 
 	/* receive data from usb */
 	uint16_t *buffer = (uint16_t *)malloc(sizeof(uint16_t) * BUFFER_SIZE);
+	cv::Mat cv_image;
 
 	while(1) {
 		int received_len = usb_read((uint8_t *)buffer, IMAGE_SIZE * sizeof(buffer[0]), 1000);
 		if(received_len > 0) {
 			printf("received new image, size = %d bytes\n", received_len);
+
+			for(int i = 0; i < IMAGE_SIZE; i++) {
+				buffer[i] = buffer[i] << 6;
+			}
+
+			//printf("%d\n", buffer[0]);
+
+			cv_image = cv::Mat(188, 120, CV_16UC1, buffer);
+			cv::imshow("ursus-flow camera", cv_image);
+			cv::waitKey(1);
 		} else if(received_len == 0) {
 			printf("usb reception timeout.\n");	
 		} else {
