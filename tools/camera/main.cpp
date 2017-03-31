@@ -81,7 +81,7 @@ int main()
 
 			//printf("%d\n", buffer[0]);
 
-			cv_image = cv::Mat(188, 120, CV_16UC1, buffer);
+			cv_image = cv::Mat(120, 188, CV_16UC1, buffer);
 			cv::imshow("ursus-flow camera", cv_image);
 			cv::waitKey(1);
 		} else if(received_len == 0) {
