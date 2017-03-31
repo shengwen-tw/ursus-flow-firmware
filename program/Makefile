@@ -170,6 +170,7 @@ clean:
 	rm -rf $(OBJECTS)
 
 flash: $(TARGET).bin
+	st-flash reset
 	st-flash write $(TARGET).bin 0x8000000
 
 openocd:
