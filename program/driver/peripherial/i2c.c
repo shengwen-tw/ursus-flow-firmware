@@ -103,3 +103,13 @@ void i2c1_read(uint16_t device_address, uint8_t *data, uint16_t size)
 {
 	HAL_I2C_Master_Receive(&i2c1, device_address, data, size, UINT32_MAX);
 }
+
+void i2c2_write(uint16_t device_address, uint8_t *data, uint16_t size)
+{
+	HAL_I2C_Master_Transmit(&i2c2, device_address, data, size, UINT32_MAX);
+}
+
+void i2c2_read(uint16_t device_address, uint8_t *data, uint16_t size)
+{
+	HAL_I2C_Master_Receive(&i2c2, device_address, data, size, UINT32_MAX);
+}
