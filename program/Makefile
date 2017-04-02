@@ -108,7 +108,8 @@ SRC+=$(DRIVER)/peripherial/core.c \
 
 CFLAGS+=-I$(DRIVER)/device
 SRC+=$(DRIVER)/device/mpu9250.c \
-	$(DRIVER)/device/mt9v034.c
+	$(DRIVER)/device/mt9v034.c \
+	$(DRIVER)/device/lidar.c
 
 CFLAGS+=-I$(COMMON)
 SRC+=$(COMMON)/delay.c

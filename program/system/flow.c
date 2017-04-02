@@ -10,6 +10,7 @@
 
 #include "mpu9250.h"
 #include "mt9v034.h"
+#include "lidar.h"
 
 #include "delay.h"
 #include "imu.h"
@@ -23,6 +24,7 @@ extern TaskHandle_t usb_link_task_handle;
 uint16_t image_buffer[IMG_WIDTH][IMG_HEIGHT];
 
 vector3d_f_t gyro_data;
+uint16_t lidar_distance;
 
 bool do_gyro_calibrate = false; //set true to eanble the calibration function
 
@@ -58,6 +60,8 @@ void flow_estimate_task(void)
 	while(1) {
 		mpu9250_read(&gyro_data);
 
+		lidar_distance = lidar_read_distance();
+	
 		if(state == 1) {
 			gpio_on(LED_1);
 			//gpio_on(LED_2);
