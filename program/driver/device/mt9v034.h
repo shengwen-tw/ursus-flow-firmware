@@ -29,6 +29,8 @@
 
 #define MT9V034_TEST_PATTERN                      0x7f
 
+#define MT9V034_HIGH_DYNAMIC_ENABLE               0x0f
+
 #define MT9V034_COLUMN_START_A                    0x01
 #define		MT9V034_COLUMN_START_MIN          1
 #define		MT9V034_COLUMN_START_MAX          752

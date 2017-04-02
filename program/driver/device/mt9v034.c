@@ -46,6 +46,7 @@ static void mt9v034_write_half_word(uint8_t address, uint16_t data)
 static void mt9v034_context_config(void)
 {
 	/* general setting */
+	mt9v034_write_half_word(MT9V034_HIGH_DYNAMIC_ENABLE, 0x0000); //disable HDR
 	
 	/* context a : optical flow mode (4x image binning) */
 
@@ -59,14 +60,14 @@ static void mt9v034_context_config(void)
 		(MT9V034_WINDOW_WIDTH_MAX - CALIB_IMG_WIDTH) / 2 + MT9V034_ROW_START_MIN
 	);
 	mt9v034_write_half_word(MT9V034_WINDOW_HEIGHT_B, CALIB_IMG_HEIGHT); //120 
-	mt9v034_write_half_word(MT9V034_WINDOW_WIDTH_B, CALIB_IMG_WIDTH);  //188
+	mt9v034_write_half_word(MT9V034_WINDOW_WIDTH_B, CALIB_IMG_WIDTH);   //188
 	mt9v034_write_half_word(MT9V034_HORIZONTAL_BLANKING_B, 709 + MT9V034_HORIZONTAL_BLANKING_MIN);
-	mt9v034_write_half_word(MT9V034_VERTICAL_BLANKING_B, 10);
-	mt9v034_write_half_word(MT9V034_COARSE_SW_1_B, 443); //default value
-	mt9v034_write_half_word(MT9V034_COARSE_SW_2_B, 473); //default value
+	mt9v034_write_half_word(MT9V034_VERTICAL_BLANKING_B, 500);
+	mt9v034_write_half_word(MT9V034_COARSE_SW_1_B, 443);       //default value
+	mt9v034_write_half_word(MT9V034_COARSE_SW_2_B, 473);       //default value
 	mt9v034_write_half_word(MT9V034_COARSE_SW_CTRL_B, 0x0164); //default value
-	mt9v034_write_half_word(MT9V034_COARSE_SW_TOTAL_B, 480); //default value
-	mt9v034_write_half_word(MT9V034_READ_MODE_B, 0x300); //[9:8] reserved
+	mt9v034_write_half_word(MT9V034_COARSE_SW_TOTAL_B, 480);   //default value
+	mt9v034_write_half_word(MT9V034_READ_MODE_B, 0x300);       //[9:8] reserved
 
 	/* chip control register [16-bits]:
 	 * [2:0] : scan mode = progressive scan (0)
