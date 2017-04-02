@@ -4,6 +4,7 @@
 #include "stdbool.h"
 
 /* ================ camera setting ================ */
+#define IMAGE_BINNING          4
 #define FLOW_IMG_WIDTH         64
 #define FLOW_IMG_HEIGHT        64
 #define CALIB_IMG_WIDTH        188
