@@ -17,14 +17,17 @@
 #define IMG_WIDTH  CALIB_IMG_WIDTH
 #endif
 
-/* ========== mt9v034 register map ========== */
+/* ======= mt9v034 i2c device address ======= */
 #define MT9V034_DEV_ADDRESS                0x90
 
+/* ========== mt9v034 register map ========== */
 #define MT9V034_CHIP_VERSION               0x00
 #define 	MT9V034_CHIP_ID_REV3       0x1324
 
 #define MT9V032_CHIP_CONTROL               0x07
 #define MT9V034_RESET                      0x0c
+
+#define MT9V034_TEST_PATTERN               0x7f
 
 #define MT9V034_COLUMN_START_A             0x01
 #define MT9V034_ROW_START_A                0x02

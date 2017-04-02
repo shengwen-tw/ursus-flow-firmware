@@ -77,6 +77,13 @@ static void mt9v034_context_config(void)
 #endif
 }
 
+void mt9v034_enable_test_pattern(void)
+{
+	//mt9v034_write_half_word(MT9V034_TEST_PATTERN, 0x2800); //shade in horizontal direction
+	//mt9v034_write_half_word(MT9V034_TEST_PATTERN, 0x3000); //shade in vertical direction
+	mt9v034_write_half_word(MT9V034_TEST_PATTERN, 0x3800); //shade in diagonal direction
+}
+
 int mt9v034_init(uint32_t image_buffer_address)
 {
 	uint16_t chip_version = mt9v034_read_half_word(MT9V034_CHIP_VERSION);
@@ -86,6 +93,8 @@ int mt9v034_init(uint32_t image_buffer_address)
 	}
 
 	mt9v034_context_config();
+
+	//mt9v034_enable_test_pattern();
 
 	mt9v034_write_half_word(MT9V034_RESET, 0x01); //reset mt9v034
 
