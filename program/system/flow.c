@@ -5,8 +5,10 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "semphr.h"
 
 #include "gpio.h"
+#include "timer.h"
 
 #include "mpu9250.h"
 #include "mt9v034.h"
@@ -20,6 +22,8 @@
 
 extern TaskHandle_t fcb_link_task_handle;
 extern TaskHandle_t usb_link_task_handle;
+
+SemaphoreHandle_t flow_task_semaphore;
 
 uint16_t image_buffer[IMG_WIDTH][IMG_HEIGHT];
 
@@ -55,13 +59,20 @@ void flow_estimate_task(void)
 		mpu9250_drift_error_estimate(&drift_x, &drift_y, &drift_z);
 	}
 
+	/* the flow task is triggered by timer using semaphore every 4ms (250hz) */
+	flow_task_semaphore = xSemaphoreCreateBinary();
+	xSemaphoreGive(flow_task_semaphore);
+	timer_init();
+
 	int state = 1;
 
 	while(1) {
+		while(xSemaphoreTake(flow_task_semaphore, portMAX_DELAY) == pdFALSE);
+
 		mpu9250_read(&gyro_data);
 
 		lidar_distance = lidar_read_distance();
-	
+
 		if(state == 1) {
 			gpio_on(LED_1);
 			//gpio_on(LED_2);
@@ -71,7 +82,13 @@ void flow_estimate_task(void)
 		}
 
 		state = (state + 1) % 2;
-
-		vTaskDelay(MILLI_SECOND_TICK(100));
 	}
+}
+
+void give_flow_task_semaphore_from_isr(void)
+{
+	long higher_priority_task_woken = pdFALSE;
+
+	xSemaphoreGiveFromISR(flow_task_semaphore, &higher_priority_task_woken);
+	portYIELD_FROM_ISR(higher_priority_task_woken);
 }

@@ -3,4 +3,6 @@
 
 void flow_estimate_task(void);
 
+void give_flow_task_semaphore_from_isr(void);
+
 #endif
