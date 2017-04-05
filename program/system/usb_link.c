@@ -16,6 +16,7 @@
 extern uint16_t image_buffer[IMG_WIDTH][IMG_HEIGHT];
 
 extern vector3d_f_t gyro_data;
+extern uint16_t lidar_distance;
 
 extern float drift_x;
 extern float drift_y;
@@ -68,6 +69,17 @@ static void usb_send_gyro_calibrate(void)
 	usb_cdc_send((uint8_t *)str, strlen(str));
 }
 
+static void usb_send_lidar(void)
+{
+	char str[256] = {'\0'};
+	sprintf(str,
+	        "lidar_distance: %d\n\r"
+	        "\x1b[H\x1b[2J",
+	        lidar_distance);
+
+	usb_cdc_send((uint8_t *)str, strlen(str));
+}
+
 void usb_link_task(void)
 {
 	usb_fs_init();
@@ -83,6 +95,9 @@ void usb_link_task(void)
 		case USB_SEND_GYRO_CALIB:
 			usb_send_gyro_calibrate();
 			break;
+		case USB_SEND_LIDAR:
+			usb_send_lidar();
+			break;			
 		}
 
 		vTaskDelay(100);
