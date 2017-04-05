@@ -47,19 +47,19 @@ static void mt9v034_context_config(void)
 {
 	/* general setting */
 	mt9v034_write_half_word(MT9V034_HIGH_DYNAMIC_ENABLE, 0x0000); //disable HDR
-	
+
 	/* context a : optical flow mode (4x image binning) */
 
 	/* context b : calibration mode (full size image and no binning) */
 	mt9v034_write_half_word(
-		MT9V034_COLUMN_START_B,
-		(MT9V034_WINDOW_HEIGHT_MAX - CALIB_IMG_HEIGHT * IMAGE_BINNING) / 2 + MT9V034_COLUMN_START_MIN
+	        MT9V034_COLUMN_START_B,
+	        (MT9V034_WINDOW_HEIGHT_MAX - CALIB_IMG_HEIGHT * IMAGE_BINNING) / 2 + MT9V034_COLUMN_START_MIN
 	);
 	mt9v034_write_half_word(
-		MT9V034_ROW_START_B,
-		(MT9V034_WINDOW_WIDTH_MAX - CALIB_IMG_WIDTH * IMAGE_BINNING) / 2 + MT9V034_ROW_START_MIN
+	        MT9V034_ROW_START_B,
+	        (MT9V034_WINDOW_WIDTH_MAX - CALIB_IMG_WIDTH * IMAGE_BINNING) / 2 + MT9V034_ROW_START_MIN
 	);
-	mt9v034_write_half_word(MT9V034_WINDOW_HEIGHT_B, CALIB_IMG_HEIGHT * IMAGE_BINNING); //120 
+	mt9v034_write_half_word(MT9V034_WINDOW_HEIGHT_B, CALIB_IMG_HEIGHT * IMAGE_BINNING); //120
 	mt9v034_write_half_word(MT9V034_WINDOW_WIDTH_B, CALIB_IMG_WIDTH * IMAGE_BINNING);   //188
 	mt9v034_write_half_word(MT9V034_HORIZONTAL_BLANKING_B, 709 + MT9V034_HORIZONTAL_BLANKING_MIN);
 	mt9v034_write_half_word(MT9V034_VERTICAL_BLANKING_B, 10);
@@ -79,11 +79,11 @@ static void mt9v034_context_config(void)
 	 * [9]   : reserved = (0) according to datasheet
 	 * [15]  : context a/b select = a (0) / b (1)
 	 */
-	#if (CALIBRATION_ENABLED == 1)
-		mt9v034_write_half_word(MT9V032_CHIP_CONTROL, 0x8188);
-	#else
-		mt9v034_write_half_word(MT9V032_CHIP_CONTROL, 0x0188);
-	#endif
+#if (CALIBRATION_ENABLED == 1)
+	mt9v034_write_half_word(MT9V032_CHIP_CONTROL, 0x8188);
+#else
+	mt9v034_write_half_word(MT9V032_CHIP_CONTROL, 0x0188);
+#endif
 }
 
 void mt9v034_enable_test_pattern(void)
