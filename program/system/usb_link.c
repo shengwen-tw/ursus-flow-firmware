@@ -73,8 +73,7 @@ static void usb_send_lidar(void)
 {
 	char str[256] = {'\0'};
 	sprintf(str,
-	        "lidar_distance: %d\n\r"
-	        "\x1b[H\x1b[2J",
+	        "lidar_distance: %dcm\n\r",
 	        lidar_distance);
 
 	usb_cdc_send((uint8_t *)str, strlen(str));
@@ -97,7 +96,7 @@ void usb_link_task(void)
 			break;
 		case USB_SEND_LIDAR:
 			usb_send_lidar();
-			break;			
+			break;
 		}
 
 		vTaskDelay(100);
