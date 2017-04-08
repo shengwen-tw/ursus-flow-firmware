@@ -64,8 +64,6 @@ void flow_estimate_task(void)
 	xSemaphoreGive(flow_task_semaphore);
 	timer_init();
 
-	int state = 1;
-
 	while(1) {
 		while(xSemaphoreTake(flow_task_semaphore, portMAX_DELAY) == pdFALSE);
 
@@ -73,15 +71,7 @@ void flow_estimate_task(void)
 
 		lidar_distance = lidar_read_distance();
 
-		if(state == 1) {
-			gpio_on(LED_1);
-			//gpio_on(LED_2);
-		} else {
-			gpio_off(LED_1);
-			//gpio_off(LED_2);
-		}
-
-		state = (state + 1) % 2;
+		gpio_toggle(LED_1);
 	}
 }
 

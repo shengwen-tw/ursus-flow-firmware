@@ -7,6 +7,7 @@
 
 #define gpio_on(pin) HAL_GPIO_WritePin(pin, GPIO_PIN_SET)
 #define gpio_off(pin) HAL_GPIO_WritePin(pin, GPIO_PIN_RESET)
+#define gpio_toggle(pin) HAL_GPIO_TogglePin(pin)
 
 void gpio_init(void);
 
