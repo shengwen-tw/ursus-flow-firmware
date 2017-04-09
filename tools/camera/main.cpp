@@ -10,6 +10,8 @@
 #define IMAGE_SIZE (188 * 120)
 #define BUFFER_SIZE (IMAGE_SIZE + 512)
 
+#define PACKET_HEADER_SIZE 3
+
 /* Use lsusb -v to find the correspond values */
 static int ep_in_address  = 0x81;
 static int ep_out_address = 0x01;
@@ -68,10 +70,21 @@ int main()
 
 	/* receive data from usb */
 	uint16_t *buffer = (uint16_t *)malloc(sizeof(uint16_t) * BUFFER_SIZE);
+	int size_to_receive = IMAGE_SIZE * sizeof(buffer[0]);
+	int received_len;
 	cv::Mat cv_image;
 
 	while(1) {
-		int received_len = usb_read((uint8_t *)buffer, IMAGE_SIZE * sizeof(buffer[0]), 1000);
+		/* wait for header message */
+		received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
+		if(received_len > PACKET_HEADER_SIZE) {
+			continue;
+		}
+
+		/* receive camera image in two parts */
+		received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
+		received_len = usb_read((uint8_t *)buffer + received_len, size_to_receive, 1000);
+
 		if(received_len > 0) {
 			printf("received new image, size = %d bytes\n", received_len);
 
