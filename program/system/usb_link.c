@@ -26,21 +26,14 @@ int send_mode = USB_SEND_IMAGE;
 
 static void usb_send_image(void)
 {
-#if 0
-	uint16_t image_size = sizeof(image_buffer);
+	/* The size of the data is too big so need to be seperated into 3 part */
+	char *start_message = "@uf";
+	usb_cdc_send((uint8_t *)start_message, strlen(start_message));
 
-	/* send header */
-	uint8_t header[5];
-	header[0] = '@'; //header[0:2] = start symbols "@uf"
-	header[1] = 'u';
-	header[2] = 'f';
-	header[3] = image_size >> 8; //header[3:4] = image size
-	header[4] = image_size;
-	usb_cdc_send((uint8_t *)header, sizeof(header));
-#endif
-
-	/* send image */
-	usb_cdc_send((uint8_t *)image_buffer, sizeof(image_buffer));
+	/* image */
+	const size_t half_image_size = sizeof(image_buffer) / 2;
+	usb_cdc_send((uint8_t *)image_buffer, half_image_size);
+	usb_cdc_send((uint8_t *)image_buffer + half_image_size, half_image_size);
 }
 
 static void usb_send_gyro(void)
@@ -99,6 +92,6 @@ void usb_link_task(void)
 			break;
 		}
 
-		vTaskDelay(100);
+		vTaskDelay(MILLI_SECOND_TICK(100));
 	}
 }
