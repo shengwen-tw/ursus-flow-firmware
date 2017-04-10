@@ -10,7 +10,7 @@
 #define IMAGE_SIZE (188 * 120)
 #define BUFFER_SIZE (IMAGE_SIZE + 512)
 
-#define PACKET_HEADER_SIZE 3
+#define PACKET_HEADER_SIZE 5
 
 /* Use lsusb -v to find the correspond values */
 static int ep_in_address  = 0x81;
@@ -74,19 +74,29 @@ int main()
 	int received_len;
 	cv::Mat cv_image;
 
+	uint16_t lidar_distance = 0;
+
 	while(1) {
 		/* wait for header message */
 		received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
-		if(received_len > PACKET_HEADER_SIZE) {
+
+		if(received_len == 0 || received_len == -1) {
+			printf("\n[usb disconnected]\n");
+			break;
+		} else if(received_len != PACKET_HEADER_SIZE) {
 			continue;
 		}
+
+		/* Lidar distance */
+		memcpy(&lidar_distance, (uint8_t *)buffer + 3, sizeof(uint16_t));
+		printf("lidar distance: %dcm\n", lidar_distance);
 
 		/* receive camera image in two parts */
 		received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
 		received_len = usb_read((uint8_t *)buffer + received_len, size_to_receive, 1000);
 
 		if(received_len > 0) {
-			printf("received new image, size = %d bytes\n", received_len);
+			//printf("received new image, size = %d bytes\n", received_len);
 
 			for(int i = 0; i < IMAGE_SIZE; i++) {
 				buffer[i] = buffer[i] << 6;
@@ -98,9 +108,7 @@ int main()
 			cv::resize(cv_image, cv_image, cv::Size(188 * 4, 120 * 4));
 			cv::imshow("ursus-flow camera", cv_image);
 			cv::waitKey(1);
-		} else if(received_len == 0) {
-			printf("usb reception timeout.\n");	
-		} else {
+		} else if(received_len == 0 || received_len == -1) {
 			printf("\n[usb disconnected]\n");
 			break;
 		}
