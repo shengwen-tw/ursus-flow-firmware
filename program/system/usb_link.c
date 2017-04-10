@@ -13,6 +13,8 @@
 
 #include "usb_link.h"
 
+#define HEADER_MSG_SIZE 5
+
 extern uint16_t image_buffer[IMG_WIDTH][IMG_HEIGHT];
 
 extern vector3d_f_t gyro_data;
@@ -27,8 +29,12 @@ int send_mode = USB_SEND_IMAGE;
 static void usb_send_image(void)
 {
 	/* The size of the data is too big so need to be seperated into 3 part */
-	char *start_message = "@uf";
-	usb_cdc_send((uint8_t *)start_message, strlen(start_message));
+	char header_message[HEADER_MSG_SIZE];
+	header_message[0] = '@';
+	header_message[1] = 'u';
+	header_message[2] = 'f';
+	memcpy(header_message + 3, &lidar_distance, sizeof(uint16_t));
+	usb_cdc_send((uint8_t *)header_message, HEADER_MSG_SIZE);
 
 	/* image */
 	const size_t half_image_size = sizeof(image_buffer) / 2;
@@ -62,15 +68,6 @@ static void usb_send_gyro_calibrate(void)
 	usb_cdc_send((uint8_t *)str, strlen(str));
 }
 
-static void usb_send_lidar(void)
-{
-	char str[256] = {'\0'};
-	sprintf(str,
-	        "lidar_distance: %dcm\n\r",
-	        lidar_distance);
-
-	usb_cdc_send((uint8_t *)str, strlen(str));
-}
 
 void usb_link_task(void)
 {
@@ -86,9 +83,6 @@ void usb_link_task(void)
 			break;
 		case USB_SEND_GYRO_CALIB:
 			usb_send_gyro_calibrate();
-			break;
-		case USB_SEND_LIDAR:
-			usb_send_lidar();
 			break;
 		}
 
