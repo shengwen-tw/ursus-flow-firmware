@@ -66,11 +66,13 @@ void flow_estimate_task(void)
 	while(1) {
 		while(xSemaphoreTake(flow_task_semaphore, portMAX_DELAY) == pdFALSE);
 
+		gpio_off(LED_1);
+
 		mpu9250_read(&gyro_data);
 
 		lidar_distance = lidar_read_distance();
 
-		gpio_toggle(LED_1);
+		gpio_on(LED_1);
 	}
 }
 
