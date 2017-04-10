@@ -41,6 +41,6 @@ asan_run:
 astyle:
 	cd ..
 	astyle -r --style=linux --indent=tab=8 *.cpp *.hpp
-	cd camera/
+	cd monitor/
 
 #===============================================================#	
