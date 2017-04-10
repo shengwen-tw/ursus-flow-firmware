@@ -18,7 +18,7 @@ static void timer10_init(void)
 	__HAL_RCC_TIM10_CLK_ENABLE();
 
 	timer10.Instance = TIM10;
-	timer10.Init.Prescaler = 432 - 1;
+	timer10.Init.Prescaler = 864 - 1;
 	timer10.Init.CounterMode = TIM_COUNTERMODE_UP;
 	timer10.Init.Period = 1000 - 1;
 	timer10.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
