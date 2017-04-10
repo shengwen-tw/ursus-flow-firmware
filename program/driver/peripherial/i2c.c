@@ -32,7 +32,7 @@ static void i2c1_init(void)
 	HAL_GPIO_Init(GPIOB, &i2c_gpio);
 
 	i2c1.Instance = I2C1;
-	i2c1.Init.Timing = 0x2040BEFF;
+	i2c1.Init.Timing = 0x2040beff;
 	i2c1.Init.OwnAddress1 = 0;
 	i2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
 	i2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -52,7 +52,7 @@ static void i2c1_init(void)
 
 /*
  * MT9V034 control = I2C2
- * Clock frequency = 10khz
+ * Clock frequency = 70khz
  * Mode            = 7-bit master
  */
 static void i2c2_init(void)
@@ -71,7 +71,7 @@ static void i2c2_init(void)
 	HAL_GPIO_Init(GPIOB, &i2c_gpio);
 
 	i2c2.Instance = I2C2;
-	i2c2.Init.Timing = 0xA010E9FF;
+	i2c2.Init.Timing = 0x10207cff;
 	i2c2.Init.OwnAddress1 = 0;
 	i2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
 	i2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
