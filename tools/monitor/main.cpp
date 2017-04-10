@@ -10,7 +10,7 @@
 #define IMAGE_SIZE (188 * 120)
 #define BUFFER_SIZE (IMAGE_SIZE + 512)
 
-#define PACKET_HEADER_SIZE 5
+#define PACKET_HEADER_SIZE 18
 
 /* Use lsusb -v to find the correspond values */
 static int ep_in_address  = 0x81;
@@ -75,6 +75,8 @@ int main()
 	cv::Mat cv_image;
 
 	uint16_t lidar_distance = 0;
+	float gyro_x = 0, gyro_y = 0, gyro_z = 0; 
+	uint8_t gyro_calib_enable = 0;
 
 	while(1) {
 		/* wait for header message */
@@ -88,14 +90,53 @@ int main()
 		}
 
 		/* Lidar distance */
-		memcpy(&lidar_distance, (uint8_t *)buffer + 3, sizeof(uint16_t));
-		printf("lidar distance: %dcm\n", lidar_distance);
+		int append_size = 3;
+
+		//unpack header - lidar distance
+		memcpy(&lidar_distance, (uint8_t *)buffer + append_size, sizeof(uint16_t));
+		append_size += sizeof(uint16_t);
+
+		memcpy(&gyro_calib_enable, (uint8_t *)buffer + append_size, sizeof(uint8_t));
+		append_size += sizeof(uint8_t);
+
+		//unpack header - gyro x
+		memcpy(&gyro_x, (uint8_t *)buffer + append_size, sizeof(float));
+		append_size += sizeof(float);
+
+		//unpack header - gyro y
+		memcpy(&gyro_y, (uint8_t *)buffer + append_size, sizeof(float));
+		append_size += sizeof(float);
+
+		//unpack header -  gyro z
+		memcpy(&gyro_z, (uint8_t *)buffer + append_size, sizeof(float));
+		append_size += sizeof(float);
+
+		if(gyro_calib_enable == 0) {
+			printf("lidar distance: %dcm\n"
+				"gyro_x: %+.3f\n"
+				"gyro_y: %+.3f\n"
+				"gyro_z: %+.3f\n"
+				"\033[2J\033[1;1H",
+				lidar_distance,
+				gyro_x,
+				gyro_y,
+				gyro_z);
+		} else {
+			printf("[gyroscope bias calibration]\n"
+				"bias x: %+.3f\n"
+				"bias y: %+.3f\n"
+				"bias z: %+.3f\n"
+				"\033[2J\033[1;1H",
+				gyro_x,
+				gyro_y,
+				gyro_z);
+		}
 
 		/* receive camera image in two parts */
 		received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
 		received_len = usb_read((uint8_t *)buffer + received_len, size_to_receive, 1000);
 
-		if(received_len > 0) {
+		if(received_len > 0 && gyro_calib_enable == 0) {
 			//printf("received new image, size = %d bytes\n", received_len);
 
 			for(int i = 0; i < IMAGE_SIZE; i++) {
