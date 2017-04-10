@@ -61,7 +61,6 @@ void flow_estimate_task(void)
 
 	/* the flow task is triggered by timer using semaphore every 4ms (250hz) */
 	flow_task_semaphore = xSemaphoreCreateBinary();
-	xSemaphoreTake(flow_task_semaphore, portMAX_DELAY); //reset semaphore
 	timer_init();
 
 	while(1) {
