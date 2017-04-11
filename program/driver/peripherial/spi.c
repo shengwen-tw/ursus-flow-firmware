@@ -85,3 +85,8 @@ uint8_t spi1_read_byte(void)
 
 	return received_data;
 }
+
+void spi1_read(uint8_t *data, int size)
+{
+	HAL_SPI_Receive(&spi1, data, size, UINT32_MAX);
+}

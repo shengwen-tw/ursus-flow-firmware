@@ -10,4 +10,6 @@ void spi_init(void);
 void spi1_write_byte(uint8_t data);
 uint8_t spi1_read_byte(void);
 
+void spi1_read(uint8_t *data, int size);
+
 #endif
