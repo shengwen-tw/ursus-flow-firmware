@@ -1,10 +1,16 @@
+#include <stdbool.h>
+
 #include "stm32f7xx_hal.h"
 
 #include "FreeRTOS.h"
 #include "semphr.h"
 
+#include "gpio.h"
+
 DMA_HandleTypeDef dcmi_dma;
 DCMI_HandleTypeDef dcmi;
+
+volatile bool frame_captured = false;
 
 /* DCMI_D4     = PE4
  * DCMI_D6     = PE5
@@ -95,13 +101,26 @@ void dcmi_init(void)
 
 void dcmi_dma_config(uint32_t buffer_address, uint32_t image_width, uint32_t image_height)
 {
+	frame_captured = false;
+
 	__HAL_DCMI_ENABLE_IT(&dcmi, DCMI_IT_FRAME);
-	HAL_DCMI_Start_DMA(&dcmi, DCMI_MODE_CONTINUOUS, buffer_address, image_width * image_height / 2);
+	HAL_DCMI_Start_DMA(&dcmi, DCMI_MODE_SNAPSHOT, buffer_address, image_width * image_height / 2);
+
+	while(frame_captured == false);
 }
 
 void DCMI_IRQHandler(void)
 {
+	if(__HAL_DCMI_GET_FLAG(&dcmi, DCMI_FLAG_FRAMERI) != RESET) {
+		frame_captured = true;
+	}
+
 	HAL_DCMI_IRQHandler(&dcmi);
+}
+
+void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
+{
+	//frame_captured = true;
 }
 
 void DMA2_Stream1_IRQHandler(void)

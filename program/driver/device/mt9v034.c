@@ -93,7 +93,7 @@ void mt9v034_enable_test_pattern(void)
 	mt9v034_write_half_word(MT9V034_TEST_PATTERN, 0x3800); //shade in diagonal direction
 }
 
-int mt9v034_init(uint32_t image_buffer_address)
+int mt9v034_init(void)
 {
 	uint16_t chip_version = mt9v034_read_half_word(MT9V034_CHIP_VERSION);
 
@@ -107,9 +107,12 @@ int mt9v034_init(uint32_t image_buffer_address)
 
 	mt9v034_write_half_word(MT9V034_RESET, 0x01); //reset mt9v034
 
-	dcmi_dma_config(image_buffer_address, IMG_WIDTH, IMG_HEIGHT);
-
 	return 0;
+}
+
+void mt9v034_image_capture(uint32_t image_buffer_address, int width, int height)
+{
+	dcmi_dma_config(image_buffer_address, IMG_WIDTH, IMG_HEIGHT);
 }
 
 bool mt9v034_calibration_is_on(void)
