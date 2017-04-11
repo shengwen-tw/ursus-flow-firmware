@@ -13,19 +13,22 @@
 #include "delay.h"
 #include "imu.h"
 
+__inline__ static void mpu9250_select(void);
+__inline__ static void mpu9250_deselect(void);
+
 /* mpu9250 is low active */
-__inline__ void mpu9250_select(void)
+static void mpu9250_select(void)
 {
 	gpio_off(MPU9250_CHIP_SELECTOR);
 }
 
 /* mpu9250 is low active */
-__inline__ void mpu9250_deselect(void)
+static void mpu9250_deselect(void)
 {
 	gpio_on(MPU9250_CHIP_SELECTOR);
 }
 
-uint8_t mpu9250_read_byte(uint8_t address)
+static uint8_t mpu9250_read_byte(uint8_t address)
 {
 	mpu9250_select();
 
@@ -40,7 +43,7 @@ uint8_t mpu9250_read_byte(uint8_t address)
 	return buffer;
 }
 
-void mpu9250_write_byte(uint8_t address, uint8_t data)
+static void mpu9250_write_byte(uint8_t address, uint8_t data)
 {
 	mpu9250_select();
 
@@ -50,7 +53,7 @@ void mpu9250_write_byte(uint8_t address, uint8_t data)
 	mpu9250_deselect();
 }
 
-uint8_t mpu9250_read_who_am_i(void)
+static uint8_t mpu9250_read_who_am_i(void)
 {
 	return mpu9250_read_byte(MPU9250_WHO_AM_I);
 }
