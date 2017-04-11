@@ -6,6 +6,7 @@
 #include "semphr.h"
 
 #include "gpio.h"
+#include "interrupt.h"
 
 DMA_HandleTypeDef dcmi_dma;
 DCMI_HandleTypeDef dcmi;
@@ -91,10 +92,8 @@ void dcmi_init(void)
 
 	__HAL_LINKDMA(&dcmi,DMA_Handle,dcmi_dma);
 
-	HAL_NVIC_SetPriority(DCMI_IRQn,
-	                     configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1, 1);
-	HAL_NVIC_SetPriority(DMA2_Stream1_IRQn,
-	                     configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1, 1);
+	HAL_NVIC_SetPriority(DCMI_IRQn, DCMI_PRIORITY, 1);
+	HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, DCMI_PRIORITY, 1);
 	HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
 	HAL_NVIC_EnableIRQ(DCMI_IRQn);
 }
@@ -106,7 +105,6 @@ void dcmi_dma_config(uint32_t buffer_address, uint32_t image_width, uint32_t ima
 	__HAL_DCMI_ENABLE_IT(&dcmi, DCMI_IT_FRAME);
 	HAL_DCMI_Start_DMA(&dcmi, DCMI_MODE_SNAPSHOT, buffer_address, image_width * image_height / 2);
 
-	while(frame_captured == false);
 }
 
 void DCMI_IRQHandler(void)

@@ -6,6 +6,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "interrupt.h"
+
 #include "delay.h"
 
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
@@ -44,8 +46,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 		__HAL_RCC_USB_OTG_FS_CLK_ENABLE();
 
 		/* Peripheral interrupt init */
-		HAL_NVIC_SetPriority(OTG_FS_IRQn,
-		                     configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 2, 0);
+		HAL_NVIC_SetPriority(OTG_FS_IRQn, USB_FS_PRIORITY, 0);
 		HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
 	}
 }

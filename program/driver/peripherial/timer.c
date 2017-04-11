@@ -2,6 +2,8 @@
 
 #include "FreeRTOS.h"
 
+#include "interrupt.h"
+
 #include "flow.h"
 
 static void timer10_init(void);
@@ -26,7 +28,7 @@ static void timer10_init(void)
 		//Error_Handler();
 	}
 
-	HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY, 0);
+	HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, TIMER1_PRIORITY, 0);
 	HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
 
 	HAL_TIM_Base_Start_IT(&timer10);

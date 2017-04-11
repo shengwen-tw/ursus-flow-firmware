@@ -5,6 +5,8 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 
+#include "interrupt.h"
+
 static void uart2_init(int baudrate);
 
 UART_HandleTypeDef uart2;
@@ -65,10 +67,8 @@ static void uart2_init(int baudrate)
 	HAL_DMA_Init(&uart2_tx_dma);
 	__HAL_LINKDMA(&uart2, hdmatx, uart2_tx_dma);
 
-	HAL_NVIC_SetPriority(USART2_IRQn,
-	                     configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1, 1);
-	HAL_NVIC_SetPriority(DMA1_Stream6_IRQn,
-	                     configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1, 1);
+	HAL_NVIC_SetPriority(USART2_IRQn, UART2_PRIORITY, 1);
+	HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, UART2_PRIORITY, 1);
 	HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
 	HAL_NVIC_EnableIRQ(USART2_IRQn);
 }

@@ -2,10 +2,12 @@
 
 #include "gpio.h"
 #include "spi.h"
+#include "interrupt.h"
 
 static void spi1_init(void);
 
 SPI_HandleTypeDef spi1;
+DMA_HandleTypeDef spi1_rx_dma;
 
 void spi_init(void)
 {
@@ -23,6 +25,7 @@ void spi_init(void)
 static void spi1_init(void)
 {
 	__HAL_RCC_SPI1_CLK_ENABLE();
+	__HAL_RCC_DMA1_CLK_ENABLE();
 	__GPIOA_CLK_ENABLE();
 	__GPIOB_CLK_ENABLE();
 	__GPIOC_CLK_ENABLE();
@@ -65,10 +68,36 @@ static void spi1_init(void)
 	spi1.Init.CRCPolynomial = 7;
 	spi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
 	//spi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+	HAL_SPI_Init(&spi1);
 
-	if (HAL_SPI_Init(&spi1) != HAL_OK) {
-		//Error_Handler();
-	}
+	spi1_rx_dma.Instance = DMA2_Stream0;
+	spi1_rx_dma.Init.Channel = DMA_CHANNEL_3;
+	spi1_rx_dma.Init.Direction = DMA_PERIPH_TO_MEMORY;
+	spi1_rx_dma.Init.PeriphInc = DMA_PINC_DISABLE;
+	spi1_rx_dma.Init.MemInc = DMA_MINC_ENABLE;
+	spi1_rx_dma.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+	spi1_rx_dma.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+	spi1_rx_dma.Init.Mode = DMA_NORMAL;
+	spi1_rx_dma.Init.Priority = DMA_PRIORITY_VERY_HIGH;
+	spi1_rx_dma.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+	HAL_DMA_Init(&spi1_rx_dma);
+
+	__HAL_LINKDMA(&spi1, hdmarx, spi1_rx_dma);
+
+	HAL_NVIC_SetPriority(SPI1_IRQn, SPI1_PRIORITY, 1);
+	HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, SPI1_PRIORITY, 1);
+	HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+	HAL_NVIC_EnableIRQ(SPI1_IRQn);
+}
+
+void SPI1_IRQHandler(void)
+{
+        HAL_SPI_IRQHandler(&spi1);
+}
+
+void DMA2_Stream0_IRQHandler(void)
+{
+        HAL_DMA_IRQHandler(spi1.hdmarx);
 }
 
 void spi1_write_byte(uint8_t data)
