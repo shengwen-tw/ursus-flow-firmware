@@ -45,7 +45,7 @@ void flow_estimate_task(void)
 		while(1); //This is bad
 	}
 
-	if(mt9v034_init((uint32_t)image_buffer)) {
+	if(mt9v034_init()) {
 		while(1); //This is bad
 	}
 
@@ -71,6 +71,8 @@ void flow_estimate_task(void)
 		mpu9250_read(&gyro_data);
 
 		lidar_distance = lidar_read_distance();
+
+		mt9v034_image_capture((uint32_t)image_buffer, IMG_WIDTH, IMG_HEIGHT);
 
 		gpio_on(LED_1);
 	}
