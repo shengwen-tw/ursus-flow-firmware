@@ -17,6 +17,7 @@
 #include "delay.h"
 #include "imu.h"
 
+#include "flow.h"
 #include "usb_link.h"
 #include "fcb_link.h"
 
@@ -25,7 +26,7 @@ extern TaskHandle_t usb_link_task_handle;
 
 SemaphoreHandle_t flow_task_semaphore;
 
-uint16_t image_buffer[IMG_WIDTH][IMG_HEIGHT];
+image_t image[2];
 
 vector3d_f_t gyro_data;
 uint16_t lidar_distance;
@@ -63,23 +64,32 @@ void flow_estimate_task(void)
 	flow_task_semaphore = xSemaphoreCreateBinary();
 	timer_init();
 
+	mt9v034_start_capture_image((uint32_t)image[0].frame);
+	while(!mt9v034_transmission_is_finished()) {vTaskDelay(100);}
+	mt9v034_start_capture_image((uint32_t)image[1].frame);
+
+	int next = 0;
+
 	while(1) {
 		while(xSemaphoreTake(flow_task_semaphore, portMAX_DELAY) == pdFALSE);
 
-		gpio_off(LED_1);
+		//gpio_off(LED_1);
 
 		mpu9250_read(&gyro_data);
 		lidar_distance = lidar_read_distance();
-		mt9v034_image_capture((uint32_t)image_buffer, IMG_WIDTH, IMG_HEIGHT);
 
-		/* wait for camera to be captured */
-		//while(mt9v034_is_transmitting());
+		/* wait until image finished capturing */
+		while(!mt9v034_transmission_is_finished()) ; //{vTaskDelay(100);}
 
 		//flow_estimate()
 
 		//while(mpu9250_is_transmitting() || lidar_is_transmitting());
 
-		gpio_on(LED_1);
+		mt9v034_start_capture_image((uint32_t)image[next].frame);
+		next = (next + 1) % 2;
+
+		//gpio_on(LED_1);
+		gpio_toggle(LED_1);
 	}
 }
 

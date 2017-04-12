@@ -110,9 +110,14 @@ int mt9v034_init(void)
 	return 0;
 }
 
-void mt9v034_image_capture(uint32_t image_buffer_address, int width, int height)
+void mt9v034_start_capture_image(uint32_t image_buffer_address)
 {
 	dcmi_dma_config(image_buffer_address, IMG_WIDTH, IMG_HEIGHT);
+}
+
+bool mt9v034_transmission_is_finished(void)
+{
+	return dcmi_dma_is_finished();
 }
 
 bool mt9v034_calibration_is_on(void)

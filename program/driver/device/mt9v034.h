@@ -85,7 +85,9 @@
 #define MT9V034_ANALOG_GAIN_CTRL_B                0x36
 
 int mt9v034_init(void);
-void mt9v034_image_capture(uint32_t image_buffer_address, int width, int height);
+
+void mt9v034_start_capture_image(uint32_t image_buffer_address);
+bool mt9v034_transmission_is_finished(void);
 
 bool mt9v034_calibration_is_on(void);
 

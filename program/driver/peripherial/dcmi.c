@@ -105,8 +105,11 @@ void dcmi_dma_config(uint32_t buffer_address, uint32_t image_width, uint32_t ima
 	HAL_DCMI_Start_DMA(&dcmi, DCMI_MODE_SNAPSHOT, buffer_address, image_width * image_height / 2);
 
 	frame_captured = false;
+}
 
-	while(frame_captured == false);
+bool dcmi_dma_is_finished(void)
+{
+	return frame_captured;
 }
 
 void DCMI_IRQHandler(void)

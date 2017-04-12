@@ -11,11 +11,12 @@
 
 #include "delay.h"
 
+#include "flow.h"
 #include "usb_link.h"
 
 #define HEADER_MSG_SIZE 18
 
-extern uint16_t image_buffer[IMG_WIDTH][IMG_HEIGHT];
+extern image_t image[2];
 
 extern vector3d_f_t gyro_data;
 extern uint16_t lidar_distance;
@@ -70,9 +71,9 @@ static void usb_send_onboard_info(void)
 	usb_cdc_send((uint8_t *)header_message, HEADER_MSG_SIZE);
 
 	/* image */
-	const size_t half_image_size = sizeof(image_buffer) / 2;
-	usb_cdc_send((uint8_t *)image_buffer, half_image_size);
-	usb_cdc_send((uint8_t *)image_buffer + half_image_size, half_image_size);
+	const size_t half_image_size = sizeof(image[0].frame) / 2;
+	usb_cdc_send((uint8_t *)image[1].frame, half_image_size);
+	usb_cdc_send((uint8_t *)image[0].frame + half_image_size, half_image_size);
 }
 
 void usb_link_task(void)
