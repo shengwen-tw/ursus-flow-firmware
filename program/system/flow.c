@@ -72,12 +72,12 @@ void flow_estimate_task(void)
 		lidar_distance = lidar_read_distance();
 		mt9v034_image_capture((uint32_t)image_buffer, IMG_WIDTH, IMG_HEIGHT);
 
-#if 0
-		/* wait for all sensors to finish */
-		while(mpu9250_is_transmitting() ||
-		      lidar_is_transmitting() ||
-		      mt9v034_is_transmitting());
-#endif
+		/* wait for camera to be captured */
+		//while(mt9v034_is_transmitting());
+
+		//flow_estimate()
+
+		//while(mpu9250_is_transmitting() || lidar_is_transmitting());
 
 		gpio_on(LED_1);
 	}
