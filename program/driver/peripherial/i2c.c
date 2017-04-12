@@ -1,5 +1,8 @@
 #include "stm32f7xx_hal.h"
 
+#include "gpio.h"
+#include "interrupt.h"
+
 static void i2c1_init(void);
 static void i2c2_init(void);
 
@@ -41,13 +44,18 @@ static void i2c1_init(void)
 	i2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
 	i2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
 
-	if(HAL_I2C_Init(&i2c1) != HAL_OK) {
-		//Error_Handler();
-	}
+	HAL_I2C_Init(&i2c1); 
+	HAL_I2CEx_ConfigAnalogFilter(&i2c1, I2C_ANALOGFILTER_ENABLE);
+}
 
-	if(HAL_I2CEx_ConfigAnalogFilter(&i2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
-		//Error_Handler();
-	}
+void i2c1_write(uint16_t device_address, uint8_t *data, uint16_t size)
+{
+	HAL_I2C_Master_Transmit(&i2c1, device_address, data, size, UINT32_MAX);
+}
+
+void i2c1_read(uint16_t device_address, uint8_t *data, uint16_t size)
+{
+	HAL_I2C_Master_Receive(&i2c1, device_address, data, size, UINT32_MAX);
 }
 
 /*
@@ -80,33 +88,27 @@ static void i2c2_init(void)
 	i2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
 	i2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
 
-	if(HAL_I2C_Init(&i2c2) != HAL_OK) {
-		//Error_Handler();
-	}
+	HAL_I2C_Init(&i2c2);
+	HAL_I2CEx_ConfigAnalogFilter(&i2c2, I2C_ANALOGFILTER_ENABLE);
 
-	if(HAL_I2CEx_ConfigAnalogFilter(&i2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
-		//Error_Handler();
-	}
+	HAL_NVIC_SetPriority(I2C2_EV_IRQn, I2C2_PRIORITY, 0);
+	HAL_NVIC_EnableIRQ(I2C2_EV_IRQn);
 }
 
-void i2c1_set_flag(uint32_t flag)
+void I2C2_EV_IRQHandler(void)
 {
-	i2c1.XferOptions = flag;
+	HAL_I2C_EV_IRQHandler(&i2c2);
 }
 
-void i2c1_write(uint16_t device_address, uint8_t *data, uint16_t size)
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c2)
 {
-	HAL_I2C_Master_Transmit(&i2c1, device_address, data, size, UINT32_MAX);
-}
-
-void i2c1_read(uint16_t device_address, uint8_t *data, uint16_t size)
-{
-	HAL_I2C_Master_Receive(&i2c1, device_address, data, size, UINT32_MAX);
 }
 
 void i2c2_write(uint16_t device_address, uint8_t *data, uint16_t size)
 {
-	HAL_I2C_Master_Transmit(&i2c2, device_address, data, size, UINT32_MAX);
+	HAL_I2C_Master_Transmit_IT(&i2c2, device_address, data, size);
+
+	while(HAL_I2C_GetState(&i2c2) != HAL_I2C_STATE_READY);
 }
 
 void i2c2_read(uint16_t device_address, uint8_t *data, uint16_t size)
