@@ -51,7 +51,7 @@ uint16_t lidar_read_distance(void)
 	//send distance measurement command
 	lidar_write_byte(LIDAR_ACQ_COMMAND, 0x04);
 
-	uint16_t distance = lidar_read_half_word(0x8f);	
+	uint16_t distance = lidar_read_half_word(0x8f);
 
 	return distance;
 }

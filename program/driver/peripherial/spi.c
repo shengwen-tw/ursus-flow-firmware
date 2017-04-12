@@ -92,12 +92,12 @@ static void spi1_init(void)
 
 void SPI1_IRQHandler(void)
 {
-        HAL_SPI_IRQHandler(&spi1);
+	HAL_SPI_IRQHandler(&spi1);
 }
 
 void DMA2_Stream0_IRQHandler(void)
 {
-        HAL_DMA_IRQHandler(spi1.hdmarx);
+	HAL_DMA_IRQHandler(spi1.hdmarx);
 }
 
 void spi1_write_byte(uint8_t data)
