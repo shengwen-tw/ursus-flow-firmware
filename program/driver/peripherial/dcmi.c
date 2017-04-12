@@ -71,9 +71,7 @@ void dcmi_init(void)
 	dcmi_dma.Init.Priority = DMA_PRIORITY_VERY_HIGH;
 	dcmi_dma.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
 
-	if(HAL_DMA_Init(&dcmi_dma) != HAL_OK) {
-		//Error_Handler();
-	}
+	HAL_DMA_Init(&dcmi_dma);
 
 	dcmi.Instance = DCMI;
 	dcmi.Init.SynchroMode = DCMI_SYNCHRO_HARDWARE;
@@ -88,9 +86,7 @@ void dcmi_init(void)
 	dcmi.Init.LineSelectMode = DCMI_LSM_ALL;
 	dcmi.Init.LineSelectStart = DCMI_OELS_ODD;
 
-	if(HAL_DCMI_Init(&dcmi) != HAL_OK) {
-		//Error_Handler();
-	}
+	HAL_DCMI_Init(&dcmi);
 
 	__HAL_LINKDMA(&dcmi,DMA_Handle,dcmi_dma);
 
@@ -102,6 +98,8 @@ void dcmi_init(void)
 
 void dcmi_dma_config(uint32_t buffer_address, uint32_t image_width, uint32_t image_height)
 {
+	HAL_DMA_Init(&dcmi_dma);
+
 	HAL_DCMI_Start_DMA(&dcmi, DCMI_MODE_SNAPSHOT, buffer_address, image_width * image_height / 2);
 
 	frame_captured = false;
