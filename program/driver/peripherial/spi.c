@@ -80,13 +80,13 @@ static void spi1_init(void)
 	spi1_rx_dma.Init.Mode = DMA_NORMAL;
 	spi1_rx_dma.Init.Priority = DMA_PRIORITY_VERY_HIGH;
 	spi1_rx_dma.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-	HAL_DMA_Init(&spi1_rx_dma);
+	//HAL_DMA_Init(&spi1_rx_dma);
 
-	__HAL_LINKDMA(&spi1, hdmarx, spi1_rx_dma);
+	//__HAL_LINKDMA(&spi1, hdmarx, spi1_rx_dma);
 
 	HAL_NVIC_SetPriority(SPI1_IRQn, SPI1_PRIORITY, 1);
-	HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, SPI1_PRIORITY, 1);
-	HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+	//HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, SPI1_PRIORITY, 1);
+	//HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
 	HAL_NVIC_EnableIRQ(SPI1_IRQn);
 }
 
@@ -97,7 +97,7 @@ void SPI1_IRQHandler(void)
 
 void DMA2_Stream0_IRQHandler(void)
 {
-	HAL_DMA_IRQHandler(spi1.hdmarx);
+	HAL_DMA_IRQHandler(&spi1_rx_dma);
 }
 
 void spi1_write_byte(uint8_t data)
@@ -117,5 +117,6 @@ uint8_t spi1_read_byte(void)
 
 void spi1_read(uint8_t *data, int size)
 {
-	HAL_SPI_Receive(&spi1, data, size, UINT32_MAX);
+	HAL_SPI_Receive_IT(&spi1, data, size);
+	while(HAL_SPI_GetState(&spi1) != HAL_SPI_STATE_READY);
 }
