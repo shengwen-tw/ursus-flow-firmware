@@ -65,7 +65,7 @@ void flow_estimate_task(void)
 	timer_init();
 
 	mt9v034_start_capture_image((uint32_t)image[0].frame);
-	while(!mt9v034_transmission_is_finished()) {vTaskDelay(100);}
+	mt9v034_wait_finish();
 	mt9v034_start_capture_image((uint32_t)image[1].frame);
 
 	int next = 0;
@@ -79,7 +79,7 @@ void flow_estimate_task(void)
 		lidar_distance = lidar_read_distance();
 
 		/* wait until image finished capturing */
-		while(!mt9v034_transmission_is_finished()) ; //{vTaskDelay(100);}
+		mt9v034_wait_finish();
 
 		//flow_estimate()
 

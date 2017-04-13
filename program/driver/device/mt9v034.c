@@ -15,6 +15,8 @@
 
 #define CALIBRATION_ENABLED 1
 
+__inline__ void mt9v034_wait_finish(void);
+
 static uint16_t mt9v034_read_half_word(uint8_t address)
 {
 	uint16_t buffer = 0;
@@ -115,9 +117,9 @@ void mt9v034_start_capture_image(uint32_t image_buffer_address)
 	dcmi_dma_config(image_buffer_address, IMG_WIDTH, IMG_HEIGHT);
 }
 
-bool mt9v034_transmission_is_finished(void)
+void mt9v034_wait_finish(void)
 {
-	return dcmi_dma_is_finished();
+	dcmi_wait_finish();
 }
 
 bool mt9v034_calibration_is_on(void)

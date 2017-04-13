@@ -87,7 +87,7 @@
 int mt9v034_init(void);
 
 void mt9v034_start_capture_image(uint32_t image_buffer_address);
-bool mt9v034_transmission_is_finished(void);
+void mt9v034_wait_finish(void);
 
 bool mt9v034_calibration_is_on(void);
 
