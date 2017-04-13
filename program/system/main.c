@@ -38,6 +38,8 @@ int main(void)
 	i2c_init();
 	dcmi_init();
 
+	lidar_init();
+
 	xTaskCreate((TaskFunction_t)flow_estimate_task, "flow estimate task",
 	            1024, (void *)0, tskIDLE_PRIORITY + 3, NULL);
 

@@ -102,6 +102,7 @@ void I2C2_EV_IRQHandler(void)
 
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c2)
 {
+	gpio_on(LED_2);
 }
 
 void i2c2_write(uint16_t device_address, uint8_t *data, uint16_t size)
