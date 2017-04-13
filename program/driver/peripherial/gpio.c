@@ -4,10 +4,12 @@
 #include "interrupt.h"
 
 static void led_init(void);
+static void exti3_init(void);
 
 void gpio_init(void)
 {
 	led_init();
+	exti3_init();
 }
 
 static void led_init(void)
@@ -28,7 +30,7 @@ static void led_init(void)
 	gpio_off(LED_3);
 }
 
-void exti3_init(void)
+static void exti3_init(void)
 {
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 

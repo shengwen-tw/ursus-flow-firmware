@@ -11,6 +11,4 @@
 
 void gpio_init(void);
 
-void exti3_init(void);
-
 #endif

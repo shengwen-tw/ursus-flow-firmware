@@ -64,8 +64,6 @@ void flow_estimate_task(void)
 	flow_task_semaphore = xSemaphoreCreateBinary();
 	timer_init();
 
-	exti3_init();
-
 	mt9v034_start_capture_image((uint32_t)image[0].frame);
 	mt9v034_wait_finish();
 	mt9v034_start_capture_image((uint32_t)image[1].frame);

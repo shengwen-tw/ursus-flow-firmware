@@ -9,7 +9,7 @@
 
 const uint8_t lidar_dev_address = 0x62 << 1;
 
-uint16_t lidar_distance = 0;
+uint8_t lidar_buffer[2] = {0};
 
 static uint8_t lidar_read_byte(uint8_t address)
 {
@@ -20,17 +20,10 @@ static uint8_t lidar_read_byte(uint8_t address)
 	return result;
 }
 
-static uint16_t lidar_read_half_word(uint8_t address)
+static void lidar_read_half_word(uint8_t address, uint16_t *data)
 {
-	uint8_t buffer[2] = {0};
-
 	i2c2_write(LIDAR_DEV_ADDRESS, &address, 1);
-	i2c2_read(LIDAR_DEV_ADDRESS, buffer, 2);
-
-	//convert received data from big endian to little endian
-	uint16_t result = buffer[0] << 8 | buffer[1];
-
-	return result;
+	i2c2_read(LIDAR_DEV_ADDRESS, (uint8_t *)data, 2);
 }
 
 void lidar_write_byte(uint8_t address, uint8_t data)
@@ -40,7 +33,10 @@ void lidar_write_byte(uint8_t address, uint8_t data)
 
 void lidar_read_distance(uint16_t *distance)
 {
-	*distance = lidar_distance;
+	//convert received data from big endian to little endian
+	uint16_t result = lidar_buffer[0] << 8 | lidar_buffer[1];
+
+	*distance = result;
 }
 
 void EXTI3_IRQHandler(void)
@@ -53,7 +49,7 @@ void EXTI3_IRQHandler(void)
 		//send distance measurement command
 		lidar_write_byte(LIDAR_ACQ_COMMAND, 0x04);
 
-		lidar_distance = lidar_read_half_word(0x8f);
+		lidar_read_half_word(0x8f, (uint16_t *)lidar_buffer);
 	}
 }
 
