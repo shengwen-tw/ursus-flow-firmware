@@ -72,7 +72,7 @@ static void usb_send_onboard_info(void)
 
 	/* image */
 	const size_t half_image_size = sizeof(image[0].frame) / 2;
-	usb_cdc_send((uint8_t *)image[1].frame, half_image_size);
+	usb_cdc_send((uint8_t *)image[0].frame, half_image_size);
 	usb_cdc_send((uint8_t *)image[0].frame + half_image_size, half_image_size);
 }
 
