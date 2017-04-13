@@ -1,10 +1,15 @@
 #include <stdint.h>
 
+#include "stm32f7xx.h"
+
+#include "gpio.h"
 #include "i2c.h"
 
 #include "lidar.h"
 
 const uint8_t lidar_dev_address = 0x62 << 1;
+
+uint16_t lidar_distance = 0;
 
 static uint8_t lidar_read_byte(uint8_t address)
 {
@@ -33,27 +38,23 @@ void lidar_write_byte(uint8_t address, uint8_t data)
 	i2c2_write_memory(LIDAR_DEV_ADDRESS, address, &data, 1);
 }
 
-uint16_t lidar_read_distance(void)
+void lidar_read_distance(uint16_t *distance)
 {
-	uint8_t lidar_busy_flag = 1; //device busy
-	uint16_t trial = 65535;
+	*distance = lidar_distance;
+}
 
-	/* wait until lidar is not busy */
-	while(trial-- && !lidar_busy_flag) {
-		//read lidar status in byte and apply bit mask to get bit 0 only
-		lidar_busy_flag = lidar_read_byte(LIDAR_STATUS) & 0x01;
+void EXTI3_IRQHandler(void)
+{
+	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_3) != RESET) {
+		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
+
+		gpio_on(LED_2);
+
+		//send distance measurement command
+		lidar_write_byte(LIDAR_ACQ_COMMAND, 0x04);
+
+		lidar_distance = lidar_read_half_word(0x8f);
 	}
-
-	if(trial == 0) {
-		//error handler
-	}
-
-	//send distance measurement command
-	lidar_write_byte(LIDAR_ACQ_COMMAND, 0x04);
-
-	uint16_t distance = lidar_read_half_word(0x8f);
-
-	return distance;
 }
 
 void lidar_init(void)

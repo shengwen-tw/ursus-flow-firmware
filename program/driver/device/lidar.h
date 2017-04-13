@@ -6,6 +6,6 @@
 #define LIDAR_ACQ_COMMAND 0x00
 #define LIDAR_STATUS      0x01
 
-uint16_t lidar_read_distance(void);
+void lidar_read_distance(uint16_t *distance);
 
 #endif

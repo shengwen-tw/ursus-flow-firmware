@@ -44,7 +44,7 @@ static void i2c1_init(void)
 	i2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
 	i2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
 
-	HAL_I2C_Init(&i2c1); 
+	HAL_I2C_Init(&i2c1);
 	HAL_I2CEx_ConfigAnalogFilter(&i2c1, I2C_ANALOGFILTER_ENABLE);
 }
 
@@ -111,9 +111,7 @@ void i2c2_write(uint16_t device_address, uint8_t *data, uint16_t size)
 
 void i2c2_read(uint16_t device_address, uint8_t *data, uint16_t size)
 {
-	HAL_I2C_Master_Receive_IT(&i2c2, device_address, data, size);
-
-	while(HAL_I2C_GetState(&i2c2) != HAL_I2C_STATE_READY);
+	HAL_I2C_Master_Receive(&i2c2, device_address, data, size, UINT32_MAX);
 }
 
 void i2c2_write_memory(uint16_t device_address, uint8_t memory_address, uint8_t *data, uint16_t size)
