@@ -60,6 +60,8 @@ void flow_estimate_task(void)
 		mpu9250_drift_error_estimate(&drift_x, &drift_y, &drift_z);
 	}
 
+	lidar_init();
+
 	/* the flow task is triggered by timer using semaphore every 4ms (250hz) */
 	flow_task_semaphore = xSemaphoreCreateBinary();
 	timer_init();
