@@ -7,8 +7,8 @@
 #define IMAGE_BINNING          4
 #define FLOW_IMG_WIDTH         64
 #define FLOW_IMG_HEIGHT        64
-#define CALIB_IMG_WIDTH        188
-#define CALIB_IMG_HEIGHT       120
+#define CALIB_IMG_WIDTH        81
+#define CALIB_IMG_HEIGHT       81
 
 #if (CALIBRATION_ENABLED == 1)
 #define IMG_HEIGHT FLOW_IMG_HEIGHT
@@ -31,6 +31,7 @@
 #define MT9V034_TEST_PATTERN                      0x7f
 
 #define MT9V034_HIGH_DYNAMIC_ENABLE               0x0f
+#define MT9V034_NOISE_CORRECTION_CTRL             0x70
 
 #define MT9V034_COLUMN_START_A                    0x01
 #define		MT9V034_COLUMN_START_MIN          1
@@ -45,7 +46,7 @@
 #define		MT9V034_WINDOW_WIDTH_MIN          1
 #define		MT9V034_WINDOW_WIDTH_MAX          752
 #define MT9V034_HORIZONTAL_BLANKING_A             0x05
-#define		MT9V034_HORIZONTAL_BLANKING_MIN   61
+#define		MT9V034_HORIZONTAL_BLANKING_MIN   91 
 #define		MT9V034_HORIZONTAL_BLANKING_MAX   1023
 #define MT9V034_VERTICAL_BLANKING_A               0x06
 #define		MT9V034_VERTICAL_BLANKING_MIN     2
