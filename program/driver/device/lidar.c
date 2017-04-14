@@ -70,7 +70,7 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c2)
 
 	/* put new lidar distance into the queue */
 	xQueueSendToBackFromISR(lidar_queue_handle, &lidar_distance,
-		&higher_priority_task_woken);
+	                        &higher_priority_task_woken);
 
 	portYIELD_FROM_ISR(higher_priority_task_woken);
 }

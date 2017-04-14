@@ -7,10 +7,13 @@
 #define VENDOR_ID  0x0483
 #define PRODUCT_ID 0x5740
 
-#define IMAGE_SIZE (188 * 120)
-#define BUFFER_SIZE (IMAGE_SIZE + 512)
+#define MAX_IMAGE_SIZE (188 * 120)
+#define BUFFER_SIZE (MAX_IMAGE_SIZE + 512)
 
-#define PACKET_HEADER_SIZE 18
+#define PACKET_HEADER_SIZE 20
+
+int image_width = 81;
+int image_height = 81;
 
 /* Use lsusb -v to find the correspond values */
 static int ep_in_address  = 0x81;
@@ -70,12 +73,12 @@ int main()
 
 	/* receive data from usb */
 	uint16_t *buffer = (uint16_t *)malloc(sizeof(uint16_t) * BUFFER_SIZE);
-	int size_to_receive = IMAGE_SIZE * sizeof(buffer[0]);
+	int size_to_receive = MAX_IMAGE_SIZE * sizeof(buffer[0]);
 	int received_len;
 	cv::Mat cv_image;
 
 	uint16_t lidar_distance = 0;
-	float gyro_x = 0, gyro_y = 0, gyro_z = 0; 
+	float gyro_x = 0, gyro_y = 0, gyro_z = 0;
 	uint8_t gyro_calib_enable = 0;
 
 	while(1) {
@@ -111,25 +114,33 @@ int main()
 		memcpy(&gyro_z, (uint8_t *)buffer + append_size, sizeof(float));
 		append_size += sizeof(float);
 
+		//unpack header - image width
+		memcpy(&image_width, (uint8_t *)buffer + append_size, sizeof(uint8_t));
+		append_size += sizeof(uint8_t);
+
+		//unpack header -  image_height
+		memcpy(&image_height, (uint8_t *)buffer + append_size, sizeof(uint8_t));
+		append_size += sizeof(uint8_t);
+
 		if(gyro_calib_enable == 0) {
 			printf("lidar distance: %dcm\n"
-				"gyro_x: %+.3f\n"
-				"gyro_y: %+.3f\n"
-				"gyro_z: %+.3f\n"
-				"\033[2J\033[1;1H",
-				lidar_distance,
-				gyro_x,
-				gyro_y,
-				gyro_z);
+			       "gyro_x: %+.3f\n"
+			       "gyro_y: %+.3f\n"
+			       "gyro_z: %+.3f\n"
+			       "\033[2J\033[1;1H",
+			       lidar_distance,
+			       gyro_x,
+			       gyro_y,
+			       gyro_z);
 		} else {
 			printf("[gyroscope bias calibration]\n"
-				"bias x: %+.3f\n"
-				"bias y: %+.3f\n"
-				"bias z: %+.3f\n"
-				"\033[2J\033[1;1H",
-				gyro_x,
-				gyro_y,
-				gyro_z);
+			       "bias x: %+.3f\n"
+			       "bias y: %+.3f\n"
+			       "bias z: %+.3f\n"
+			       "\033[2J\033[1;1H",
+			       gyro_x,
+			       gyro_y,
+			       gyro_z);
 		}
 
 		/* receive camera image in two parts */
@@ -139,14 +150,14 @@ int main()
 		if(received_len > 0 && gyro_calib_enable == 0) {
 			//printf("received new image, size = %d bytes\n", received_len);
 
-			for(int i = 0; i < IMAGE_SIZE; i++) {
+			for(int i = 0; i < image_width * image_height; i++) {
 				buffer[i] = buffer[i] << 6;
 			}
 
 			//printf("%d\n", buffer[0]);
 
-			cv_image = cv::Mat(120, 188, CV_16UC1, buffer);
-			cv::resize(cv_image, cv_image, cv::Size(188 * 4, 120 * 4));
+			cv_image = cv::Mat(image_height, image_width, CV_16UC1, buffer);
+			cv::resize(cv_image, cv_image, cv::Size(image_width * 4, image_height * 4));
 			cv::imshow("ursus-flow camera", cv_image);
 			cv::waitKey(1);
 		} else if(received_len == 0 || received_len == -1) {

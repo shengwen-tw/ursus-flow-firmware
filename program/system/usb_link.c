@@ -14,7 +14,7 @@
 #include "flow.h"
 #include "usb_link.h"
 
-#define HEADER_MSG_SIZE 18
+#define HEADER_MSG_SIZE 20
 
 extern image_t image[2];
 
@@ -67,6 +67,14 @@ static void usb_send_onboard_info(void)
 		memcpy(header_message + append_size, &drift_z, sizeof(float));
 		append_size += sizeof(float);
 	}
+
+	uint8_t image_width = IMG_WIDTH, image_height = IMG_HEIGHT;
+
+	memcpy(header_message + append_size, &image_width, sizeof(uint8_t));
+	append_size += sizeof(uint8_t);
+
+	memcpy(header_message + append_size, &image_height, sizeof(uint8_t));
+	append_size += sizeof(uint8_t);
 
 	usb_cdc_send((uint8_t *)header_message, HEADER_MSG_SIZE);
 
