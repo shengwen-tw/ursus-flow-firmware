@@ -123,11 +123,14 @@ int main()
 		append_size += sizeof(uint8_t);
 
 		if(gyro_calib_enable == 0) {
-			printf("lidar distance: %dcm\n"
+			printf("image size: %dx%d\n"
+			       "lidar distance: %dcm\n"
 			       "gyro_x: %+.3f\n"
 			       "gyro_y: %+.3f\n"
 			       "gyro_z: %+.3f\n"
 			       "\033[2J\033[1;1H",
+			       image_width,
+			       image_height,
 			       lidar_distance,
 			       gyro_x,
 			       gyro_y,
