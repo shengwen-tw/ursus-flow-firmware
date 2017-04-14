@@ -3,6 +3,7 @@
 #include "stm32f7xx.h"
 
 #include "FreeRTOS.h"
+#include "semphr.h"
 #include "queue.h"
 
 #include "gpio.h"
@@ -10,7 +11,7 @@
 
 #include "lidar.h"
 
-QueueHandle_t lidar_queue_handle;
+SemaphoreHandle_t lidar_semaphore;
 
 const uint8_t lidar_dev_address = 0x62 << 1;
 
@@ -38,7 +39,12 @@ void lidar_write_byte(uint8_t address, uint8_t data)
 
 void lidar_read_distance(uint16_t *distance)
 {
-	while(xQueueReceive(lidar_queue_handle, distance, portMAX_DELAY) == pdFALSE);
+	while(xSemaphoreTake(lidar_semaphore, portMAX_DELAY) == pdFALSE);
+
+	*distance = lidar_buffer[0] << 8 | lidar_buffer[1];
+
+	/* enable the interrupt and start a new transaction */
+	HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 }
 
 void EXTI3_IRQHandler(void)
@@ -46,24 +52,25 @@ void EXTI3_IRQHandler(void)
 	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_3) != RESET) {
 		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
 
-		long higher_priority_task_woken = pdFALSE;
-
 		//send distance measurement command
 		lidar_write_byte(LIDAR_ACQ_COMMAND, 0x04);
 
 		lidar_read_half_word(0x8f, (uint16_t *)lidar_buffer);
 
-		//convert received data from big endian to little endian
-		uint16_t lidar_distance = lidar_buffer[0] << 8 | lidar_buffer[1];
-
-		xQueueSendToBackFromISR(lidar_queue_handle, &lidar_distance,
-			&higher_priority_task_woken);
-
-		portYIELD_FROM_ISR(higher_priority_task_woken);
+		//disable the interrupt until transaction is finished
+		HAL_NVIC_DisableIRQ(EXTI3_IRQn);
 	}
+}
+
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c2)
+{
+	long higher_priority_task_woken = pdFALSE;
+
+	xSemaphoreGiveFromISR(lidar_semaphore, &higher_priority_task_woken);
+	portYIELD_FROM_ISR(higher_priority_task_woken);
 }
 
 void lidar_init(void)
 {
-	lidar_queue_handle = xQueueCreate(16, sizeof(uint16_t));
+	lidar_semaphore = xSemaphoreCreateBinary();
 }
