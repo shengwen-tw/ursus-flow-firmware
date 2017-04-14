@@ -41,6 +41,7 @@ void lidar_read_distance(uint16_t *distance)
 {
 	while(xSemaphoreTake(lidar_semaphore, portMAX_DELAY) == pdFALSE);
 
+	//convert received data from big endian to little endian
 	*distance = lidar_buffer[0] << 8 | lidar_buffer[1];
 
 	/* enable the interrupt and start a new transaction */
@@ -55,6 +56,7 @@ void EXTI3_IRQHandler(void)
 		//send distance measurement command
 		lidar_write_byte(LIDAR_ACQ_COMMAND, 0x04);
 
+		//start receiving lidar distance (interrupt mode, non-blocking code)
 		lidar_read_half_word(0x8f, (uint16_t *)lidar_buffer);
 
 		//disable the interrupt until transaction is finished

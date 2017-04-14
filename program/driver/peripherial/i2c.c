@@ -100,11 +100,6 @@ void I2C2_EV_IRQHandler(void)
 	HAL_I2C_EV_IRQHandler(&i2c2);
 }
 
-void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c2)
-{
-	gpio_on(LED_2);
-}
-
 void i2c2_write(uint16_t device_address, uint8_t *data, uint16_t size)
 {
 	HAL_I2C_Master_Transmit(&i2c2, device_address, data, size, UINT32_MAX);
@@ -112,7 +107,7 @@ void i2c2_write(uint16_t device_address, uint8_t *data, uint16_t size)
 
 void i2c2_read(uint16_t device_address, uint8_t *data, uint16_t size)
 {
-	HAL_I2C_Master_Receive(&i2c2, device_address, data, size, UINT32_MAX);
+	HAL_I2C_Master_Receive_IT(&i2c2, device_address, data, size);
 }
 
 void i2c2_write_memory(uint16_t device_address, uint8_t memory_address, uint8_t *data, uint16_t size)
