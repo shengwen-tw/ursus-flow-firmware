@@ -11,7 +11,7 @@
 
 #include "lidar.h"
 
-SemaphoreHandle_t lidar_semaphore;
+QueueHandle_t lidar_queue_handle;
 
 const uint8_t lidar_dev_address = 0x62 << 1;
 
@@ -39,10 +39,7 @@ void lidar_write_byte(uint8_t address, uint8_t data)
 
 void lidar_read_distance(uint16_t *distance)
 {
-	while(xSemaphoreTake(lidar_semaphore, portMAX_DELAY) == pdFALSE);
-
-	//convert received data from big endian to little endian
-	*distance = lidar_buffer[0] << 8 | lidar_buffer[1];
+	while(xQueueReceive(lidar_queue_handle, distance, portMAX_DELAY) == pdFALSE);
 
 	/* enable the interrupt and start a new transaction */
 	HAL_NVIC_EnableIRQ(EXTI3_IRQn);
@@ -68,11 +65,19 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c2)
 {
 	long higher_priority_task_woken = pdFALSE;
 
-	xSemaphoreGiveFromISR(lidar_semaphore, &higher_priority_task_woken);
+	//convert received data from big endian to little endian
+	uint16_t lidar_distance = lidar_buffer[0] << 8 | lidar_buffer[1];
+
+	/* put new lidar distance into the queue */
+	xQueueSendToBackFromISR(lidar_queue_handle, &lidar_distance,
+		&higher_priority_task_woken);
+
 	portYIELD_FROM_ISR(higher_priority_task_woken);
 }
 
 void lidar_init(void)
 {
-	lidar_semaphore = xSemaphoreCreateBinary();
+	lidar_queue_handle = xQueueCreate(16, sizeof(uint16_t));
+	exti3_init();
+
 }
