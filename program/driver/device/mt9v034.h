@@ -32,6 +32,8 @@
 
 #define MT9V034_HIGH_DYNAMIC_ENABLE               0x0f
 #define MT9V034_NOISE_CORRECTION_CTRL             0x70
+#define MT9V034_AEC_AGC_ENABLE                    0xaf
+#define MT9V034_AEC_AGC_DESIRED_BIN               0xa5
 
 #define MT9V034_COLUMN_START_A                    0x01
 #define		MT9V034_COLUMN_START_MIN          1

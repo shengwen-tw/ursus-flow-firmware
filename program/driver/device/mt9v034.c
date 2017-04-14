@@ -48,11 +48,14 @@ static void mt9v034_write_half_word(uint8_t address, uint16_t data)
 static void mt9v034_context_config(void)
 {
 	/* general setting */
-	mt9v034_write_half_word(MT9V034_HIGH_DYNAMIC_ENABLE, 0x0000); //disable HDR
+	mt9v034_write_half_word(MT9V034_HIGH_DYNAMIC_ENABLE, 0x0000);   //disable HDR
+	mt9v034_write_half_word(MT9V034_NOISE_CORRECTION_CTRL, 0x0303);
+	mt9v034_write_half_word(MT9V034_AEC_AGC_ENABLE, 0x0101);  //enale AEC, diable AGC
+	mt9v034_write_half_word(MT9V034_AEC_AGC_DESIRED_BIN, 50); //light regulation
 
 	/* context a : optical flow mode (4x image binning) */
 
-	/* context b : calibration mode (full size image and no binning) */
+	/* context b : calibration mode (full size image and 4x binning) */
 	mt9v034_write_half_word(
 	        MT9V034_COLUMN_START_B,
 	        (MT9V034_WINDOW_HEIGHT_MAX - CALIB_IMG_HEIGHT * IMAGE_BINNING) / 2 + MT9V034_COLUMN_START_MIN
