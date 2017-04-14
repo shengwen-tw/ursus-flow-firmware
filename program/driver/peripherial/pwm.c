@@ -33,7 +33,7 @@ static void timer3_pwm_init(void)
 	pwm_timer3.Instance = TIM3;
 	pwm_timer3.Init.Prescaler = 1 - 1;
 	pwm_timer3.Init.CounterMode = TIM_COUNTERMODE_UP;
-	pwm_timer3.Init.Period = 3 - 1;
+	pwm_timer3.Init.Period = 4 - 1;
 	pwm_timer3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 
 	if(HAL_TIM_PWM_Init(&pwm_timer3) != HAL_OK) {
