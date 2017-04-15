@@ -5,8 +5,8 @@
 
 /* ================ camera setting ================ */
 #define IMAGE_BINNING          4
-#define FLOW_IMG_WIDTH         64
-#define FLOW_IMG_HEIGHT        64
+#define FLOW_IMG_WIDTH         79
+#define FLOW_IMG_HEIGHT        79
 #define CALIB_IMG_WIDTH        188
 #define CALIB_IMG_HEIGHT       120
 
