@@ -52,6 +52,14 @@ static void mt9v034_context_config(void)
 	mt9v034_write_half_word(MT9V034_NOISE_CORRECTION_CTRL, 0x0303);
 	mt9v034_write_half_word(MT9V034_AEC_AGC_ENABLE, 0x0101);  //enale AEC, diable AGC
 	mt9v034_write_half_word(MT9V034_AEC_AGC_DESIRED_BIN, 50); //light regulation
+	mt9v034_write_half_word(MT9V034_AEC_LOW_PASS_FILTER, 0x0002);
+
+	/* reserved register (read mt9v034 rev 7.1 datasheet table 8) */
+	mt9v034_write_half_word(0x13, 0x2d2e);
+	mt9v034_write_half_word(0x20, 0x03c7);
+	mt9v034_write_half_word(0x24, 0x001b);
+	mt9v034_write_half_word(0x2b, 0x0003);
+	mt9v034_write_half_word(0x2f, 0x0003);
 
 	/* context a : optical flow mode (4x image binning) */
 
