@@ -13,7 +13,7 @@
 
 #include "delay.h"
 
-#define CALIBRATION_ENABLED 1
+#define CALIBRATION_ENABLED 0
 
 __inline__ void mt9v034_wait_finish(void);
 
@@ -61,9 +61,26 @@ static void mt9v034_context_config(void)
 	mt9v034_write_half_word(0x2b, 0x0003);
 	mt9v034_write_half_word(0x2f, 0x0003);
 
-	/* context a : optical flow mode (4x image binning) */
+	/* context a : optical flow mode (79x79, 4x image binning) */
+	mt9v034_write_half_word(
+	        MT9V034_COLUMN_START_A,
+	        (MT9V034_WINDOW_WIDTH_MAX - FLOW_IMG_WIDTH * IMAGE_BINNING) / 2 + MT9V034_COLUMN_START_MIN
+	);
+	mt9v034_write_half_word(
+	        MT9V034_ROW_START_A,
+	        (MT9V034_WINDOW_HEIGHT_MAX - FLOW_IMG_HEIGHT * IMAGE_BINNING) / 2 + MT9V034_ROW_START_MIN
+	);
+	mt9v034_write_half_word(MT9V034_WINDOW_HEIGHT_A, FLOW_IMG_HEIGHT * IMAGE_BINNING);
+	mt9v034_write_half_word(MT9V034_WINDOW_WIDTH_A, FLOW_IMG_WIDTH * IMAGE_BINNING);
+	mt9v034_write_half_word(MT9V034_HORIZONTAL_BLANKING_A, 709 + MT9V034_HORIZONTAL_BLANKING_MIN);
+	mt9v034_write_half_word(MT9V034_VERTICAL_BLANKING_A, 10);
+	mt9v034_write_half_word(MT9V034_COARSE_SW_1_A, 443);       //default value
+	mt9v034_write_half_word(MT9V034_COARSE_SW_2_A, 473);       //default value
+	mt9v034_write_half_word(MT9V034_COARSE_SW_CTRL_A, 0x0164); //default value
+	mt9v034_write_half_word(MT9V034_COARSE_SW_TOTAL_A, 480);   //default value
+	mt9v034_write_half_word(MT9V034_READ_MODE_A, 0x030a);      //enable 4x pixel binning
 
-	/* context b : calibration mode (full size image and 4x binning) */
+	/* context b : calibration mode (188x120,  4x binning) */
 	mt9v034_write_half_word(
 	        MT9V034_COLUMN_START_B,
 	        (MT9V034_WINDOW_WIDTH_MAX - CALIB_IMG_WIDTH * IMAGE_BINNING) / 2 + MT9V034_COLUMN_START_MIN
@@ -72,8 +89,8 @@ static void mt9v034_context_config(void)
 	        MT9V034_ROW_START_B,
 	        (MT9V034_WINDOW_HEIGHT_MAX - CALIB_IMG_HEIGHT * IMAGE_BINNING) / 2 + MT9V034_ROW_START_MIN
 	);
-	mt9v034_write_half_word(MT9V034_WINDOW_HEIGHT_B, CALIB_IMG_HEIGHT * IMAGE_BINNING); //120
-	mt9v034_write_half_word(MT9V034_WINDOW_WIDTH_B, CALIB_IMG_WIDTH * IMAGE_BINNING);   //188
+	mt9v034_write_half_word(MT9V034_WINDOW_HEIGHT_B, CALIB_IMG_HEIGHT * IMAGE_BINNING);
+	mt9v034_write_half_word(MT9V034_WINDOW_WIDTH_B, CALIB_IMG_WIDTH * IMAGE_BINNING);
 	mt9v034_write_half_word(MT9V034_HORIZONTAL_BLANKING_B, 709 + MT9V034_HORIZONTAL_BLANKING_MIN);
 	mt9v034_write_half_word(MT9V034_VERTICAL_BLANKING_B, 10);
 	mt9v034_write_half_word(MT9V034_COARSE_SW_1_B, 443);       //default value
