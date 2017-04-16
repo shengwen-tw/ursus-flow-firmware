@@ -26,7 +26,7 @@ extern float drift_x;
 extern float drift_y;
 extern float drift_z;
 
-static void usb_send_onboard_info(void)
+/*static*/ void usb_send_onboard_info(void)
 {
 	/* The size of the data is too big so need to be seperated into 3 part */
 	char header_message[HEADER_MSG_SIZE];
