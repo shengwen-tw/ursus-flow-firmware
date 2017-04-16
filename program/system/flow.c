@@ -84,8 +84,6 @@ void flow_estimate_task(void)
 
 		//flow_estimate()
 
-		//while(mpu9250_is_transmitting() || lidar_is_transmitting());
-
 		lidar_read_distance(&lidar_distance);
 
 		mt9v034_start_capture_image((uint32_t)image[next].frame);
