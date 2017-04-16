@@ -161,6 +161,18 @@ int main()
 
 			cv_image = cv::Mat(image_height, image_width, CV_16UC1, buffer);
 			cv::resize(cv_image, cv_image, cv::Size(image_width * 4, image_height * 4));
+			cv::cvtColor(cv_image, cv_image, CV_GRAY2BGR); 
+
+			/* 4x downsample visualization */
+			int sample_rate = 4;
+			for(int x = 0; x < 64; x += sample_rate) {
+				for(int y = 0; y < 64; y += sample_rate) {
+					cv::circle(cv_image, cv::Point((x + 8) * 4, (y + 8) * 4),
+					           1, cv::Scalar(0, 65535, 0),
+					           1, CV_AA, 0);
+				}
+			}
+
 			cv::imshow("ursus-flow camera", cv_image);
 			cv::waitKey(1);
 		} else if(received_len == 0 || received_len == -1) {
