@@ -32,7 +32,7 @@ void match_point_local_area(uint16_t *previos_image, uint16_t *current_image,
                             uint8_t *match_x, uint8_t *match_y)
 {
 	int sad_min_x = -4, sad_min_y = -4;
-	uint32_t sad_min_value = UINT32_MAX; 
+	uint32_t sad_min_value = UINT32_MAX;
 	uint32_t current_sad;
 
 	int x, y;
@@ -102,7 +102,7 @@ void simulate_opical_flow_on_pc()
 	for(int x = 0; x < 64; x += sample_rate) {
 		for(int y = 0; y < 64; y += sample_rate) {
 			cv::Point start((flow_start + y) * 4, (flow_start + x) * 4);
-			cv::Point end(flow.match_y[x][y] * 4, flow.match_x[x][y] * 4);	
+			cv::Point end(flow.match_y[x][y] * 4, flow.match_x[x][y] * 4);
 
 			cv::circle(cv_image, start, 1, cv::Scalar(0, 0, 65535), 1, CV_AA, 0);
 

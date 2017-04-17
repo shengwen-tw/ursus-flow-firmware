@@ -11,11 +11,11 @@
 #define CALIB_IMG_HEIGHT       120
 
 #if (CALIBRATION_ENABLED == 0)
-	#define IMG_HEIGHT FLOW_IMG_HEIGHT
-	#define IMG_WIDTH  FLOW_IMG_WIDTH
+#define IMG_HEIGHT FLOW_IMG_HEIGHT
+#define IMG_WIDTH  FLOW_IMG_WIDTH
 #else
-	#define IMG_HEIGHT CALIB_IMG_HEIGHT
-	#define IMG_WIDTH  CALIB_IMG_WIDTH
+#define IMG_HEIGHT CALIB_IMG_HEIGHT
+#define IMG_WIDTH  CALIB_IMG_WIDTH
 #endif
 
 /* =========== mt9v034 i2c device address =========== */
