@@ -4,6 +4,8 @@
 #include <libusb-1.0/libusb.h>
 #include "opencv2/opencv.hpp"
 
+#include "flow_simulate.hpp"
+
 #define VENDOR_ID  0x0483
 #define PRODUCT_ID 0x5740
 
@@ -16,8 +18,6 @@
 static int ep_in_address  = 0x81;
 static int ep_out_address = 0x01;
 
-uint16_t *buffer;
-
 cv::Mat cv_image;
 int image_width = 72;  //Default
 int image_height = 72; //Default
@@ -26,6 +26,10 @@ int image_height = 72; //Default
 uint16_t lidar_distance = 0;
 float gyro_x = 0, gyro_y = 0, gyro_z = 0;
 uint8_t gyro_calib_enable = 0;
+
+bool simulate_flow = true;
+flow_t flow;
+int next = 0;
 
 static struct libusb_device_handle *dev_handle = NULL;
 
@@ -46,22 +50,7 @@ int usb_read(uint8_t *buffer, int size, int timeout)
 	return received_len;
 }
 
-void simulate_opical_flow_on_pc()
-{
-	cv::cvtColor(cv_image, cv_image, CV_GRAY2BGR); 
-
-	/* 4x downsample visualization */
-	int sample_rate = 4;
-	for(int x = 0; x < 64 + 1; x += sample_rate) {
-		for(int y = 0; y < 64 + 1; y += sample_rate) {
-			cv::circle(cv_image, cv::Point((x + 4) * 4, (y + 4) * 4),
-			           1, cv::Scalar(0, 0, 65535),
-			           1, CV_AA, 0);
-		}
-	}
-}
-
-bool usb_receive_onboard_info()
+bool usb_receive_onboard_info(uint16_t *buffer)
 {
 	int received_len;
 	int size_to_receive = MAX_IMAGE_SIZE * sizeof(buffer[0]);
@@ -77,7 +66,7 @@ bool usb_receive_onboard_info()
 			break;
 		}
 
-	}	
+	}
 
 	/* Lidar distance */
 	int append_size = 3;
@@ -184,18 +173,41 @@ int main()
 	}
 
 	/* receive data from usb */
-	buffer = (uint16_t *)malloc(sizeof(uint16_t) * BUFFER_SIZE);
+	uint16_t *buffer = (uint16_t *)malloc(sizeof(uint16_t) * BUFFER_SIZE);
+
+	int prepare_image = 2;
 
 	while(1) {
-		if(usb_receive_onboard_info() == true) {
+		if(usb_receive_onboard_info(buffer) == true) {
+#ifndef THIS_IS_A_HACK
 			cv_image = cv::Mat(image_height, image_width, CV_16UC1, buffer);
 			//cv::resize(cv_image, cv_image, cv::Size(image_width * 4, image_height * 4));
 
-#ifndef THIS_IS_A_HACK
 			cv_image = cv_image(cv::Rect(0, 0, 72, 72));
 			cv::resize(cv_image, cv_image, cv::Size(72 * 4, 72 * 4));
+
+			/* Copy and convet size from 79x79 to 72x72 */
+			for(int i = 0; i < FLOW_IMG_WIDTH; i++) {
+				for(int j = 0; j < FLOW_IMG_HEIGHT; j++) {
+					flow.image[next].frame[i][j] = buffer[i * 79 + j];
+				}
+			}
 #endif
-			simulate_opical_flow_on_pc();
+
+			if(simulate_flow == true) {
+				//memcpy((uint16_t *)flow.image[next].frame, buffer, FLOW_IMG_SIZE);
+				next = (next + 1) % 2;
+
+				if(prepare_image == 0) {
+					simulate_opical_flow_on_pc();
+
+					//debug code
+					//cv_image = cv::Mat(72, 72, CV_16UC1, flow.image[(next + 1) % 2].frame);
+					//cv::resize(cv_image, cv_image, cv::Size(72 * 4, 72 * 4));
+				} else {
+					prepare_image--;
+				}
+			}
 
 			cv::imshow("ursus-flow camera", cv_image);
 			cv::waitKey(1);
@@ -204,7 +216,7 @@ int main()
 			break;
 		}
 	}
-	
+
 	printf("[leave]\n");
 
 	/* close and exit */
