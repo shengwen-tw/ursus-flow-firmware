@@ -29,7 +29,7 @@ uint8_t gyro_calib_enable = 0;
 
 bool simulate_flow = true;
 flow_t flow;
-int next = 0;
+int now = 0;
 
 static struct libusb_device_handle *dev_handle = NULL;
 
@@ -175,7 +175,7 @@ int main()
 	/* receive data from usb */
 	uint16_t *buffer = (uint16_t *)malloc(sizeof(uint16_t) * BUFFER_SIZE);
 
-	int prepare_image = 2;
+	int prepare_image = 1;
 
 	while(1) {
 		if(usb_receive_onboard_info(buffer) == true) {
@@ -187,26 +187,27 @@ int main()
 			cv::resize(cv_image, cv_image, cv::Size(72 * 4, 72 * 4));
 
 			/* Copy and convet size from 79x79 to 72x72 */
-			for(int i = 0; i < FLOW_IMG_WIDTH; i++) {
-				for(int j = 0; j < FLOW_IMG_HEIGHT; j++) {
-					flow.image[next].frame[i][j] = buffer[i * 79 + j];
+			for(int i = 0; i < FLOW_IMG_SIZE; i++) {
+				for(int j = 0; j < FLOW_IMG_SIZE; j++) {
+					flow.image[now].frame[i][j] = buffer[i * 79 + j];
 				}
 			}
 #endif
 
 			if(simulate_flow == true) {
-				//memcpy((uint16_t *)flow.image[next].frame, buffer, FLOW_IMG_SIZE);
-				next = (next + 1) % 2;
+				//memcpy((uint16_t *)flow.image[now].frame, buffer, FLOW_IMG_SIZE * FLOW_IMG_SIZE);
 
 				if(prepare_image == 0) {
 					simulate_opical_flow_on_pc();
 
 					//debug code
-					//cv_image = cv::Mat(72, 72, CV_16UC1, flow.image[(next + 1) % 2].frame);
+					//cv_image = cv::Mat(72, 72, CV_16UC1, flow.image[(now + 1) % 2].frame);
 					//cv::resize(cv_image, cv_image, cv::Size(72 * 4, 72 * 4));
 				} else {
 					prepare_image--;
 				}
+
+				now = (now + 1) % 2;
 			}
 
 			cv::imshow("ursus-flow camera", cv_image);
