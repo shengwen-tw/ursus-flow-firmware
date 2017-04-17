@@ -12,13 +12,20 @@
 
 #define PACKET_HEADER_SIZE 20
 
+/* Use lsusb -v to find the correspond values */
+static int ep_in_address  = 0x81;
+static int ep_out_address = 0x01;
+
+uint16_t *buffer;
+
 cv::Mat cv_image;
 int image_width = 72;  //Default
 int image_height = 72; //Default
 
-/* Use lsusb -v to find the correspond values */
-static int ep_in_address  = 0x81;
-static int ep_out_address = 0x01;
+/* on-board info */
+uint16_t lidar_distance = 0;
+float gyro_x = 0, gyro_y = 0, gyro_z = 0;
+uint8_t gyro_calib_enable = 0;
 
 static struct libusb_device_handle *dev_handle = NULL;
 
@@ -52,6 +59,95 @@ void simulate_opical_flow_on_pc()
 			           1, CV_AA, 0);
 		}
 	}
+}
+
+bool usb_receive_onboard_info()
+{
+	int received_len;
+	int size_to_receive = MAX_IMAGE_SIZE * sizeof(buffer[0]);
+
+	/* wait for header message */
+	while(1) {
+		received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
+
+		if(received_len == 0 || received_len == -1) {
+			printf("\n[usb disconnected]\n");
+			return false;
+		} else if(received_len == PACKET_HEADER_SIZE) {
+			break;
+		}
+
+	}	
+
+	/* Lidar distance */
+	int append_size = 3;
+
+	//unpack header - lidar distance
+	memcpy(&lidar_distance, (uint8_t *)buffer + append_size, sizeof(uint16_t));
+	append_size += sizeof(uint16_t);
+
+	memcpy(&gyro_calib_enable, (uint8_t *)buffer + append_size, sizeof(uint8_t));
+	append_size += sizeof(uint8_t);
+
+	//unpack header - gyro x
+	memcpy(&gyro_x, (uint8_t *)buffer + append_size, sizeof(float));
+	append_size += sizeof(float);
+
+	//unpack header - gyro y
+	memcpy(&gyro_y, (uint8_t *)buffer + append_size, sizeof(float));
+	append_size += sizeof(float);
+
+	//unpack header -  gyro z
+	memcpy(&gyro_z, (uint8_t *)buffer + append_size, sizeof(float));
+	append_size += sizeof(float);
+
+	//unpack header - image width
+	memcpy(&image_width, (uint8_t *)buffer + append_size, sizeof(uint8_t));
+	append_size += sizeof(uint8_t);
+
+	//unpack header -  image_height
+	memcpy(&image_height, (uint8_t *)buffer + append_size, sizeof(uint8_t));
+	append_size += sizeof(uint8_t);
+
+	if(gyro_calib_enable == 0) {
+		printf("image size: %dx%d\n"
+		       "lidar distance: %dcm\n"
+		       "gyro_x: %+.3f\n"
+		       "gyro_y: %+.3f\n"
+		       "gyro_z: %+.3f\n"
+		       "\033[2J\033[1;1H",
+		       image_width,
+		       image_height,
+		       lidar_distance,
+		       gyro_x,
+		       gyro_y,
+		       gyro_z);
+	} else {
+		printf("[gyroscope bias calibration]\n"
+		       "bias x: %+.3f\n"
+		       "bias y: %+.3f\n"
+		       "bias z: %+.3f\n"
+		       "\033[2J\033[1;1H",
+		       gyro_x,
+		       gyro_y,
+		       gyro_z);
+	}
+
+	/* receive camera image in two parts */
+	received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
+	received_len = usb_read((uint8_t *)buffer + received_len, size_to_receive, 1000);
+
+	if(received_len > 0 && gyro_calib_enable == 0) {
+		//printf("received new image, size = %d bytes\n", received_len);
+
+		for(int i = 0; i < image_width * image_height; i++) {
+			buffer[i] = buffer[i] << 6;
+		}
+	} else if(received_len == 0 || received_len == -1) {
+		return false;
+	}
+
+	return true;
 }
 
 int main()
@@ -88,92 +184,10 @@ int main()
 	}
 
 	/* receive data from usb */
-	uint16_t *buffer = (uint16_t *)malloc(sizeof(uint16_t) * BUFFER_SIZE);
-	int size_to_receive = MAX_IMAGE_SIZE * sizeof(buffer[0]);
-	int received_len;
-
-	uint16_t lidar_distance = 0;
-	float gyro_x = 0, gyro_y = 0, gyro_z = 0;
-	uint8_t gyro_calib_enable = 0;
+	buffer = (uint16_t *)malloc(sizeof(uint16_t) * BUFFER_SIZE);
 
 	while(1) {
-		/* wait for header message */
-		received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
-
-		if(received_len == 0 || received_len == -1) {
-			printf("\n[usb disconnected]\n");
-			break;
-		} else if(received_len != PACKET_HEADER_SIZE) {
-			continue;
-		}
-
-		/* Lidar distance */
-		int append_size = 3;
-
-		//unpack header - lidar distance
-		memcpy(&lidar_distance, (uint8_t *)buffer + append_size, sizeof(uint16_t));
-		append_size += sizeof(uint16_t);
-
-		memcpy(&gyro_calib_enable, (uint8_t *)buffer + append_size, sizeof(uint8_t));
-		append_size += sizeof(uint8_t);
-
-		//unpack header - gyro x
-		memcpy(&gyro_x, (uint8_t *)buffer + append_size, sizeof(float));
-		append_size += sizeof(float);
-
-		//unpack header - gyro y
-		memcpy(&gyro_y, (uint8_t *)buffer + append_size, sizeof(float));
-		append_size += sizeof(float);
-
-		//unpack header -  gyro z
-		memcpy(&gyro_z, (uint8_t *)buffer + append_size, sizeof(float));
-		append_size += sizeof(float);
-
-		//unpack header - image width
-		memcpy(&image_width, (uint8_t *)buffer + append_size, sizeof(uint8_t));
-		append_size += sizeof(uint8_t);
-
-		//unpack header -  image_height
-		memcpy(&image_height, (uint8_t *)buffer + append_size, sizeof(uint8_t));
-		append_size += sizeof(uint8_t);
-
-		if(gyro_calib_enable == 0) {
-			printf("image size: %dx%d\n"
-			       "lidar distance: %dcm\n"
-			       "gyro_x: %+.3f\n"
-			       "gyro_y: %+.3f\n"
-			       "gyro_z: %+.3f\n"
-			       "\033[2J\033[1;1H",
-			       image_width,
-			       image_height,
-			       lidar_distance,
-			       gyro_x,
-			       gyro_y,
-			       gyro_z);
-		} else {
-			printf("[gyroscope bias calibration]\n"
-			       "bias x: %+.3f\n"
-			       "bias y: %+.3f\n"
-			       "bias z: %+.3f\n"
-			       "\033[2J\033[1;1H",
-			       gyro_x,
-			       gyro_y,
-			       gyro_z);
-		}
-
-		/* receive camera image in two parts */
-		received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
-		received_len = usb_read((uint8_t *)buffer + received_len, size_to_receive, 1000);
-
-		if(received_len > 0 && gyro_calib_enable == 0) {
-			//printf("received new image, size = %d bytes\n", received_len);
-
-			for(int i = 0; i < image_width * image_height; i++) {
-				buffer[i] = buffer[i] << 6;
-			}
-
-			//printf("%d\n", buffer[0]);
-
+		if(usb_receive_onboard_info() == true) {
 			cv_image = cv::Mat(image_height, image_width, CV_16UC1, buffer);
 			//cv::resize(cv_image, cv_image, cv::Size(image_width * 4, image_height * 4));
 
@@ -185,7 +199,7 @@ int main()
 
 			cv::imshow("ursus-flow camera", cv_image);
 			cv::waitKey(1);
-		} else if(received_len == 0 || received_len == -1) {
+		} else {
 			printf("\n[usb disconnected]\n");
 			break;
 		}
