@@ -12,8 +12,9 @@
 
 #define PACKET_HEADER_SIZE 20
 
-int image_width = 81;
-int image_height = 81;
+cv::Mat cv_image;
+int image_width = 72;  //Default
+int image_height = 72; //Default
 
 /* Use lsusb -v to find the correspond values */
 static int ep_in_address  = 0x81;
@@ -36,6 +37,21 @@ int usb_read(uint8_t *buffer, int size, int timeout)
 	}
 
 	return received_len;
+}
+
+void simulate_opical_flow_on_pc()
+{
+	cv::cvtColor(cv_image, cv_image, CV_GRAY2BGR); 
+
+	/* 4x downsample visualization */
+	int sample_rate = 4;
+	for(int x = 0; x < 64 + 1; x += sample_rate) {
+		for(int y = 0; y < 64 + 1; y += sample_rate) {
+			cv::circle(cv_image, cv::Point((x + 4) * 4, (y + 4) * 4),
+			           1, cv::Scalar(0, 0, 65535),
+			           1, CV_AA, 0);
+		}
+	}
 }
 
 int main()
@@ -75,7 +91,6 @@ int main()
 	uint16_t *buffer = (uint16_t *)malloc(sizeof(uint16_t) * BUFFER_SIZE);
 	int size_to_receive = MAX_IMAGE_SIZE * sizeof(buffer[0]);
 	int received_len;
-	cv::Mat cv_image;
 
 	uint16_t lidar_distance = 0;
 	float gyro_x = 0, gyro_y = 0, gyro_z = 0;
@@ -160,18 +175,13 @@ int main()
 			//printf("%d\n", buffer[0]);
 
 			cv_image = cv::Mat(image_height, image_width, CV_16UC1, buffer);
-			cv::resize(cv_image, cv_image, cv::Size(image_width * 4, image_height * 4));
-			cv::cvtColor(cv_image, cv_image, CV_GRAY2BGR); 
+			//cv::resize(cv_image, cv_image, cv::Size(image_width * 4, image_height * 4));
 
-			/* 4x downsample visualization */
-			int sample_rate = 4;
-			for(int x = 0; x < 64; x += sample_rate) {
-				for(int y = 0; y < 64; y += sample_rate) {
-					cv::circle(cv_image, cv::Point((x + 8) * 4, (y + 8) * 4),
-					           1, cv::Scalar(0, 65535, 0),
-					           1, CV_AA, 0);
-				}
-			}
+#ifndef THIS_IS_A_HACK
+			cv_image = cv_image(cv::Rect(0, 0, 72, 72));
+			cv::resize(cv_image, cv_image, cv::Size(72 * 4, 72 * 4));
+#endif
+			simulate_opical_flow_on_pc();
 
 			cv::imshow("ursus-flow camera", cv_image);
 			cv::waitKey(1);
@@ -180,8 +190,11 @@ int main()
 			break;
 		}
 	}
+	
+	printf("[leave]\n");
 
 	/* close and exit */
+	cv_image.release();
 	free(buffer);
 	libusb_close(dev_handle);
 	libusb_exit(NULL);
