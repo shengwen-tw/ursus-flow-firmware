@@ -16,7 +16,7 @@
 
 #define HEADER_MSG_SIZE 20
 
-extern image_t image[2];
+extern flow_t flow;
 
 extern vector3d_f_t gyro_data;
 extern uint16_t lidar_distance;
@@ -79,9 +79,9 @@ extern float drift_z;
 	usb_cdc_send((uint8_t *)header_message, HEADER_MSG_SIZE);
 
 	/* image */
-	const size_t half_image_size = sizeof(image[0].frame) / 2;
-	usb_cdc_send((uint8_t *)image[0].frame, half_image_size);
-	usb_cdc_send((uint8_t *)image[0].frame + half_image_size, half_image_size);
+	const size_t half_image_size = sizeof(flow.image[0].frame) / 2;
+	usb_cdc_send((uint8_t *)flow.image[0].frame, half_image_size);
+	usb_cdc_send((uint8_t *)flow.image[0].frame + half_image_size, half_image_size);
 }
 
 void usb_link_task(void)

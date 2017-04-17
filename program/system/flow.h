@@ -7,6 +7,10 @@ typedef struct {
 	uint16_t frame[IMG_WIDTH][IMG_HEIGHT];
 } image_t;
 
+typedef struct {
+	image_t image[2];
+} flow_t;
+
 void flow_estimate_task(void);
 
 void give_flow_task_semaphore_from_isr(void);

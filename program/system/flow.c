@@ -26,7 +26,7 @@ extern TaskHandle_t usb_link_task_handle;
 
 SemaphoreHandle_t flow_task_semaphore;
 
-image_t image[2];
+flow_t flow;
 
 vector3d_f_t gyro_data;
 uint16_t lidar_distance;
@@ -66,9 +66,9 @@ void flow_estimate_task(void)
 	flow_task_semaphore = xSemaphoreCreateBinary();
 	timer_init();
 
-	mt9v034_start_capture_image((uint32_t)image[0].frame);
+	mt9v034_start_capture_image((uint32_t)flow.image[0].frame);
 	mt9v034_wait_finish();
-	mt9v034_start_capture_image((uint32_t)image[1].frame);
+	mt9v034_start_capture_image((uint32_t)flow.image[1].frame);
 
 	int next = 0;
 
@@ -92,7 +92,7 @@ void flow_estimate_task(void)
 #if 0
 		mt9v034_start_capture_image((uint32_t)image[next].frame);
 #else
-		mt9v034_start_capture_image((uint32_t)image[0].frame);
+		mt9v034_start_capture_image((uint32_t)flow.image[0].frame);
 		usb_send_onboard_info();
 #endif
 		next = (next + 1) % 2;
