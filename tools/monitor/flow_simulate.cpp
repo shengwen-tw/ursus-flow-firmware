@@ -74,8 +74,8 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 			match_point_local_area(frame1, frame2, &match_x, &match_y);
 
 			/* convert the position relative the full image */
-			flow.match_x[x][y] = match_x + start_x + x;
-			flow.match_y[x][y] = match_y + start_y + y;
+			flow.match_x[x][y] = match_x + start_x;
+			flow.match_y[x][y] = match_y + start_y;
 		}
 	}
 }
