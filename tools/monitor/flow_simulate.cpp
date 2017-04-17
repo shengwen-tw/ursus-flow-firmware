@@ -41,6 +41,9 @@ void match_point_local_area(uint16_t *previos_image, uint16_t *current_image,
 			current_sad =
 			        calculate_sad16(&previos_image[0], &current_image[x * FLOW_IMG_SIZE + y]);
 
+			/* distance weighting */
+			current_sad *= (fabs(x) + 1.0) * (fabs(y) + 1.0);
+
 			if(current_sad < sad_min_value) {
 				sad_min_x = x;
 				sad_min_y = y;
@@ -98,8 +101,8 @@ void simulate_opical_flow_on_pc()
 	int flow_start = TEMPLATE_MIDPOINT_OFFSET + TEMPLATE_SEARCH_SUBAREA_OFFSET;
 	for(int x = 0; x < 64; x += sample_rate) {
 		for(int y = 0; y < 64; y += sample_rate) {
-			cv::Point start((flow_start + x) * 4, (flow_start + y) * 4);
-			cv::Point end(flow.match_x[x][y] * 4, flow.match_y[x][y] * 4);	
+			cv::Point start((flow_start + y) * 4, (flow_start + x) * 4);
+			cv::Point end(flow.match_y[x][y] * 4, flow.match_x[x][y] * 4);	
 
 			cv::circle(cv_image, start, 1, cv::Scalar(0, 0, 65535), 1, CV_AA, 0);
 
