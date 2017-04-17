@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include "opencv2/opencv.hpp"
 
 #include "flow_simulate.hpp"
@@ -31,12 +32,12 @@ void match_point_local_area(uint16_t *previos_image, uint16_t *current_image,
                             uint8_t *match_x, uint8_t *match_y)
 {
 	int sad_min_x = -4, sad_min_y = -4;
-	uint32_t sad_min_value = calculate_sad16(&previos_image[0], &current_image[-4 * FLOW_IMG_SIZE + -4]);
+	uint32_t sad_min_value = UINT32_MAX; 
 	uint32_t current_sad;
 
 	int x, y;
-	for(x = -4 + 1; x < +4; x++) {
-		for(y = -4 + 1; y < +4; y++) {
+	for(x = -4; x < +4; x++) {
+		for(y = -4; y < +4; y++) {
 			current_sad =
 			        calculate_sad16(&previos_image[0], &current_image[x * FLOW_IMG_SIZE + y]);
 
@@ -47,6 +48,9 @@ void match_point_local_area(uint16_t *previos_image, uint16_t *current_image,
 			}
 		}
 	}
+
+	*match_x = sad_min_x;
+	*match_y = sad_min_y;
 }
 
 void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
@@ -70,8 +74,8 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 			match_point_local_area(frame1, frame2, &match_x, &match_y);
 
 			/* convert the position relative the full image */
-			flow.match_x[x][y] = match_x + start_x;
-			flow.match_y[x][y] = match_y + start_y;
+			flow.match_x[x][y] = match_x + start_x + x;
+			flow.match_y[x][y] = match_y + start_y + y;
 		}
 	}
 }
@@ -95,9 +99,10 @@ void simulate_opical_flow_on_pc()
 	for(int x = 0; x < 64; x += sample_rate) {
 		for(int y = 0; y < 64; y += sample_rate) {
 			cv::Point start((flow_start + x) * 4, (flow_start + y) * 4);
-			cv::Point end(flow.match_x[x][y], flow.match_y[x][y]);	
+			cv::Point end(flow.match_x[x][y] * 4, flow.match_y[x][y] * 4);	
 
 			cv::circle(cv_image, start, 1, cv::Scalar(0, 0, 65535), 1, CV_AA, 0);
+
 			cv::line(cv_image, start, end, cv::Scalar(0, 65535, 0), 1, 8);
 		}
 	}
