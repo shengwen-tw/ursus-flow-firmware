@@ -69,13 +69,19 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 
 	int8_t match_x = 0, match_y = 0; //match point relative to the local flow position
 
-	float mean_displacement = 0.0f;
-	int valid_count = 0;
+	/* histogram filter */
+	//x, y displacement in range of -4 ~ +4 (9x9 possibilities)
+	uint16_t histogram[FLOW_DISP_SIZE][FLOW_DISP_SIZE] = {0};
+	int8_t highest_vote_x = 0, highest_vote_y = 0;
+	int vote_count = 0;
+
+	int8_t predict_disp_x = 0, predict_disp_y = 0;
 
 	/* calculate the flow for every 64x64 points */
 	int x, y;
 	for(x = 0; x < FLOW_COUNT; x++) {
 		for(y = 0; y < FLOW_COUNT; y++) {
+			/* calculate the matching point using SAD */
 			start_x = x + offset;
 			start_y = y + offset;
 			frame1 = &previos_image[start_x * FLOW_IMG_SIZE + start_y];
@@ -86,19 +92,34 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 			flow.match_x[x][y] = match_x + start_x;
 			flow.match_y[x][y] = match_y + start_y;
 
-			float displcement = sqrt(match_x * match_x + match_y * match_y);
+			if(match_x == 0 && match_y == 0) {
+				continue;
+			}
 
-			if(displcement > 0.0f) {
-				valid_count++;
-				mean_displacement += displcement;
+			/* histogram voting */
+			int vote_x =  match_x + 4;
+			int vote_y =  match_y + 4;
+			histogram[vote_x][vote_y]++;
+			vote_count++;
+
+			/* update highest vote */
+			if(histogram[vote_x][vote_y] >
+			    histogram[highest_vote_x][highest_vote_y]) {
+				highest_vote_x = vote_x;
+				highest_vote_y = vote_y;
 			}
 		}
 	}
 
-	if(valid_count > FLOW_THRESHOLD) {
-		mean_displacement /= valid_count;
-		printf("mean displacement: %f pixels\n", mean_displacement);
+	if(vote_count < FLOW_THRESHOLD) {
+		predict_disp_x = 0;
+		predict_disp_y = 0;
+	} else {
+		predict_disp_x = highest_vote_x - 4;
+		predict_disp_y = highest_vote_y - 4;
 	}
+
+	printf("x: %d, y: %d\n", predict_disp_x, predict_disp_y);
 }
 
 void simulate_opical_flow_on_pc()
