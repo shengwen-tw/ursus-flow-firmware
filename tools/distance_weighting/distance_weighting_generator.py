@@ -40,7 +40,13 @@ select_print = linear
 c_matrix = str(select_print).replace('[', '{')
 c_matrix = c_matrix.replace(']', '}')
 c_matrix = c_matrix.replace('.', ',')
-print(c_matrix)
+c_matrix = c_matrix.replace('}}', ')')
+c_matrix = c_matrix.replace('}', '},')
+c_matrix = c_matrix.replace(')', '}}')
+c_matrix = c_matrix.replace(',}', '}')
+c_matrix += ';'
+
+print('\nconst uint8_t distance_weighting_table[9][9] =\n' + c_matrix)
 
 #Plot
 plot.figure()
