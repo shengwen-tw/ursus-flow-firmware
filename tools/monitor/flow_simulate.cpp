@@ -32,7 +32,7 @@ uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
 
 /* Find the matching point on two images in local -4 ~ +4 pixels */
 void match_point_local_area(uint16_t *previos_image, uint16_t *current_image,
-                            uint8_t *match_x, uint8_t *match_y)
+                            int8_t *match_x, int8_t *match_y)
 {
 	int sad_min_x = -4, sad_min_y = -4;
 	uint32_t sad_min_value = UINT32_MAX;
@@ -67,7 +67,7 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 	uint16_t *frame1;
 	uint16_t *frame2;
 
-	uint8_t match_x = 0, match_y = 0; //match point relative to the local flow position
+	int8_t match_x = 0, match_y = 0; //match point relative to the local flow position
 
 	/* calculate the flow for every 64x64 points */
 	int x, y;
