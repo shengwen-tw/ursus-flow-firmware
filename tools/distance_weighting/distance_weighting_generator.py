@@ -14,9 +14,9 @@ def generate_gaussian_2d(kernel_size, sigma):
     #normalization
     normal = gaussian[kernel_size // 2][kernel_size // 2]
     for entry in gaussian:
-        entry /= normal
+        entry /= normal / 25
 
-    return 2 - gaussian
+    return 25 - np.rint(gaussian) + 1
 
 def generate_linear_weighting_2d(size):
     #Generate dirac delta function
@@ -30,16 +30,17 @@ def generate_linear_weighting_2d(size):
 
 #Generate distance weighting functions
 linear = generate_linear_weighting_2d(9)
-gaussian = generate_gaussian_2d(9, 3)
+gaussian = generate_gaussian_2d(9, 2)
 
 #Print gaussian matrix
 select_print = linear
 #select_print = gaussian
 
 #Print in C style syntax
+np.set_printoptions(formatter={'float': '{: .1f}'.format})
 c_matrix = str(select_print).replace('[', '{')
 c_matrix = c_matrix.replace(']', '}')
-c_matrix = c_matrix.replace('.', ',')
+c_matrix = c_matrix.replace('.0', ',')
 c_matrix = c_matrix.replace('}}', ')')
 c_matrix = c_matrix.replace('}', '},')
 c_matrix = c_matrix.replace(')', '}}')
