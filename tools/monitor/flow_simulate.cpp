@@ -70,8 +70,9 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 	int8_t match_x = 0, match_y = 0; //match point relative to the local flow position
 
 	/* histogram filter */
-	//x, y displacement in range of -4 ~ +4 (9x9 possibilities)
-	uint16_t histogram[FLOW_DISP_SIZE][FLOW_DISP_SIZE] = {0};
+	//x, y displacement in range of -4 ~ +4 (9 possibilities)
+	uint16_t histogram_x[FLOW_DISP_SIZE] = {0};
+	uint16_t histogram_y[FLOW_DISP_SIZE] = {0};
 	int8_t highest_vote_x = 0, highest_vote_y = 0;
 	int vote_count = 0;
 
@@ -99,13 +100,16 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 			/* histogram voting */
 			int vote_x =  match_x + 4;
 			int vote_y =  match_y + 4;
-			histogram[vote_x][vote_y]++;
+			histogram_x[vote_x]++;
+			histogram_y[vote_y]++;
 			vote_count++;
 
 			/* update highest vote */
-			if(histogram[vote_x][vote_y] >
-			    histogram[highest_vote_x][highest_vote_y]) {
+			if(histogram_x[vote_x] > histogram_x[highest_vote_x]) {
 				highest_vote_x = vote_x;
+			}
+		
+			if(histogram_y[vote_y] > histogram_y[highest_vote_y]) {
 				highest_vote_y = vote_y;
 			}
 		}
@@ -120,6 +124,7 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 	}
 
 	printf("x: %d, y: %d\n", predict_disp_x, predict_disp_y);
+	printf("cnt x: %d, cnt y: %d\n", histogram_y[highest_vote_x], histogram_y[highest_vote_y]);
 }
 
 void simulate_opical_flow_on_pc()
