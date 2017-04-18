@@ -29,8 +29,8 @@ def generate_linear_weighting_2d(size):
     return linear_weighting
 
 #Generate distance weighting functions
-linear = generate_linear_weighting_2d(15)
-gaussian = generate_gaussian_2d(15, 3.4, 25)
+linear = generate_linear_weighting_2d(9)
+gaussian = generate_gaussian_2d(9, 3.4, 25)
 
 #Print matrix
 select_print = gaussian
