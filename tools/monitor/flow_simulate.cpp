@@ -3,6 +3,7 @@
 #include "opencv2/opencv.hpp"
 
 #include "flow_simulate.hpp"
+#include "distance_weighting.hpp"
 
 extern cv::Mat cv_image;
 
@@ -36,13 +37,13 @@ void match_point_local_area(uint16_t *previos_image, uint16_t *current_image,
 	uint32_t current_sad;
 
 	int x, y;
-	for(x = -4; x < +4; x++) {
-		for(y = -4; y < +4; y++) {
+	for(x = -4; x <= +4; x++) {
+		for(y = -4; y <= +4; y++) {
 			current_sad =
 			        calculate_sad16(&previos_image[0], &current_image[x * FLOW_IMG_SIZE + y]);
 
 			/* distance weighting */
-			current_sad *= (fabs(x) + 1.0) * (fabs(y) + 1.0);
+			current_sad *= distance_weighting_table[x + 4][y + 4];
 
 			if(current_sad < sad_min_value) {
 				sad_min_x = x;
