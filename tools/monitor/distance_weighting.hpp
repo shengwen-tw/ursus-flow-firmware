@@ -17,7 +17,7 @@ const uint8_t distance_weighting_table[9][9] = {
 #endif
 
 #if 1
-//gaussian distance weighting (sigma = 3.3, peak = 25):
+//gaussian distance weighting (sigma = 3.4, peak = 25):
 const uint8_t distance_weighting_table[9][9] = {
 	{ 10,  9,  8,  7,  6,  7,  8,  9,  10},
 	{  9,  8,  7,  6,  5,  6,  7,  8,   9},
