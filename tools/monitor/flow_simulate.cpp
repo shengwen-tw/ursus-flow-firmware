@@ -34,11 +34,11 @@ uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
 void match_point_local_area(uint16_t *previos_image, uint16_t *current_image,
                             int8_t *match_x, int8_t *match_y)
 {
-	int sad_min_x = -4, sad_min_y = -4;
+	int8_t sad_min_x = -4, sad_min_y = -4;
 	uint32_t sad_min_value = UINT32_MAX;
 	uint32_t current_sad;
 
-	int x, y;
+	int8_t x, y;
 	for(x = -4; x <= +4; x++) {
 		for(y = -4; y <= +4; y++) {
 			current_sad =
@@ -69,6 +69,9 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 
 	int8_t match_x = 0, match_y = 0; //match point relative to the local flow position
 
+	float mean_displacement = 0.0f;
+	int valid_count = 0;
+
 	/* calculate the flow for every 64x64 points */
 	int x, y;
 	for(x = 0; x < FLOW_COUNT; x++) {
@@ -82,7 +85,19 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 			/* convert the position relative the full image */
 			flow.match_x[x][y] = match_x + start_x;
 			flow.match_y[x][y] = match_y + start_y;
+
+			float displcement = sqrt(match_x * match_x + match_y * match_y);
+
+			if(displcement > 0.0f) {
+				valid_count++;
+				mean_displacement += displcement;
+			}
 		}
+	}
+
+	if(valid_count > FLOW_THRESHOLD) {
+		mean_displacement /= valid_count;
+		printf("mean displacement: %f pixels\n", mean_displacement);
 	}
 }
 

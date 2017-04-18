@@ -10,6 +10,8 @@
 #define TEMPLATE_MIDPOINT_OFFSET        3 //distance from template edge to its midpoint (8x8 template)
 #define TEMPLATE_SEARCH_SUBAREA_OFFSET  3 //distance from search subarea edge to the middlemost template
 
+#define FLOW_THRESHOLD 300 //64x64 = 4096
+
 typedef struct {
 	uint16_t frame[FLOW_IMG_SIZE][FLOW_IMG_SIZE];
 	uint8_t match_point[FLOW_IMG_SIZE][FLOW_IMG_SIZE];
