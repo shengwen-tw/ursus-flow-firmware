@@ -25,7 +25,9 @@ uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
 		}
 	}
 
-	return sad;
+	/* sad minimum value is 1 since later will do the distance weighting
+	   and required not to be 0 */
+	return sad + 1;
 }
 
 /* Find the matching point on two images in local -4 ~ +4 pixels */
