@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plot
 import scipy.ndimage.filters as filter
 
-def generate_gaussian_2d(kernel_size, sigma):
+def generate_gaussian_2d(kernel_size, sigma, max_weighting):
     #Generate dirac delta function
     dirac_input = np.zeros((kernel_size, kernel_size))
     dirac_input[kernel_size // 2, kernel_size // 2] = 1
@@ -14,9 +14,9 @@ def generate_gaussian_2d(kernel_size, sigma):
     #normalization
     normal = gaussian[kernel_size // 2][kernel_size // 2]
     for entry in gaussian:
-        entry /= normal / 25
+        entry /= normal / max_weighting
 
-    return 25 - np.rint(gaussian) + 1
+    return max_weighting - np.rint(gaussian) + 1
 
 def generate_linear_weighting_2d(size):
     #Generate dirac delta function
@@ -30,11 +30,11 @@ def generate_linear_weighting_2d(size):
 
 #Generate distance weighting functions
 linear = generate_linear_weighting_2d(9)
-gaussian = generate_gaussian_2d(9, 2)
+gaussian = generate_gaussian_2d(9, 2, 25)
 
-#Print gaussian matrix
-select_print = linear
-#select_print = gaussian
+#Print matrix
+select_print = gaussian
+#select_print = linear
 
 #Print in C style syntax
 np.set_printoptions(formatter={'float': '{: .1f}'.format})
@@ -47,7 +47,13 @@ c_matrix = c_matrix.replace(')', '}}')
 c_matrix = c_matrix.replace(',}', '}')
 c_matrix += ';'
 
-print('\nconst uint8_t distance_weighting_table[9][9] =\n' + c_matrix)
+if select_print.all() == gaussian.all():
+    print('\n//gaussian distance weighting:\n'
+          'const uint8_t distance_weighting_table[9][9] =\n' + c_matrix)
+
+elif select_print.all() == linear.all():
+    print('\n//linear distance weighting:\n'
+          'const uint8_t distance_weighting_table[9][9] =\n' + c_matrix)
 
 #Plot
 plot.figure()
