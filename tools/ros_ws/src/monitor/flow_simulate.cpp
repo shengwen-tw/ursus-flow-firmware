@@ -108,7 +108,7 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 			if(histogram_x[vote_x] > histogram_x[highest_vote_x]) {
 				highest_vote_x = vote_x;
 			}
-		
+
 			if(histogram_y[vote_y] > histogram_y[highest_vote_y]) {
 				highest_vote_y = vote_y;
 			}
@@ -136,9 +136,6 @@ void simulate_opical_flow_on_pc()
 
 	/* flow estimation */
 	flow_estimate(previous_image, current_image);
-
-	/* visualization */
-	cv::cvtColor(cv_image, cv_image, CV_GRAY2BGR);
 
 	/* 4x downsampling visualization */
 	int sample_rate = 4; //only visualize 1/4 flow on the image

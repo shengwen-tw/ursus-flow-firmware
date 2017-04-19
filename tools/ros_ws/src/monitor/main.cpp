@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <usb.h>
 #include <libusb-1.0/libusb.h>
 #include "opencv2/opencv.hpp"
+#include <ros/ros.h>
+#include <cv_bridge/cv_bridge.h>
 
 #include "flow_simulate.hpp"
 
@@ -33,6 +36,42 @@ int now = 0;
 
 static struct libusb_device_handle *dev_handle = NULL;
 
+bool _usb_init()
+{
+	int rc;
+
+	/* initialize libusb */
+	rc = libusb_init(NULL);
+	if (rc < 0) {
+		printf("Failed to initialize libusb!\n");
+		return false;
+	}
+
+	libusb_set_debug(NULL, 3);
+
+	/* open device to get the token */
+	dev_handle = libusb_open_device_with_vid_pid(NULL, VENDOR_ID, PRODUCT_ID);
+	if(!dev_handle) {
+		printf("error: device not found (please check vendor id and product id).\n");
+		return false;
+	}
+
+	/* claiming interface */
+	for(int if_num = 0; if_num < 2; if_num++) {
+		if (libusb_kernel_driver_active(dev_handle, if_num)) {
+			libusb_detach_kernel_driver(dev_handle, if_num);
+		}
+
+		rc = libusb_claim_interface(dev_handle, if_num);
+		if (rc < 0) {
+			printf("error: failed to claim the usb interface.\n");
+			return false;
+		}
+	}
+
+	return true;
+}
+
 int usb_read(uint8_t *buffer, int size, int timeout)
 {
 	int received_len;
@@ -60,7 +99,6 @@ bool usb_receive_onboard_info(uint16_t *buffer)
 		received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
 
 		if(received_len == 0 || received_len == -1) {
-			printf("\n[usb disconnected]\n");
 			return false;
 		} else if(received_len == PACKET_HEADER_SIZE) {
 			break;
@@ -139,37 +177,19 @@ bool usb_receive_onboard_info(uint16_t *buffer)
 	return true;
 }
 
-int main()
+int main(int argc, char **argv)
 {
-	int rc;
+	/* initialize ROS */
+	ros::init(argc, argv, "ursusflow");
+	ros::Time::init();
+	ros::Rate loop_rate(250);
 
-	/* initialize libusb */
-	rc = libusb_init(NULL);
-	if (rc < 0) {
-		printf("Failed to initialize libusb!\n");
+	ros::NodeHandle node;
+	ros::Publisher ros_image_publisher =
+	        node.advertise<sensor_msgs::Image>("ursusflow/flow_image", 10);
+
+	if(_usb_init() == false) {
 		return 0;
-	}
-
-	libusb_set_debug(NULL, 3);
-
-	/* open device to get the token */
-	dev_handle = libusb_open_device_with_vid_pid(NULL, VENDOR_ID, PRODUCT_ID);
-	if(!dev_handle) {
-		printf("error: device not found (please check vendor id and product id).\n");
-		return 0;
-	}
-
-	/* claiming interface */
-	for(int if_num = 0; if_num < 2; if_num++) {
-		if (libusb_kernel_driver_active(dev_handle, if_num)) {
-			libusb_detach_kernel_driver(dev_handle, if_num);
-		}
-
-		rc = libusb_claim_interface(dev_handle, if_num);
-		if (rc < 0) {
-			printf("error: failed to claim the usb interface.\n");
-			return false;
-		}
 	}
 
 	/* receive data from usb */
@@ -193,6 +213,7 @@ int main()
 				}
 			}
 #endif
+			cv::cvtColor(cv_image, cv_image, CV_GRAY2BGR);
 
 			if(simulate_flow == true) {
 				//memcpy((uint16_t *)flow.image[now].frame, buffer, FLOW_IMG_SIZE * FLOW_IMG_SIZE);
@@ -210,10 +231,18 @@ int main()
 				now = (now + 1) % 2;
 			}
 
+			/* convert image to ros message and send it */
+			cv::Mat cv_image_8u3;
+			cv_image.convertTo(cv_image_8u3, CV_8UC3, 1.0 / 256.0); //ros only support this format
+			sensor_msgs::ImagePtr ros_image_msg =
+			        cv_bridge::CvImage(std_msgs::Header(), "bgr8", cv_image_8u3).toImageMsg();
+
 			cv::imshow("ursus-flow camera", cv_image);
+			ros_image_publisher.publish(ros_image_msg);
+
 			cv::waitKey(1);
 		} else {
-			printf("\n[usb disconnected]\n");
+			printf("[usb disconnected]\n");
 			break;
 		}
 	}
