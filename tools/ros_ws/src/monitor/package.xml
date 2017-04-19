@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package>
+  <name>ursusflow</name>
+  <version>0.0.1</version>
+  <description>ursusflow optical flow tools</description>
+
+  <maintainer email="shengwen1997.tw@gmail.com">Shengwen Cheng</maintainer>
+
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>cv_bridge</buildtool_depend>
+  <buildtool_depend>sensor_msgs</buildtool_depend>
+  <buildtool_depend>std_msgs</buildtool_depend>
+  <buildtool_depend>roscpp</buildtool_depend>
+  <buildtool_depend>message_generation</buildtool_depend>
+
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>message_runtime</run_depend>
+
+  <export>
+  </export>
+</package>
