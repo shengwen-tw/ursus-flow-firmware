@@ -30,7 +30,7 @@ rosrun ursusflow monitor
 
 **Fix USB "Permission denied" error**
 
-first, open or create the linux udev rule file:
+First, open or create the linux udev rule file:
 
 ```
 sudo vi /etc/udev/rules.d/libusb.rules
