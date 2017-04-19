@@ -13,14 +13,14 @@
 The calibration monitor was written in C++ and using ROS (Robotic Operating System),
 remember install ROS before building the program.
 
-Build
+**Build**
 
 ```
 cd tools/ros_ws
 make
 ```
 
-Run
+**Run**
 
 ```
 cd tools/ros_ws
@@ -28,14 +28,15 @@ cd tools/ros_ws
 rosrun ursusflow monitor
 ```
 
-Fix USB "Permission denied" error
+**Fix USB "Permission denied" error**
 
+first, open or create the linux udev rule file:
 
 ```
 sudo vi /etc/udev/rules.d/libusb.rules
 ```
 
-and paste
+then paste
 
 ```
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", MODE:="0666"
