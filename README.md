@@ -27,3 +27,17 @@ cd tools/ros_ws
 . devel/setup.bash
 rosrun ursusflow monitor
 ```
+
+Fix USB "Permission denied" error
+
+
+```
+sudo vi /etc/udev/rules.d/libusb.rules
+```
+
+and paste
+
+```
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", MODE:="0666"
+
+```
