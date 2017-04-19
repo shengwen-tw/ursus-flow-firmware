@@ -28,6 +28,12 @@ cd tools/ros_ws
 rosrun ursusflow monitor
 ```
 
+**Camera calibration**
+
+```
+rosrun camera_calibration cameracalibrator.py --size 7x5 --square 0.031 image:=/ursusflow/flow_image --no-service-check
+```
+
 **Fix USB "Permission denied" error**
 
 First, open or create the linux udev rule file:
