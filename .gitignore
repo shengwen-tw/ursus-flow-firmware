@@ -10,3 +10,4 @@ tools/ros_ws/build/
 tools/ros_ws/devel/
 tools/ros_ws/src/CMakeLists.txt
 tools/ros_ws/src/monitor/monitor
+tools/ros_ws/.catkin_workspace
