@@ -13,6 +13,8 @@ extern int now;
 uint16_t *previous_image;
 uint16_t *current_image;
 
+float focal_length_mm = FOCAL_LENGTH_PX * (1.0f / RETINA_SIZE); //f_mm = f_px * m
+
 uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
 {
 	uint32_t sad = 0;
@@ -76,7 +78,7 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 	int8_t highest_vote_x = 0, highest_vote_y = 0;
 	int vote_count = 0;
 
-	int8_t predict_disp_x = 0, predict_disp_y = 0;
+	float predict_disp_x = 0, predict_disp_y = 0;
 
 	/* calculate the flow for every 64x64 points */
 	int x, y;
@@ -93,6 +95,7 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 			flow.match_x[x][y] = match_x + start_x;
 			flow.match_y[x][y] = match_y + start_y;
 
+			/* ignore zero displacement */
 			if(match_x == 0 && match_y == 0) {
 				continue;
 			}
@@ -103,15 +106,6 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 			histogram_x[vote_x]++;
 			histogram_y[vote_y]++;
 			vote_count++;
-
-			/* update highest vote */
-			if(histogram_x[vote_x] > histogram_x[highest_vote_x]) {
-				highest_vote_x = vote_x;
-			}
-
-			if(histogram_y[vote_y] > histogram_y[highest_vote_y]) {
-				highest_vote_y = vote_y;
-			}
 		}
 	}
 
@@ -119,11 +113,19 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 		predict_disp_x = 0;
 		predict_disp_y = 0;
 	} else {
-		predict_disp_x = highest_vote_x - 4;
-		predict_disp_y = highest_vote_y - 4;
+		/* calculate weighted average */
+		int disp_px;
+		for(disp_px = -4; disp_px <= 4; disp_px++) {
+			predict_disp_x += disp_px * histogram_x[disp_px + 4];
+			predict_disp_y += disp_px * histogram_y[disp_px + 4];
+		}
+
+		predict_disp_x /= (float)vote_count;
+		predict_disp_y /= (float)vote_count;
 	}
 
-	printf("x: %d, y: %d\n", predict_disp_x, predict_disp_y);
+	/* XXX: debug print */
+	printf("x: %f, y: %f\n", predict_disp_x, predict_disp_y);
 	printf("cnt x: %d, cnt y: %d\n", histogram_y[highest_vote_x], histogram_y[highest_vote_y]);
 }
 
