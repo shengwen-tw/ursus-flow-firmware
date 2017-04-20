@@ -241,6 +241,7 @@ int main(int argc, char **argv)
 			std_msgs::Float32 flow_vy_msg;
 			flow_vx_msg.data = flow_vx;
 			flow_vy_msg.data = flow_vy;
+
 			flow_vx_publisher.publish(flow_vx_msg);
 			flow_vy_publisher.publish(flow_vy_msg);
 
@@ -250,10 +251,10 @@ int main(int argc, char **argv)
 			sensor_msgs::ImagePtr ros_image_msg =
 			        cv_bridge::CvImage(std_msgs::Header(), "bgr8", cv_image_8u3).toImageMsg();
 
-			cv::imshow("ursus-flow camera", cv_image);
 			ros_image_publisher.publish(ros_image_msg);
 
-			cv::waitKey(1);
+			//cv::imshow("ursus-flow camera", cv_image);
+			//cv::waitKey(1);
 		} else {
 			printf("[usb disconnected]\n");
 			break;
