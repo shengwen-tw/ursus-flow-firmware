@@ -61,7 +61,7 @@ void match_point_local_area(uint16_t *previos_image, uint16_t *current_image,
 	*match_y = sad_min_y;
 }
 
-void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
+void flow_estimate(uint16_t *previos_image, uint16_t *current_image, float *flow_vx, float *flow_vy)
 {
 	/* convert the 72x72 start address into 64x64 address */
 	int offset = TEMPLATE_MIDPOINT_OFFSET + TEMPLATE_SEARCH_SUBAREA_OFFSET;
@@ -124,12 +124,15 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image)
 		predict_disp_y /= (float)vote_count;
 	}
 
+	*flow_vx = predict_disp_x;
+	*flow_vy = predict_disp_y;
+
 	/* XXX: debug print */
 	printf("x: %f, y: %f\n", predict_disp_x, predict_disp_y);
 	printf("cnt x: %d, cnt y: %d\n", histogram_y[highest_vote_x], histogram_y[highest_vote_y]);
 }
 
-void simulate_opical_flow_on_pc()
+void simulate_opical_flow_on_pc(float *flow_vx, float *flow_vy)
 {
 	int last = (now + 1) % 2;
 
@@ -137,7 +140,7 @@ void simulate_opical_flow_on_pc()
 	previous_image = (uint16_t *)flow.image[last].frame;
 
 	/* flow estimation */
-	flow_estimate(previous_image, current_image);
+	flow_estimate(previous_image, current_image, flow_vx, flow_vy);
 
 	/* 4x downsampling visualization */
 	int sample_rate = 4; //only visualize 1/4 flow on the image

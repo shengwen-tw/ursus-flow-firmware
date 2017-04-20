@@ -5,6 +5,7 @@
 #include <libusb-1.0/libusb.h>
 #include "opencv2/opencv.hpp"
 #include <ros/ros.h>
+#include <std_msgs/Float32.h>
 #include <cv_bridge/cv_bridge.h>
 
 #include "flow_simulate.hpp"
@@ -32,6 +33,7 @@ uint8_t gyro_calib_enable = 0;
 
 bool simulate_flow = true;
 flow_t flow;
+float flow_vx = 0, flow_vy = 0;
 int now = 0;
 
 static struct libusb_device_handle *dev_handle = NULL;
@@ -188,6 +190,9 @@ int main(int argc, char **argv)
 	ros::Publisher ros_image_publisher =
 	        node.advertise<sensor_msgs::Image>("ursusflow/flow_image", 10);
 
+	ros::Publisher flow_vx_publisher = node.advertise<std_msgs::Float32>("/ursusflow/flow_vx", 10);
+	ros::Publisher flow_vy_publisher = node.advertise<std_msgs::Float32>("/ursusflow/flow_vy", 10);
+
 	if(_usb_init() == false) {
 		return 0;
 	}
@@ -219,7 +224,7 @@ int main(int argc, char **argv)
 				//memcpy((uint16_t *)flow.image[now].frame, buffer, FLOW_IMG_SIZE * FLOW_IMG_SIZE);
 
 				if(prepare_image == 0) {
-					simulate_opical_flow_on_pc();
+					simulate_opical_flow_on_pc(&flow_vx, &flow_vy);
 
 					//debug code
 					//cv_image = cv::Mat(72, 72, CV_16UC1, flow.image[(now + 1) % 2].frame);
@@ -230,6 +235,14 @@ int main(int argc, char **argv)
 
 				now = (now + 1) % 2;
 			}
+
+			/* send flow velocity message */
+			std_msgs::Float32 flow_vx_msg;
+			std_msgs::Float32 flow_vy_msg;
+			flow_vx_msg.data = flow_vx;
+			flow_vy_msg.data = flow_vy;
+			flow_vx_publisher.publish(flow_vx_msg);
+			flow_vy_publisher.publish(flow_vy_msg);
 
 			/* convert image to ros message and send it */
 			cv::Mat cv_image_8u3;
