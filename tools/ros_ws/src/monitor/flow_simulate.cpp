@@ -33,7 +33,7 @@ uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
 }
 
 /* Find the matching point on two images in local -4 ~ +4 pixels */
-void match_point_local_area(uint16_t *previos_image, uint16_t *current_image,
+void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
                             int8_t *match_x, int8_t *match_y)
 {
 	int8_t sad_min_x = -4, sad_min_y = -4;
@@ -44,7 +44,7 @@ void match_point_local_area(uint16_t *previos_image, uint16_t *current_image,
 	for(x = -4; x <= +4; x++) {
 		for(y = -4; y <= +4; y++) {
 			current_sad =
-			        calculate_sad16(&previos_image[0], &current_image[x * FLOW_IMG_SIZE + y]);
+			        calculate_sad16(&current_image[0], &previous_image[x * FLOW_IMG_SIZE + y]);
 
 			/* distance weighting */
 			current_sad *= distance_weighting_table[x + 4][y + 4];
@@ -61,7 +61,7 @@ void match_point_local_area(uint16_t *previos_image, uint16_t *current_image,
 	*match_y = sad_min_y;
 }
 
-void flow_estimate(uint16_t *previos_image, uint16_t *current_image, float *flow_vx, float *flow_vy)
+void flow_estimate(uint16_t *previous_image, uint16_t *current_image, float *flow_vx, float *flow_vy)
 {
 	/* convert the 72x72 start address into 64x64 address */
 	int offset = TEMPLATE_MIDPOINT_OFFSET + TEMPLATE_SEARCH_SUBAREA_OFFSET;
@@ -87,7 +87,7 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image, float *flow
 			/* calculate the matching point using SAD */
 			start_x = x + offset;
 			start_y = y + offset;
-			frame1 = &previos_image[start_x * FLOW_IMG_SIZE + start_y];
+			frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
 			frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
 			match_point_local_area(frame1, frame2, &match_x, &match_y);
 
@@ -127,9 +127,12 @@ void flow_estimate(uint16_t *previos_image, uint16_t *current_image, float *flow
 	*flow_vx = predict_disp_x;
 	*flow_vy = predict_disp_y;
 
-	/* XXX: debug print */
-	printf("x: %f, y: %f\n", predict_disp_x, predict_disp_y);
-	printf("cnt x: %d, cnt y: %d\n", histogram_y[highest_vote_x], histogram_y[highest_vote_y]);
+#if 0
+	printf("x: %f, y: %f\n"
+	       "x vote count: %d, y vote count: %d\n",
+	       predict_disp_x, predict_disp_y,
+	       histogram_y[highest_vote_x], histogram_y[highest_vote_y]);
+#endif
 }
 
 void simulate_opical_flow_on_pc(float *flow_vx, float *flow_vy)
