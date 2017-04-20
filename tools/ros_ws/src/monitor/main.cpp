@@ -7,6 +7,7 @@
 #include <ros/ros.h>
 #include <std_msgs/Float32.h>
 #include <cv_bridge/cv_bridge.h>
+#include <tf/transform_broadcaster.h>
 
 #include "flow_simulate.hpp"
 
@@ -35,6 +36,8 @@ bool simulate_flow = true;
 flow_t flow;
 float flow_vx = 0, flow_vy = 0;
 int now = 0;
+
+float position_x = 0, position_y = 0, position_z = 0;
 
 static struct libusb_device_handle *dev_handle = NULL;
 
@@ -193,6 +196,9 @@ int main(int argc, char **argv)
 	ros::Publisher flow_vx_publisher = node.advertise<std_msgs::Float32>("/ursusflow/flow_vx", 10);
 	ros::Publisher flow_vy_publisher = node.advertise<std_msgs::Float32>("/ursusflow/flow_vy", 10);
 
+	tf::TransformBroadcaster tf_broadcaster;
+	tf::Transform transform;
+
 	if(_usb_init() == false) {
 		return 0;
 	}
@@ -202,7 +208,9 @@ int main(int argc, char **argv)
 
 	int prepare_image = 1;
 
-	while(1) {
+	double test = 0;
+
+	while(node.ok()) {
 		if(usb_receive_onboard_info(buffer) == true) {
 #ifndef THIS_IS_A_HACK
 			cv_image = cv::Mat(image_height, image_width, CV_16UC1, buffer);
@@ -252,6 +260,16 @@ int main(int argc, char **argv)
 			        cv_bridge::CvImage(std_msgs::Header(), "bgr8", cv_image_8u3).toImageMsg();
 
 			ros_image_publisher.publish(ros_image_msg);
+
+			position_x += flow_vx * 0.1; //integration asume delta = 0.1s
+			position_y += flow_vy * 0.1;
+			position_z = (float)lidar_distance / 100.0f; //convert unit from cm to m
+
+			transform.setOrigin(tf::Vector3(position_x, position_y, position_z));
+			transform.setRotation(tf::Quaternion(0, 0, 0, 1));
+
+			tf_broadcaster.sendTransform(
+			        tf::StampedTransform(transform, ros::Time::now(),"origin", "quadrotor"));
 
 			//cv::imshow("ursus-flow camera", cv_image);
 			//cv::waitKey(1);
