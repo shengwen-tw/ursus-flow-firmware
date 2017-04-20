@@ -6,12 +6,12 @@
 |--------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | blue   | optical flow task frequency | default: blink in 250hz<br />calibration mode: blink in low frequency |
 | yellow | -                           | -                                                                                                                                                                   |
-| red    | device initialization state | on: everything is good<br />off: hardware initialization is failed                                                                                                       |
+| red    | device initialization state | on: everything is good<br />off: hardware initialization failed                                                                                                       |
 
 ## USB calibration monitor
 
 The calibration monitor was written in C++ and using ROS (Robotic Operating System),
-remember install ROS before building the program.
+make sure you have already installed ROS before building the program.
 
 **Build**
 
@@ -25,13 +25,13 @@ make
 ```
 cd tools/ros_ws
 . devel/setup.bash
-rosrun ursusflow monitor
+roslaunch ursusflow monitor.launch
 ```
 
 **Camera calibration**
 
 ```
-rosrun camera_calibration cameracalibrator.py --size 7x5 --square 0.031 image:=/ursusflow/flow_image --no-service-check
+rosrun camera_calibration cameracalibrator.py --size 7x5 --square 0.031 image:=/ursusflow/flow_image --no-service-check --fix-aspect-ratio
 ```
 
 **Fix USB "Permission denied" error**
