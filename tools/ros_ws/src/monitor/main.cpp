@@ -195,6 +195,8 @@ int main(int argc, char **argv)
 
 	ros::Publisher flow_vx_publisher = node.advertise<std_msgs::Float32>("/ursusflow/flow_vx", 10);
 	ros::Publisher flow_vy_publisher = node.advertise<std_msgs::Float32>("/ursusflow/flow_vy", 10);
+	ros::Publisher lidar_distance_publisher =
+	        node.advertise<std_msgs::Float32>("/ursusflow/lidar_distance", 10);
 
 	tf::TransformBroadcaster tf_broadcaster;
 	tf::Transform transform;
@@ -247,11 +249,14 @@ int main(int argc, char **argv)
 			/* send flow velocity message */
 			std_msgs::Float32 flow_vx_msg;
 			std_msgs::Float32 flow_vy_msg;
+			std_msgs::Float32 lidar_distance_msg;
 			flow_vx_msg.data = flow_vx;
 			flow_vy_msg.data = flow_vy;
+			lidar_distance_msg.data = (float)lidar_distance;
 
 			flow_vx_publisher.publish(flow_vx_msg);
 			flow_vy_publisher.publish(flow_vy_msg);
+			lidar_distance_publisher.publish(lidar_distance_msg);
 
 			/* convert image to ros message and send it */
 			cv::Mat cv_image_8u3;
