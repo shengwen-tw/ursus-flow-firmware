@@ -13,6 +13,12 @@
 The calibration monitor was written in C++ and using ROS (Robotic Operating System),
 make sure you have already installed ROS before building the program.
 
+**Dependencies**
+
+```
+sudo apt install ros-kinetic-jsk-visualization
+```
+
 **Build**
 
 ```
