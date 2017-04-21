@@ -96,11 +96,6 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image, float *flo
 			flow.match_x[x][y] = match_x + start_x;
 			flow.match_y[x][y] = match_y + start_y;
 
-			/* ignore zero displacement */
-			if(match_x == 0 && match_y == 0) {
-				continue;
-			}
-
 			/* histogram voting */
 			int vote_x =  match_x + 4;
 			int vote_y =  match_y + 4;
@@ -111,8 +106,8 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image, float *flo
 	}
 
 	if(vote_count < FLOW_THRESHOLD) {
-		predict_disp_x = 0;
-		predict_disp_y = 0;
+		predict_disp_x = 0.0f;
+		predict_disp_y = 0.0f;
 	} else {
 		/* calculate weighted average */
 		int disp_px;
