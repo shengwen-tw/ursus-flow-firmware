@@ -54,6 +54,9 @@ static void mt9v034_context_config(void)
 	mt9v034_write_half_word(MT9V034_AEC_AGC_DESIRED_BIN, 25); //light regulation
 	mt9v034_write_half_word(MT9V034_AEC_LOW_PASS_FILTER, 0x0002);
 	mt9v034_write_half_word(MT9V034_AGC_AEC_PIXEL_CNT, IMG_WIDTH * IMG_HEIGHT);
+	mt9v034_write_half_word(MT9V034_MAX_ANALOG_GAIN, 40);
+	mt9v034_write_half_word(MT9V034_MIN_COARSE_SHUTTER_WIDTH, 1);
+	mt9v034_write_half_word(MT9V034_MAX_COARSE_SHUTTER_WIDTH, 480);
 
 	/* reserved register (read mt9v034 rev 7.1 datasheet table 8) */
 	mt9v034_write_half_word(0x13, 0x2d2e);
