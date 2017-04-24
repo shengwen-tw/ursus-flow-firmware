@@ -51,8 +51,9 @@ static void mt9v034_context_config(void)
 	mt9v034_write_half_word(MT9V034_HIGH_DYNAMIC_ENABLE, 0x0000);   //disable HDR
 	mt9v034_write_half_word(MT9V034_NOISE_CORRECTION_CTRL, 0x0303);
 	mt9v034_write_half_word(MT9V034_AEC_AGC_ENABLE, 0x0101);  //enale AEC, diable AGC
-	mt9v034_write_half_word(MT9V034_AEC_AGC_DESIRED_BIN, 50); //light regulation
+	mt9v034_write_half_word(MT9V034_AEC_AGC_DESIRED_BIN, 25); //light regulation
 	mt9v034_write_half_word(MT9V034_AEC_LOW_PASS_FILTER, 0x0002);
+	mt9v034_write_half_word(MT9V034_AGC_AEC_PIXEL_CNT, IMG_WIDTH * IMG_HEIGHT);
 
 	/* reserved register (read mt9v034 rev 7.1 datasheet table 8) */
 	mt9v034_write_half_word(0x13, 0x2d2e);

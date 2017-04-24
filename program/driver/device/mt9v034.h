@@ -35,6 +35,7 @@
 #define MT9V034_AEC_AGC_ENABLE                    0xaf
 #define MT9V034_AEC_AGC_DESIRED_BIN               0xa5
 #define MT9V034_AEC_LOW_PASS_FILTER               0xa8
+#define MT9V034_AGC_AEC_PIXEL_CNT                 0xb0
 
 #define MT9V034_COLUMN_START_A                    0x01
 #define		MT9V034_COLUMN_START_MIN          1
