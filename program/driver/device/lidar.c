@@ -63,17 +63,25 @@ void EXTI3_IRQHandler(void)
 	}
 }
 
-void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c2)
+extern I2C_HandleTypeDef i2c2;
+
+void I2C2_EV_IRQHandler(void)
 {
 	long higher_priority_task_woken = pdFALSE;
 
-	//convert received data from big endian to little endian
-	uint16_t lidar_distance = lidar_buffer[0] << 8 | lidar_buffer[1];
+	HAL_I2C_EV_IRQHandler(&i2c2);
 
-	/* put new lidar distance into the queue */
-	xQueueSendToBackFromISR(lidar_queue_handle, &lidar_distance,
-	                        &higher_priority_task_woken);
-	gpio_off(LED_2);
+	if(HAL_I2C_GetState(&i2c2) == HAL_I2C_STATE_READY) {
+		gpio_off(LED_2);
+
+		//convert received data from big endian to little endian
+		uint16_t lidar_distance = lidar_buffer[0] << 8 | lidar_buffer[1];
+
+		/* put new lidar distance into the queue */
+		xQueueSendToBackFromISR(lidar_queue_handle, &lidar_distance,
+		                        &higher_priority_task_woken);
+	}
+
 	portYIELD_FROM_ISR(higher_priority_task_woken);
 }
 
