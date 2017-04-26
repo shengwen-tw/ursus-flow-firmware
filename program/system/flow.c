@@ -50,6 +50,8 @@ void flow_estimate_task(void)
 		while(1); //This is bad
 	}
 
+	lidar_init();
+
 	/* successfully initialized the hardware == */
 	gpio_on(LED_3); //red led
 	vTaskResume(fcb_link_task_handle);
@@ -59,8 +61,6 @@ void flow_estimate_task(void)
 	if(do_gyro_calibrate == true) {
 		mpu9250_drift_error_estimate(&drift_x, &drift_y, &drift_z);
 	}
-
-	lidar_init();
 
 	/* the flow task is triggered by timer using semaphore every 4ms (250hz) */
 	flow_task_semaphore = xSemaphoreCreateBinary();
