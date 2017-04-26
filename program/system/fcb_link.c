@@ -8,12 +8,18 @@
 
 #include "delay.h"
 
+extern uint16_t lidar_distance;
+
 void flight_ctrl_board_link_task(void)
 {
-	while(1) {
-		uart2_puts("Hello World\n\r");
+	char buffer[256] = {'\0'};
 
-		vTaskDelay(MILLI_SECOND_TICK(500));
+	while(1) {
+		sprintf(buffer, "%d\n\r", lidar_distance);
+
+		uart2_puts(buffer);
+
+		vTaskDelay(MILLI_SECOND_TICK(10));
 	}
 }
 
