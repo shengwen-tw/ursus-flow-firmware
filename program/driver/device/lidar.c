@@ -39,6 +39,8 @@ void lidar_write_byte(uint8_t address, uint8_t data)
 
 void lidar_read_distance(uint16_t *distance)
 {
+	gpio_on(LED_2);
+
 	while(xQueueReceive(lidar_queue_handle, distance, portMAX_DELAY) == pdFALSE);
 
 	/* enable the interrupt and start a new transaction */
@@ -71,7 +73,7 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c2)
 	/* put new lidar distance into the queue */
 	xQueueSendToBackFromISR(lidar_queue_handle, &lidar_distance,
 	                        &higher_priority_task_woken);
-
+	gpio_off(LED_2);
 	portYIELD_FROM_ISR(higher_priority_task_woken);
 }
 
@@ -80,6 +82,11 @@ void lidar_init(void)
 	lidar_queue_handle = xQueueCreate(16, sizeof(uint16_t));
 
 	lidar_write_byte(LIDAR_ACQ_COMMAND, 0x00); //reset lidar
+
+	/* balance performance mode */
+	lidar_write_byte(0x02, 0x80);
+	lidar_write_byte(0x04, 0x08);
+	lidar_write_byte(0x1c, 0x00);
 
 	exti3_init();
 }
