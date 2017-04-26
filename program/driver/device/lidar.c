@@ -78,6 +78,8 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c2)
 void lidar_init(void)
 {
 	lidar_queue_handle = xQueueCreate(16, sizeof(uint16_t));
-	exti3_init();
 
+	lidar_write_byte(LIDAR_ACQ_COMMAND, 0x00); //reset lidar
+
+	exti3_init();
 }
