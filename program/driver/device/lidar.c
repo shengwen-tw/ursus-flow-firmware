@@ -42,9 +42,6 @@ void lidar_read_distance(uint16_t *distance)
 	gpio_on(LED_2);
 
 	while(xQueueReceive(lidar_queue_handle, distance, portMAX_DELAY) == pdFALSE);
-
-	/* enable the interrupt and start a new transaction */
-	HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 }
 
 void EXTI3_IRQHandler(void)
@@ -80,6 +77,9 @@ void I2C2_EV_IRQHandler(void)
 		/* put new lidar distance into the queue */
 		xQueueSendToBackFromISR(lidar_queue_handle, &lidar_distance,
 		                        &higher_priority_task_woken);
+
+		/* enable the interrupt and start a new transaction */
+		HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 	}
 
 	portYIELD_FROM_ISR(higher_priority_task_woken);
