@@ -53,9 +53,6 @@ void EXTI3_IRQHandler(void)
 	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_3) != RESET) {
 		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
 
-		//send distance measurement command
-		lidar_write_byte(LIDAR_ACQ_COMMAND, 0x04);
-
 		//start receiving lidar distance (interrupt mode, non-blocking code)
 		lidar_read_half_word(0x8f, (uint16_t *)lidar_buffer);
 
@@ -71,7 +68,7 @@ void I2C2_EV_IRQHandler(void)
 	long higher_priority_task_woken = pdFALSE;
 
 	HAL_I2C_EV_IRQHandler(&i2c2);
-
+lidar_write_byte(0x11, 0xff);
 	if(HAL_I2C_GetState(&i2c2) == HAL_I2C_STATE_READY) {
 		gpio_off(LED_2);
 
@@ -99,15 +96,24 @@ void lidar_init(uint16_t *_lidar_distance_ptr)
 
 	lidar_queue_handle = xQueueCreate(16, sizeof(uint16_t));
 
-	lidar_write_byte(LIDAR_ACQ_COMMAND, 0x00); //reset lidar
-
-	/* balance performance mode */
-	lidar_write_byte(0x02, 0x80);
-	lidar_write_byte(0x04, 0x08);
-	lidar_write_byte(0x1c, 0x00);
-
-	/* wait until lidar is stable */
+	/* reset lidar */
+	lidar_write_byte(LIDAR_ACQ_COMMAND, 0x00);
 	vTaskDelay(MILLI_SECOND_TICK(1000));
+
+	lidar_write_byte(0x11, 0xff);
+	vTaskDelay(MILLI_SECOND_TICK(10));
+
+	/* measurement rate */
+	lidar_write_byte(0x45, 0x02);
+	vTaskDelay(MILLI_SECOND_TICK(10));
+
+	/* continuous reading mode */
+	lidar_write_byte(0x04, 0x21);
+	vTaskDelay(MILLI_SECOND_TICK(10));
+
+	/* start distance measurement */
+	lidar_write_byte(LIDAR_ACQ_COMMAND, 0x04);
+	vTaskDelay(MILLI_SECOND_TICK(10));
 
 	exti3_init();
 }
