@@ -14,13 +14,12 @@
 
 #include "delay.h"
 
-extern uint16_t lidar_distance;
-
 QueueHandle_t lidar_queue_handle;
 
 const uint8_t lidar_dev_address = 0x62 << 1;
 
 uint8_t lidar_buffer[2] = {0};
+uint16_t *lidar_distance_ptr;
 
 static uint8_t lidar_read_byte(uint8_t address)
 {
@@ -85,7 +84,7 @@ void I2C2_EV_IRQHandler(void)
 		                        &higher_priority_task_woken);
 #endif
 
-		lidar_distance = lidar_buffer[0] << 8 | lidar_buffer[1];
+		*lidar_distance_ptr = lidar_buffer[0] << 8 | lidar_buffer[1];
 
 		/* enable the interrupt and start a new transaction */
 		HAL_NVIC_EnableIRQ(EXTI3_IRQn);
@@ -94,8 +93,10 @@ void I2C2_EV_IRQHandler(void)
 	portYIELD_FROM_ISR(higher_priority_task_woken);
 }
 
-void lidar_init(void)
+void lidar_init(uint16_t *_lidar_distance_ptr)
 {
+	lidar_distance_ptr = _lidar_distance_ptr;
+
 	lidar_queue_handle = xQueueCreate(16, sizeof(uint16_t));
 
 	lidar_write_byte(LIDAR_ACQ_COMMAND, 0x00); //reset lidar
