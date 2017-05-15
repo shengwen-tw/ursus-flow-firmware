@@ -50,7 +50,7 @@ void flow_estimate_task(void)
 		while(1); //This is bad
 	}
 
-	lidar_init();
+	lidar_init(&lidar_distance);
 
 	/* successfully initialized the hardware == */
 	gpio_on(LED_3); //red led
@@ -76,7 +76,7 @@ void flow_estimate_task(void)
 	usb_fs_init();
 
 	while(1) {
-		while(xSemaphoreTake(flow_task_semaphore, portMAX_DELAY) == pdFALSE);
+		//while(xSemaphoreTake(flow_task_semaphore, portMAX_DELAY) == pdFALSE);
 
 		//gpio_off(LED_1);
 
@@ -87,13 +87,11 @@ void flow_estimate_task(void)
 
 		//flow_estimate()
 
-		lidar_read_distance(&lidar_distance);
-
 #if 0
 		mt9v034_start_capture_image((uint32_t)image[next].frame);
 #else
 		mt9v034_start_capture_image((uint32_t)flow.image[0].frame);
-		usb_send_onboard_info();
+		//usb_send_onboard_info();
 #endif
 		next = (next + 1) % 2;
 
