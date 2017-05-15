@@ -11,6 +11,8 @@
 
 #include "lidar.h"
 
+extern uint16_t lidar_distance;
+
 QueueHandle_t lidar_queue_handle;
 
 const uint8_t lidar_dev_address = 0x62 << 1;
@@ -71,12 +73,16 @@ void I2C2_EV_IRQHandler(void)
 	if(HAL_I2C_GetState(&i2c2) == HAL_I2C_STATE_READY) {
 		gpio_off(LED_2);
 
+#if 0           /* use FreeRTOS queue */
 		//convert received data from big endian to little endian
 		uint16_t lidar_distance = lidar_buffer[0] << 8 | lidar_buffer[1];
 
 		/* put new lidar distance into the queue */
 		xQueueSendToBackFromISR(lidar_queue_handle, &lidar_distance,
 		                        &higher_priority_task_woken);
+#endif
+
+		lidar_distance = lidar_buffer[0] << 8 | lidar_buffer[1];
 
 		/* enable the interrupt and start a new transaction */
 		HAL_NVIC_EnableIRQ(EXTI3_IRQn);
