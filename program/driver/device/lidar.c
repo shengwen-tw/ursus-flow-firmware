@@ -3,6 +3,7 @@
 #include "stm32f7xx.h"
 
 #include "FreeRTOS.h"
+#include "task.h"
 #include "semphr.h"
 #include "queue.h"
 
@@ -10,6 +11,8 @@
 #include "i2c.h"
 
 #include "lidar.h"
+
+#include "delay.h"
 
 extern uint16_t lidar_distance;
 
@@ -101,6 +104,9 @@ void lidar_init(void)
 	lidar_write_byte(0x02, 0x80);
 	lidar_write_byte(0x04, 0x08);
 	lidar_write_byte(0x1c, 0x00);
+
+	/* wait until lidar is stable */
+	vTaskDelay(MILLI_SECOND_TICK(1000));
 
 	exti3_init();
 }
