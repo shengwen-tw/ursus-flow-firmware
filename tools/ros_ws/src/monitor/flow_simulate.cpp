@@ -8,6 +8,7 @@
 extern cv::Mat cv_image;
 
 extern uint16_t lidar_distance;
+extern float gyro_x, gyro_y, gyro_z;
 extern flow_t flow;
 
 extern int now;
@@ -126,12 +127,18 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image, float *flo
 
 	float delta_t = 0.1f;
 
-	*flow_vx = ((float)lidar_distance * predict_disp_y / FOCAL_LENGTH_PX) / delta_t;
-	*flow_vy = ((float)lidar_distance * predict_disp_x / FOCAL_LENGTH_PX) / delta_t;
+	/* flow unit: [mm/s] */
+	float flow_px_vx = +((float)lidar_distance * 10.0f / FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
+	float flow_px_vy = -((float)lidar_distance * 10.0f / FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
 
-	//convert from mm to cm
-	//*flow_vx /= 10.0f;
-	//*flow_vx /= 10.0f;
+	/* rotation compensation */
+	*flow_vx = flow_px_vx /*- gyro_y * FOCAL_LENGTH*/;
+	*flow_vy = flow_px_vy /*- gyro_x * FOCAL_LENGTH*/;
+
+	/* connvert to [cm/s] */
+	*flow_vx /= 10.0f;
+	*flow_vy /= 10.0f;
+
 #if 0
 	printf("x: %f, y: %f\n"
 	       "x vote count: %d, y vote count: %d\n",

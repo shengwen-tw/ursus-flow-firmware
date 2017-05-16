@@ -4,6 +4,7 @@
 #define FLOW_IMG_SIZE 72 //calculate optical flow for 64x64 points requires 72x72 pixels
 
 #define FOCAL_LENGTH_PX 500.0f //pixels
+#define FOCAL_LENGTH    10.26  //mm
 #define RETINA_SIZE     0.006f //mm, retina size of mt9v034 is 6um
 
 #define FLOW_COUNT          64 //number of optical flow point to be calculated
