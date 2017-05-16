@@ -101,6 +101,10 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image, float *flo
 			int vote_y =  match_y + 4;
 			histogram_x[vote_x]++;
 			histogram_y[vote_y]++;
+
+			/* FIXME: redundent loop branch */
+			if(x == 0 || y == 0) {continue;}
+
 			vote_count++;
 		}
 	}
@@ -122,8 +126,8 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image, float *flo
 
 	float delta_t = 0.1f;
 
-	*flow_vx = ((float)lidar_distance * predict_disp_x / FOCAL_LENGTH_PX) / delta_t;
-	*flow_vy = ((float)lidar_distance * predict_disp_y / FOCAL_LENGTH_PX) / delta_t;
+	*flow_vx = ((float)lidar_distance * predict_disp_y / FOCAL_LENGTH_PX) / delta_t;
+	*flow_vy = ((float)lidar_distance * predict_disp_x / FOCAL_LENGTH_PX) / delta_t;
 
 	//convert from mm to cm
 	//*flow_vx /= 10.0f;
