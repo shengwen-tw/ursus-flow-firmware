@@ -63,8 +63,10 @@ void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
 	*match_y = sad_min_y;
 }
 
-void flow_estimate(uint16_t *previous_image, uint16_t *current_image, float *flow_vx, float *flow_vy)
+void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
+		   float *flow_vx, float *flow_vy, float delta_t)
 {
+
 	/* convert the 72x72 start address into 64x64 address */
 	int offset = TEMPLATE_MIDPOINT_OFFSET + TEMPLATE_SEARCH_SUBAREA_OFFSET;
 	int start_x, start_y;
@@ -125,8 +127,6 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image, float *flo
 		predict_disp_y /= (float)vote_count;
 	}
 
-	float delta_t = 0.1f;
-
 	/* flow unit: [mm/s] */
 	float flow_px_vx = +((float)lidar_distance * 10.0f / FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
 	float flow_px_vy = -((float)lidar_distance * 10.0f / FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
@@ -147,7 +147,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image, float *flo
 #endif
 }
 
-void simulate_opical_flow_on_pc(float *flow_vx, float *flow_vy)
+void simulate_opical_flow_on_pc(float *flow_vx, float *flow_vy, float delta_t)
 {
 	int last = (now + 1) % 2;
 
@@ -155,7 +155,7 @@ void simulate_opical_flow_on_pc(float *flow_vx, float *flow_vy)
 	previous_image = (uint16_t *)flow.image[last].frame;
 
 	/* flow estimation */
-	flow_estimate(previous_image, current_image, flow_vx, flow_vy);
+	flow_estimate(previous_image, current_image, flow_vx, flow_vy, delta_t);
 
 	/* 4x downsampling visualization */
 	int sample_rate = 4; //only visualize 1/4 flow on the image

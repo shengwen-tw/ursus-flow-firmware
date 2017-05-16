@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include <usb.h>
 #include <libusb-1.0/libusb.h>
@@ -212,6 +213,10 @@ int main(int argc, char **argv)
 
 	double test = 0;
 
+	double current_time = 0;
+	double previous_time = 0;
+	double delta_t = 0;
+
 	while(node.ok()) {
 		if(usb_receive_onboard_info(buffer) == true) {
 #ifndef THIS_IS_A_HACK
@@ -230,11 +235,17 @@ int main(int argc, char **argv)
 #endif
 			cv::cvtColor(cv_image, cv_image, CV_GRAY2BGR);
 
+			current_time = ros::Time::now().toSec();
+			delta_t = current_time - previous_time; //calculate delta_t
+			previous_time = current_time; //update timer
+
+			ROS_INFO("delta_t: %lf", delta_t);
+
 			if(simulate_flow == true) {
 				//memcpy((uint16_t *)flow.image[now].frame, buffer, FLOW_IMG_SIZE * FLOW_IMG_SIZE);
 
 				if(prepare_image == 0) {
-					simulate_opical_flow_on_pc(&flow_vx, &flow_vy);
+					simulate_opical_flow_on_pc(&flow_vx, &flow_vy, (float)delta_t);
 
 					//debug code
 					//cv_image = cv::Mat(72, 72, CV_16UC1, flow.image[(now + 1) % 2].frame);
