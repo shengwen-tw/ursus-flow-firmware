@@ -142,30 +142,6 @@ bool usb_receive_onboard_info(uint16_t *buffer)
 	memcpy(&image_height, (uint8_t *)buffer + append_size, sizeof(uint8_t));
 	append_size += sizeof(uint8_t);
 
-	if(gyro_calib_enable == 0) {
-		printf("image size: %dx%d\n"
-		       "lidar distance: %dcm\n"
-		       "gyro_x: %+.3f\n"
-		       "gyro_y: %+.3f\n"
-		       "gyro_z: %+.3f\n"
-		       "\033[2J\033[1;1H",
-		       image_width,
-		       image_height,
-		       lidar_distance,
-		       gyro_x,
-		       gyro_y,
-		       gyro_z);
-	} else {
-		printf("[gyroscope bias calibration]\n"
-		       "bias x: %+.3f\n"
-		       "bias y: %+.3f\n"
-		       "bias z: %+.3f\n"
-		       "\033[2J\033[1;1H",
-		       gyro_x,
-		       gyro_y,
-		       gyro_z);
-	}
-
 	/* receive camera image in two parts */
 	received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
 	received_len = usb_read((uint8_t *)buffer + received_len, size_to_receive, 1000);
@@ -239,7 +215,34 @@ int main(int argc, char **argv)
 			delta_t = current_time - previous_time; //calculate delta_t
 			previous_time = current_time; //update timer
 
-			ROS_INFO("delta_t: %lf", delta_t);
+			if(gyro_calib_enable == 0) {
+				printf("image size: %dx%d\n"
+				       "lidar distance: %dcm\n"
+				       "gyro_x: %+.3f\n"
+				       "gyro_y: %+.3f\n"
+				       "gyro_z: %+.3f\n"
+				       "fps: %f\n"
+				       "delta: %f\n"
+				       "\033[2J\033[1;1H",
+				       image_width,
+				       image_height,
+				       lidar_distance,
+				       gyro_x,
+				       gyro_y,
+				       gyro_z,
+				       1.0f / delta_t,
+				       delta_t
+				       );
+			} else {
+				printf("[gyroscope bias calibration]\n"
+				       "bias x: %+.3f\n"
+				       "bias y: %+.3f\n"
+				       "bias z: %+.3f\n"
+				       "\033[2J\033[1;1H",
+				       gyro_x,
+				       gyro_y,
+				       gyro_z);
+			}
 
 			if(simulate_flow == true) {
 				//memcpy((uint16_t *)flow.image[now].frame, buffer, FLOW_IMG_SIZE * FLOW_IMG_SIZE);
