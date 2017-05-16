@@ -4,9 +4,9 @@
 #include "imu.h"
 
 /* calibration */
-#define MPU9250_OFFSET_X -1.478230f
-#define MPU9250_OFFSET_Y -0.152614f
-#define MPU9250_OFFSET_Z +0.406175f
+#define MPU9250_OFFSET_X +0.137f
+#define MPU9250_OFFSET_Y -2.338f
+#define MPU9250_OFFSET_Z +0.254f
 
 /* mpu9250 register map */
 #define MPU9250_SMPLRT_DIV     ((uint8_t)0x19)
