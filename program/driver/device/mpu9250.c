@@ -36,7 +36,7 @@ static uint8_t mpu9250_read_byte(uint8_t address)
 	address |= 0x80;
 
 	spi1_write_byte(address);
-	buffer = spi1_read_byte();
+	spi1_read_byte(&buffer);
 
 	mpu9250_deselect();
 
@@ -65,7 +65,17 @@ static void mpu9250_read_unscaled_gyro(vector3d_16_t *unscaled_gyro_data)
 	uint8_t buffer[6] = {0};
 
 	spi1_write_byte(MPU9250_GYRO_XOUT_H | 0x80);
+
+#if 0
 	spi1_read(buffer, 6);
+#else
+	spi1_read_byte(&buffer[0]);
+	spi1_read_byte(&buffer[1]);
+	spi1_read_byte(&buffer[2]);
+	spi1_read_byte(&buffer[3]);
+	spi1_read_byte(&buffer[4]);
+	spi1_read_byte(&buffer[5]);
+#endif
 
 	unscaled_gyro_data->x = ((uint16_t)buffer[0] << 8) | (uint16_t)buffer[1];
 	unscaled_gyro_data->y = ((uint16_t)buffer[2] << 8) | (uint16_t)buffer[3];
