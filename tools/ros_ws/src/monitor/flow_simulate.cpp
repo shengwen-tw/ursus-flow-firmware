@@ -59,6 +59,12 @@ void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
 		}
 	}
 
+	/* bad result */
+	if(sad_min_value > BLOCK_MATCHING_THRESHOLD) {
+		*match_x = 0;
+		*match_y = 0;
+	}
+
 	*match_x = sad_min_x;
 	*match_y = sad_min_y;
 }
@@ -105,16 +111,22 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 			histogram_x[vote_x]++;
 			histogram_y[vote_y]++;
 
-			/* FIXME: redundent loop branch */
-			if(x == 0 || y == 0) {continue;}
+			if(match_x == 0 && match_y == 0) {continue;}
 
 			vote_count++;
 		}
 	}
 
-	if(vote_count < FLOW_THRESHOLD) {
+	printf("%d\n", vote_count);
+
+	if(vote_count < HISTOGRAM_THRESHOLD) {
 		predict_disp_x = 0.0f;
 		predict_disp_y = 0.0f;
+
+		*flow_vx = 0;
+		*flow_vy = 0;
+	
+		return;
 	} else {
 		/* calculate weighted average */
 		int disp_px;
@@ -132,8 +144,8 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	float flow_px_vy = -((float)lidar_distance * 10.0f / FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
 
 	/* rotation compensation */
-	*flow_vx = flow_px_vx /*- gyro_y * FOCAL_LENGTH*/;
-	*flow_vy = flow_px_vy /*- gyro_x * FOCAL_LENGTH*/;
+	*flow_vx = flow_px_vx /*- gyro_z * FOCAL_LENGTH*/;
+	*flow_vy = flow_px_vy /*- gyro_z * FOCAL_LENGTH*/;
 
 	/* connvert to [cm/s] */
 	*flow_vx /= 10.0f;

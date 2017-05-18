@@ -15,7 +15,8 @@
 #define TEMPLATE_MIDPOINT_OFFSET        3 //distance from template edge to its midpoint (8x8 template)
 #define TEMPLATE_SEARCH_SUBAREA_OFFSET  3 //distance from search subarea edge to the middlemost template
 
-#define FLOW_THRESHOLD 409 //64x64 = 4096
+#define BLOCK_MATCHING_THRESHOLD 1024 //25% of max difference (16-bits number)
+#define HISTOGRAM_THRESHOLD 409 //64x64 = 4096
 
 /* since we only search the near -4 ~ +4 pixels for flow,
    there are only 9x9 matching possibilites */
