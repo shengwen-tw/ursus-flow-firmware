@@ -3,9 +3,10 @@
 
 #define FLOW_IMG_SIZE 72 //calculate optical flow for 64x64 points requires 72x72 pixels
 
-#define FOCAL_LENGTH_PX 500.0f //pixels
-#define FOCAL_LENGTH    10.26  //mm
-#define RETINA_SIZE     0.006f //mm, retina size of mt9v034 is 6um
+#define FOCAL_LENGTH_PX 500.0f //[pixels]
+#define FOCAL_LENGTH    3.0  //[mm]
+#define M               166.67 //[# of pixels / mm]
+#define RETINA_SIZE     0.006f //[mm], retina size of mt9v034 is 6um
 
 #define FLOW_COUNT          64 //number of optical flow point to be calculated
 #define TEMPLATE_SIZE       8  //sum of absolute difference template size
@@ -14,7 +15,7 @@
 #define TEMPLATE_MIDPOINT_OFFSET        3 //distance from template edge to its midpoint (8x8 template)
 #define TEMPLATE_SEARCH_SUBAREA_OFFSET  3 //distance from search subarea edge to the middlemost template
 
-#define FLOW_THRESHOLD 150 //64x64 = 4096
+#define FLOW_THRESHOLD 409 //64x64 = 4096
 
 /* since we only search the near -4 ~ +4 pixels for flow,
    there are only 9x9 matching possibilites */
