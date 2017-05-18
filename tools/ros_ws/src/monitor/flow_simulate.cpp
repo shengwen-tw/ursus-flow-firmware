@@ -60,10 +60,10 @@ void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
 	}
 
 	/* bad result */
-	if(sad_min_value > BLOCK_MATCHING_THRESHOLD) {
-		*match_x = 0;
-		*match_y = 0;
-	}
+//	if(sad_min_value > BLOCK_MATCHING_THRESHOLD) {
+//		*match_x = 0;
+//		*match_y = 0;
+//	
 
 	*match_x = sad_min_x;
 	*match_y = sad_min_y;
@@ -144,8 +144,8 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	float flow_px_vy = -((float)lidar_distance * 10.0f / FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
 
 	/* rotation compensation */
-	*flow_vx = flow_px_vx /*- gyro_z * FOCAL_LENGTH*/;
-	*flow_vy = flow_px_vy /*- gyro_z * FOCAL_LENGTH*/;
+	*flow_vx = flow_px_vx;
+	*flow_vy = flow_px_vy;
 
 	/* connvert to [cm/s] */
 	*flow_vx /= 10.0f;
@@ -165,6 +165,11 @@ void simulate_opical_flow_on_pc(float *flow_vx, float *flow_vy, float delta_t)
 
 	current_image = (uint16_t *)flow.image[now].frame;
 	previous_image = (uint16_t *)flow.image[last].frame;
+
+	if(gyro_z > 1.0f) {
+		*flow_vx = 0;
+		*flow_vy = 0;
+	}
 
 	/* flow estimation */
 	flow_estimate(previous_image, current_image, flow_vx, flow_vy, delta_t);
