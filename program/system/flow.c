@@ -95,6 +95,8 @@ void flow_estimate_task(void)
 #endif
 		next = (next + 1) % 2;
 
+		send_flow_to_fcb(lidar_distance, 0.0f, 0.0f);
+
 		//gpio_on(LED_1);
 		gpio_toggle(LED_1);
 	}

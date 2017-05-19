@@ -16,6 +16,11 @@ extern uint16_t lidar_distance;
 
 QueueHandle_t fcb_link_queue_handle;
 
+void fcb_link_data_queue_init(void)
+{
+	fcb_link_queue_handle = xQueueCreate(16, sizeof(fcb_data_t));
+}
+
 void send_flow_to_fcb(uint16_t _lidar_distance, float _flow_vx, float _flow_vy)
 {
 	fcb_data_t fcb_data = {
@@ -29,16 +34,21 @@ void send_flow_to_fcb(uint16_t _lidar_distance, float _flow_vx, float _flow_vy)
 
 void flight_ctrl_board_link_task(void)
 {
-	fcb_link_queue_handle = xQueueCreate(16, sizeof(fcb_link_queue_handle));
-
+	fcb_data_t fcb_data;
 	char buffer[256] = {'\0'};
 
 	while(1) {
-		sprintf(buffer, "%d\n\r", lidar_distance);
+		if(xQueueReceive(fcb_link_queue_handle, &fcb_data, portMAX_DELAY) == pdTRUE) {
 
-		uart2_puts(buffer);
+			/* debug mode */
+			sprintf(buffer, "lidar:%3d, vx:%2.3f, vy:%2.3f\n\r",
+				fcb_data.lidar_distance,
+				fcb_data.flow_vx,
+				fcb_data.flow_vy
+			);
 
-		vTaskDelay(MILLI_SECOND_TICK(10));
+			uart2_puts(buffer);
+		}
 	}
 }
 
