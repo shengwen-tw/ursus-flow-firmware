@@ -12,13 +12,13 @@
 
 #define FLOW_COUNT          32 //number of optical flow point to be calculated
 #define TEMPLATE_SIZE       8  //sum of absolute difference template size
-#define SEARCH_SUBAREA_SIZE 16 //only match the template in near -4 ~ +4 range
+#define SEARCH_SUBAREA_SIZE 17 //only match the template in near -4 ~ +4 range
 
 #define TEMPLATE_MIDPOINT_OFFSET        3 //distance from template edge to its midpoint (8x8 template)
 #define TEMPLATE_SEARCH_SUBAREA_OFFSET  3 //distance from search subarea edge to the middlemost template
 
 #define BLOCK_MATCHING_THRESHOLD 1024 //25% of max difference (16-bits number)
-#define HISTOGRAM_THRESHOLD 409 //64x64 = 4096
+#define HISTOGRAM_THRESHOLD 256 //25% of 1024 (32*32)
 
 /* since we only search the near -4 ~ +4 pixels for flow,
    there are only 9x9 matching possibilites */

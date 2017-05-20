@@ -43,16 +43,12 @@ float drift_z = 0;
 /* calculate sum of squared difference for 10-bits image */
 uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
 {
-	/* ssd minimum value is 1 since later will do the distance weighting
-	   and required not to be 0 */
-	uint32_t ssd = 1;
-
 	uint16_t *_template = template_image;
 	uint16_t *_search = search_image;
 
 	/* simd vectors */
-	uint16_t *template_32;
-	uint16_t *search_32;
+	uint32_t *template_32;
+	uint32_t *search_32;
 	int16_t diff_16[2] = {0};
 	uint32_t *diff_32 = (uint32_t *)diff_16;
 	uint32_t acc_32[2] = {0, 1};
@@ -123,7 +119,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 {
 
 	/* convert the 72x72 start address into 64x64 address */
-	int offset = TEMPLATE_MIDPOINT_OFFSET + TEMPLATE_SEARCH_SUBAREA_OFFSET;
+	const int offset = TEMPLATE_MIDPOINT_OFFSET + TEMPLATE_SEARCH_SUBAREA_OFFSET;
 	int start_x, start_y;
 	uint16_t *frame1;
 	uint16_t *frame2;
@@ -134,7 +130,6 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	//x, y displacement in range of -4 ~ +4 (9 possibilities)
 	uint16_t histogram_x[FLOW_DISP_SIZE] = {0};
 	uint16_t histogram_y[FLOW_DISP_SIZE] = {0};
-	//int8_t highest_vote_x = 0, highest_vote_y = 0;
 	int vote_count = 0;
 
 	float predict_disp_x = 0, predict_disp_y = 0;
@@ -171,8 +166,6 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		}
 	}
 
-	printf("%d\n", vote_count);
-
 	if(vote_count < HISTOGRAM_THRESHOLD) {
 		predict_disp_x = 0.0f;
 		predict_disp_y = 0.0f;
@@ -186,24 +179,11 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	predict_disp_x /= (float)vote_count;
 	predict_disp_y /= (float)vote_count;
 
-	/* flow unit: [mm/s] */
-	float flow_px_vx = +((float)lidar_distance * 10.0f / FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
-	float flow_px_vy = -((float)lidar_distance * 10.0f / FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
-
-	/* rotation compensation */
+	/* flow unit: [cm/s] */
+	float flow_px_vx = +((float)lidar_distance / FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
+	float flow_px_vy = -((float)lidar_distance / FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
 	*flow_vx = flow_px_vx;
 	*flow_vy = flow_px_vy;
-
-	/* connvert to [cm/s] */
-	*flow_vx /= 10.0f;
-	*flow_vy /= 10.0f;
-
-#if 0
-	printf("x: %f, y: %f\n"
-	       "x vote count: %d, y vote count: %d\n",
-	       predict_disp_x, predict_disp_y,
-	       histogram_y[highest_vote_x], histogram_y[highest_vote_y]);
-#endif
 }
 
 void flow_estimate_task(void)
