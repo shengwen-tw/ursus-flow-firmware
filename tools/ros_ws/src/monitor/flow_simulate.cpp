@@ -44,9 +44,9 @@ uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
 	for(i = 0; i < TEMPLATE_SIZE; i++) {
 		for(j = 0; j < TEMPLATE_SIZE; j++) {
 			uint32_t diff = template_image[i * FLOW_IMG_SIZE + j] -
-					search_image[i * FLOW_IMG_SIZE + j];
+			                search_image[i * FLOW_IMG_SIZE + j];
 
-			ssd += diff * diff; 
+			ssd += diff * diff;
 		}
 	}
 
@@ -67,7 +67,7 @@ void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
 	for(x = -4; x <= +4; x++) {
 		for(y = -4; y <= +4; y++) {
 			current_sd =
-			        calculate_ssd16(&current_image[0], &previous_image[x * FLOW_IMG_SIZE + y]);
+			        calculate_ssd16(&previous_image[0], &current_image[x * FLOW_IMG_SIZE + y]);
 
 			/* distance weighting */
 			current_sd *= distance_weighting_table[x + 4][y + 4];
@@ -84,14 +84,14 @@ void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
 //	if(sad_min_value > BLOCK_MATCHING_THRESHOLD) {
 //		*match_x = 0;
 //		*match_y = 0;
-//	
+//
 
 	*match_x = sd_min_x;
 	*match_y = sd_min_y;
 }
 
 void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
-		   float *flow_vx, float *flow_vy, float delta_t)
+                   float *flow_vx, float *flow_vy, float delta_t)
 {
 
 	/* convert the 72x72 start address into 64x64 address */
@@ -132,7 +132,9 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 			histogram_x[vote_x]++;
 			histogram_y[vote_y]++;
 
-			if(match_x == 0 && match_y == 0) {continue;}
+			if(match_x == 0 && match_y == 0) {
+				continue;
+			}
 
 			vote_count++;
 		}
@@ -146,7 +148,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 
 		*flow_vx = 0;
 		*flow_vy = 0;
-	
+
 		return;
 	} else {
 		/* calculate weighted average */
