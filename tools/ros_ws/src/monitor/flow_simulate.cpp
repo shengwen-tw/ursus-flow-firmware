@@ -42,11 +42,16 @@ uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
 	   and required not to be 0 */
 	uint32_t ssd = 1;
 
+	uint16_t *_template = template_image;
+	uint16_t *_search = search_image;
+
 	int i, j;
 	for(i = 0; i < TEMPLATE_SIZE; i++) {
+		_template += FLOW_IMG_SIZE;
+		_search += FLOW_IMG_SIZE;
+
 		for(j = 0; j < TEMPLATE_SIZE; j++) {
-			int16_t diff = template_image[i * FLOW_IMG_SIZE + j] -
-			                search_image[i * FLOW_IMG_SIZE + j];
+			int16_t diff = _template[j] - _search[j];
 
 			ssd += diff * diff;
 		}
