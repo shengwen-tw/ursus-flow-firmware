@@ -22,9 +22,11 @@ def generate_linear_weighting_2d(size):
     #Generate dirac delta function
     linear_weighting = np.zeros((size, size))
 
+    coefficient = 2
+
     for i in range(-size / 2, size / 2 + 1):
         for j in range(-size / 2, size / 2 + 1):
-            linear_weighting[i + size / 2][j + size / 2] = (abs(i) + 1.0) * (abs(j) + 1.0)
+            linear_weighting[i + size / 2][j + size / 2] = (coefficient * abs(i) + 1.0) * (coefficient * abs(j) + 1.0)
 
     return linear_weighting
 
@@ -33,8 +35,8 @@ linear = generate_linear_weighting_2d(9)
 gaussian = generate_gaussian_2d(9, 3.4, 25)
 
 #Print matrix
-select_print = gaussian
-#select_print = linear
+#select_print = gaussian
+select_print = linear
 
 #Print in C style syntax
 np.set_printoptions(formatter={'float': '{: .1f}'.format})
