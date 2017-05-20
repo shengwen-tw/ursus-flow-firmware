@@ -180,10 +180,8 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	predict_disp_y /= (float)vote_count;
 
 	/* flow unit: [cm/s] */
-	float flow_px_vx = +((float)lidar_distance / FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
-	float flow_px_vy = -((float)lidar_distance / FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
-	*flow_vx = flow_px_vx;
-	*flow_vy = flow_px_vy;
+	*flow_vx = +((float)lidar_distance / FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
+	*flow_vy = -((float)lidar_distance / FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
 }
 
 void flow_estimate_task(void)
@@ -232,7 +230,7 @@ void flow_estimate_task(void)
 	mt9v034_start_capture_image((uint32_t)flow.image[1].frame);
 
 	while(1) {
-		//gpio_off(LED_1);
+		gpio_on(LED_1);
 
 		mpu9250_read(&gyro_data);
 
@@ -259,7 +257,7 @@ void flow_estimate_task(void)
 
 		send_flow_to_fcb(lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);
 
-		//gpio_on(LED_1);
-		gpio_toggle(LED_1);
+		gpio_off(LED_1);
+		//gpio_toggle(LED_1);
 	}
 }
