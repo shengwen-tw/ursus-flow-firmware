@@ -45,7 +45,7 @@ void flight_ctrl_board_link_task(void)
 		if(xQueueReceive(fcb_link_queue_handle, &fcb_data, portMAX_DELAY) == pdTRUE) {
 
 			/* debug mode */
-			sprintf(buffer, "lidar:%3d, vx:%2.3f, vy:%2.3f, time:%.1f, fps:%.1f\n\r",
+			sprintf(buffer, "lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, fps:%.1f\n\r",
 			        fcb_data.lidar_distance,
 			        fcb_data.flow_vx,
 			        fcb_data.flow_vy,
