@@ -11,6 +11,7 @@ BIN_IMAGE=$(TARGET).bin
 CC=arm-none-eabi-gcc
 LD=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
+OBJDUMP=arm-none-eabi-objdump
 GDB=arm-none-eabi-gdb
 
 #======================================================================#
@@ -163,6 +164,9 @@ $(EXECUTABLE): $(OBJECTS)
 %.o: %.s
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo 'Building object $@'
+
+objdump:
+	$(OBJDUMP) -marm -b binary -D $(BIN_IMAGE)
 
 #Generate tags file
 tags:
