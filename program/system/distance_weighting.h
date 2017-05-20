@@ -1,7 +1,7 @@
 #ifndef __DISTANCE_WEIGHTING_H__
 #define __DISTANCE_WEIGHTING_H__
 
-#if 1
+#if 0
 //sad linear distance weighting
 const uint8_t distance_weighting_table[9][9] = {
 	{ 25,  20,  15,  10,   5,  10,  15,  20,  25},
@@ -16,7 +16,7 @@ const uint8_t distance_weighting_table[9][9] = {
 };
 #endif
 
-#if 0
+#if 1
 //ssd linear distance weighting
 const uint8_t distance_weighting_table[9][9] = {
 	{ 81,  63,  45,  27,  9,  27,  45,  63,  81},
