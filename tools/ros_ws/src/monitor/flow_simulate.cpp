@@ -70,11 +70,14 @@ void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
 	uint32_t sd_min_value = UINT32_MAX;
 	uint32_t current_sd;
 
+	uint16_t *current_image_run = current_image;
+
 	int8_t x, y;
 	for(x = -4; x <= +4; x++) {
+		current_image_run = &current_image[FLOW_IMG_SIZE * x];
+
 		for(y = -4; y <= +4; y++) {
-			current_sd =
-			        calculate_ssd16(&previous_image[0], &current_image[x * FLOW_IMG_SIZE + y]);
+			current_sd = calculate_ssd16(&previous_image[0], &current_image_run[y]);
 
 			/* distance weighting */
 			current_sd *= distance_weighting_table[x + 4][y + 4];
@@ -127,11 +130,15 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 			start_y = y + offset;
 			frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
 			frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
+	
 			match_point_local_area(frame1, frame2, &match_x, &match_y);
-
 			/* convert the position relative the full image */
 			flow.match_x[x][y] = match_x + start_x;
 			flow.match_y[x][y] = match_y + start_y;
+
+			if(match_x == 0 && match_y == 0) {
+				continue;
+			}
 
 			/* histogram voting */
 			int vote_x =  match_x + 4;
@@ -139,9 +146,8 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 			histogram_x[vote_x]++;
 			histogram_y[vote_y]++;
 
-			if(match_x == 0 && match_y == 0) {
-				continue;
-			}
+			predict_disp_x += match_x;
+			predict_disp_y += match_y;
 
 			vote_count++;
 		}
@@ -157,17 +163,10 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		*flow_vy = 0;
 
 		return;
-	} else {
-		/* calculate weighted average */
-		int disp_px;
-		for(disp_px = -4; disp_px <= 4; disp_px++) {
-			predict_disp_x += disp_px * histogram_x[disp_px + 4];
-			predict_disp_y += disp_px * histogram_y[disp_px + 4];
-		}
-
-		predict_disp_x /= (float)vote_count;
-		predict_disp_y /= (float)vote_count;
 	}
+
+	predict_disp_x /= (float)vote_count;
+	predict_disp_y /= (float)vote_count;
 
 	/* flow unit: [mm/s] */
 	float flow_px_vx = +((float)lidar_distance * 10.0f / FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
