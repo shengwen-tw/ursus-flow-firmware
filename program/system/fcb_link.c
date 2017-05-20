@@ -22,7 +22,7 @@ void fcb_link_data_queue_init(void)
 }
 
 void send_flow_to_fcb(uint16_t _lidar_distance, float _flow_vx, float _flow_vy,
-		      float _time, float _period, float _frequency)
+                      float _time, float _period, float _frequency)
 {
 	fcb_data_t fcb_data = {
 		.lidar_distance = _lidar_distance,
@@ -46,12 +46,12 @@ void flight_ctrl_board_link_task(void)
 
 			/* debug mode */
 			sprintf(buffer, "lidar:%3d, vx:%2.3f, vy:%2.3f, time:%.1f, fps:%.1f\n\r",
-				fcb_data.lidar_distance,
-				fcb_data.flow_vx,
-				fcb_data.flow_vy,
-				fcb_data.time,
-				fcb_data.frequency
-			);
+			        fcb_data.lidar_distance,
+			        fcb_data.flow_vx,
+			        fcb_data.flow_vy,
+			        fcb_data.time,
+			        fcb_data.frequency
+			       );
 
 			uart2_puts(buffer);
 		}

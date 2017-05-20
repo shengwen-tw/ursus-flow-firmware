@@ -68,7 +68,7 @@ void I2C2_EV_IRQHandler(void)
 	long higher_priority_task_woken = pdFALSE;
 
 	HAL_I2C_EV_IRQHandler(&i2c2);
-lidar_write_byte(0x11, 0xff);
+	lidar_write_byte(0x11, 0xff);
 	if(HAL_I2C_GetState(&i2c2) == HAL_I2C_STATE_READY) {
 		//gpio_off(LED_2);
 
