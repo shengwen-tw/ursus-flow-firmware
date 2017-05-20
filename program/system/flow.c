@@ -91,7 +91,7 @@ void flow_estimate_task(void)
 		mt9v034_start_capture_image((uint32_t)image[next].frame);
 #else
 		mt9v034_start_capture_image((uint32_t)flow.image[0].frame);
-		//usb_send_onboard_info();
+		usb_send_onboard_info();
 #endif
 		next = (next + 1) % 2;
 
