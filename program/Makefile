@@ -119,7 +119,8 @@ CFLAGS+=-I$(SYSTEM)
 SRC+=$(SYSTEM)/main.c \
 	$(SYSTEM)/flow.c \
 	$(SYSTEM)/usb_link.c \
-	$(SYSTEM)/fcb_link.c
+	$(SYSTEM)/fcb_link.c \
+	$(SYSTEM)/system_time.c
 
 CFLAGS+=-I./
 

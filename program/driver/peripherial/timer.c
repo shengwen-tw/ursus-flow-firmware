@@ -5,6 +5,7 @@
 #include "interrupt.h"
 
 #include "flow.h"
+#include "system_time.h"
 
 static void timer10_init(void);
 
@@ -39,5 +40,5 @@ void TIM1_UP_TIM10_IRQHandler(void)
 {
 	HAL_TIM_IRQHandler(&timer10);
 
-	give_flow_task_semaphore_from_isr();
+	update_system_time();
 }

@@ -20,6 +20,7 @@
 #include "flow.h"
 #include "usb_link.h"
 #include "fcb_link.h"
+#include "system_time.h"
 
 extern TaskHandle_t fcb_link_task_handle;
 extern TaskHandle_t usb_link_task_handle;
@@ -72,11 +73,13 @@ void flow_estimate_task(void)
 
 	int next = 0;
 
+	float current_time;
+
 	/* XXX: usb direct camera output */
 	usb_fs_init();
 
 	while(1) {
-		//while(xSemaphoreTake(flow_task_semaphore, portMAX_DELAY) == pdFALSE);
+		current_time = get_time_sec();
 
 		//gpio_off(LED_1);
 
@@ -95,7 +98,7 @@ void flow_estimate_task(void)
 #endif
 		next = (next + 1) % 2;
 
-		send_flow_to_fcb(lidar_distance, 0.0f, 0.0f);
+		send_flow_to_fcb(lidar_distance, 0.0f, 0.0f, current_time, 0, 0);
 
 		//gpio_on(LED_1);
 		gpio_toggle(LED_1);
@@ -104,8 +107,5 @@ void flow_estimate_task(void)
 
 void give_flow_task_semaphore_from_isr(void)
 {
-	long higher_priority_task_woken = pdFALSE;
-
-	xSemaphoreGiveFromISR(flow_task_semaphore, &higher_priority_task_woken);
-	portYIELD_FROM_ISR(higher_priority_task_woken);
+	gpio_toggle(LED_2);
 }
