@@ -160,7 +160,6 @@ int main(int argc, char **argv)
 	/* initialize ROS */
 	ros::init(argc, argv, "ursusflow");
 	ros::Time::init();
-	ros::Rate loop_rate(250);
 
 	ros::NodeHandle node;
 	ros::Publisher ros_image_publisher =
@@ -189,7 +188,7 @@ int main(int argc, char **argv)
 	double previous_time = 0;
 	double delta_t = 0;
 
-	while(node.ok()) {
+	while(1) {
 		if(usb_receive_onboard_info(buffer) == false) {
 			printf("[usb disconnected]\n");
 			break;
