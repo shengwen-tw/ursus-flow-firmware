@@ -63,30 +63,36 @@ void flow_estimate_task(void)
 		mpu9250_drift_error_estimate(&drift_x, &drift_y, &drift_z);
 	}
 
-	/* the flow task is triggered by timer using semaphore every 4ms (250hz) */
-	flow_task_semaphore = xSemaphoreCreateBinary();
 	timer_init();
-
-	mt9v034_start_capture_image((uint32_t)flow.image[0].frame);
-	mt9v034_wait_finish();
-	mt9v034_start_capture_image((uint32_t)flow.image[1].frame);
-
-	int next = 0;
-
-	float current_time;
 
 	/* XXX: usb direct camera output */
 	usb_fs_init();
 
-	while(1) {
-		current_time = get_time_sec();
+	float current_time;
+	float previous_time;
+	float delta_t;
+	float fps;
 
+	int next = 0;
+
+	mt9v034_start_capture_image((uint32_t)flow.image[0].frame);
+	mt9v034_wait_finish();
+	previous_time = get_time_sec();
+
+	mt9v034_start_capture_image((uint32_t)flow.image[1].frame);
+
+	while(1) {
 		//gpio_off(LED_1);
 
 		mpu9250_read(&gyro_data);
 
 		/* wait until image finished capturing */
 		mt9v034_wait_finish();
+
+		current_time = get_time_sec();
+		delta_t = current_time - previous_time;
+		previous_time = current_time;
+		fps = 1.0f / delta_t;
 
 		//flow_estimate()
 
@@ -98,14 +104,9 @@ void flow_estimate_task(void)
 #endif
 		next = (next + 1) % 2;
 
-		send_flow_to_fcb(lidar_distance, 0.0f, 0.0f, current_time, 0, 0);
+		send_flow_to_fcb(lidar_distance, 0.0f, 0.0f, current_time, delta_t, fps);
 
 		//gpio_on(LED_1);
 		gpio_toggle(LED_1);
 	}
-}
-
-void give_flow_task_semaphore_from_isr(void)
-{
-	gpio_toggle(LED_2);
 }
