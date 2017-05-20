@@ -40,24 +40,6 @@ float drift_x = 0;
 float drift_y = 0;
 float drift_z = 0;
 
-/* calculate sum of absoulte difference for 10-bits image */
-uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
-{
-	/* sad minimum value is 1 since later will do the distance weighting
-	   and required not to be 0 */
-	uint32_t sad = 1;
-
-	int i, j;
-	for(i = 0; i < TEMPLATE_SIZE; i++) {
-		for(j = 0; j < TEMPLATE_SIZE; j++) {
-			sad += abs(template_image[i * FLOW_IMG_SIZE + j] -
-			           search_image[i * FLOW_IMG_SIZE + j]);
-		}
-	}
-
-	return sad;
-}
-
 /* calculate sum of squared difference for 10-bits image */
 uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
 {
@@ -65,11 +47,16 @@ uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
 	   and required not to be 0 */
 	uint32_t ssd = 1;
 
+	uint16_t *_template = template_image;
+	uint16_t *_search = search_image;
+
 	int i, j;
 	for(i = 0; i < TEMPLATE_SIZE; i++) {
+		_template += FLOW_IMG_SIZE;
+		_search += FLOW_IMG_SIZE;
+
 		for(j = 0; j < TEMPLATE_SIZE; j++) {
-			uint32_t diff = template_image[i * FLOW_IMG_SIZE + j] -
-			                search_image[i * FLOW_IMG_SIZE + j];
+			int16_t diff = _template[j] - _search[j];
 
 			ssd += diff * diff;
 		}
@@ -88,11 +75,14 @@ void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
 	uint32_t sd_min_value = UINT32_MAX;
 	uint32_t current_sd;
 
+	uint16_t *current_image_run = current_image;
+
 	int8_t x, y;
 	for(x = -4; x <= +4; x++) {
+		current_image_run = &current_image[FLOW_IMG_SIZE * x];
+
 		for(y = -4; y <= +4; y++) {
-			current_sd =
-			        calculate_sad16(&previous_image[0], &current_image[x * FLOW_IMG_SIZE + y]);
+			current_sd = calculate_ssd16(&previous_image[0], &current_image_run[y]);
 
 			/* distance weighting */
 			current_sd *= distance_weighting_table[x + 4][y + 4];
