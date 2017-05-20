@@ -167,9 +167,6 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	}
 
 	if(vote_count < HISTOGRAM_THRESHOLD) {
-		predict_disp_x = 0.0f;
-		predict_disp_y = 0.0f;
-
 		*flow_vx = 0;
 		*flow_vy = 0;
 
