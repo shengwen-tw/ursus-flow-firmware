@@ -190,119 +190,119 @@ int main(int argc, char **argv)
 	double delta_t = 0;
 
 	while(node.ok()) {
-		if(usb_receive_onboard_info(buffer) == true) {
-			current_time = ros::Time::now().toSec();
-			delta_t = current_time - previous_time; //calculate delta_t
-			previous_time = current_time; //update timer
-
-#ifndef SIZE_HACK
-			/* Copy and convet size from 79x79 to 72x72 */
-			for(int i = 0; i < FLOW_IMG_SIZE; i++) {
-				for(int j = 0; j < FLOW_IMG_SIZE; j++) {
-					flow.image[now].frame[i][j] = buffer[i * 79 + j];
-				}
-			}
-#endif
-
-			if(simulate_flow == true) {
-				//memcpy((uint16_t *)flow.image[now].frame, buffer, FLOW_IMG_SIZE * FLOW_IMG_SIZE);
-
-				if(prepare_image == 0) {
-					simulate_opical_flow_on_pc(&flow_vx, &flow_vy, (float)delta_t);
-
-					//debug code
-					//cv_image = cv::Mat(72, 72, CV_16UC1, flow.image[(now + 1) % 2].frame);
-					//cv::resize(cv_image, cv_image, cv::Size(72 * 4, 72 * 4));
-				} else {
-					prepare_image--;
-				}
-
-				now = (now + 1) % 2;
-			}
-
-			/* convert image from 10-bits to 16-bits */
-			for(int i = 0; i < image_width * image_height; i++) {
-				buffer[i] = buffer[i] << 6;
-			}
-
-#ifndef THIS_IS_A_HACK
-			cv_image = cv::Mat(image_height, image_width, CV_16UC1, buffer);
-			//cv::resize(cv_image, cv_image, cv::Size(image_width * 4, image_height * 4));
-
-			cv_image = cv_image(cv::Rect(0, 0, 72, 72));
-			cv::resize(cv_image, cv_image, cv::Size(72 * 4, 72 * 4));
-#endif
-			cv::cvtColor(cv_image, cv_image, CV_GRAY2BGR);
-
-			if(gyro_calib_enable == 0) {
-				printf("image size: %dx%d\n"
-				       "lidar distance: %dcm\n"
-				       "gyro_x: %+.3f\n"
-				       "gyro_y: %+.3f\n"
-				       "gyro_z: %+.3f\n"
-				       "fps: %f\n"
-				       "delta: %f\n"
-				       "\033[2J\033[1;1H",
-				       image_width,
-				       image_height,
-				       lidar_distance,
-				       gyro_x,
-				       gyro_y,
-				       gyro_z,
-				       1.0f / delta_t,
-				       delta_t
-				       );
-			} else {
-				printf("[gyroscope bias calibration]\n"
-				       "bias x: %+.3f\n"
-				       "bias y: %+.3f\n"
-				       "bias z: %+.3f\n"
-				       "\033[2J\033[1;1H",
-				       gyro_x,
-				       gyro_y,
-				       gyro_z);
-			}
-
-			if(prepare_image == 0) {
-				flow_visualize();
-			}
-
-			/* send flow velocity message */
-			std_msgs::Float32 flow_vx_msg;
-			std_msgs::Float32 flow_vy_msg;
-			std_msgs::Float32 lidar_distance_msg;
-			flow_vx_msg.data = flow_vx;
-			flow_vy_msg.data = flow_vy;
-			lidar_distance_msg.data = (float)lidar_distance;
-
-			flow_vx_publisher.publish(flow_vx_msg);
-			flow_vy_publisher.publish(flow_vy_msg);
-			lidar_distance_publisher.publish(lidar_distance_msg);
-
-			/* convert image to ros message and send it */
-			cv::Mat cv_image_8u3;
-			cv_image.convertTo(cv_image_8u3, CV_8UC3, 1.0 / 256.0); //ros only support this format
-			sensor_msgs::ImagePtr ros_image_msg =
-			        cv_bridge::CvImage(std_msgs::Header(), "bgr8", cv_image_8u3).toImageMsg();
-
-			ros_image_publisher.publish(ros_image_msg);
-
-			position_x += flow_vx * delta_t;
-			position_y += flow_vy * delta_t;
-			position_z = (float)lidar_distance / 100.0f; //convert unit from cm to m
-
-			transform.setOrigin(tf::Vector3(position_x, position_y, position_z));
-			transform.setRotation(tf::Quaternion(0, 0, 0, 1));
-
-			tf_broadcaster.sendTransform(
-			        tf::StampedTransform(transform, ros::Time::now(),"origin", "quadrotor"));
-
-			//cv::imshow("ursus-flow camera", cv_image);
-			//cv::waitKey(1);
-		} else {
+		if(usb_receive_onboard_info(buffer) == false) {
 			printf("[usb disconnected]\n");
 			break;
 		}
+
+		current_time = ros::Time::now().toSec();
+		delta_t = current_time - previous_time; //calculate delta_t
+		previous_time = current_time; //update timer
+
+#ifndef SIZE_HACK
+		/* Copy and convet size from 79x79 to 72x72 */
+		for(int i = 0; i < FLOW_IMG_SIZE; i++) {
+			for(int j = 0; j < FLOW_IMG_SIZE; j++) {
+				flow.image[now].frame[i][j] = buffer[i * 79 + j];
+			}
+		}
+#endif
+
+		if(simulate_flow == true) {
+			//memcpy((uint16_t *)flow.image[now].frame, buffer, FLOW_IMG_SIZE * FLOW_IMG_SIZE);
+
+			if(prepare_image == 0) {
+				simulate_opical_flow_on_pc(&flow_vx, &flow_vy, (float)delta_t);
+
+				//debug code
+				//cv_image = cv::Mat(72, 72, CV_16UC1, flow.image[(now + 1) % 2].frame);
+				//cv::resize(cv_image, cv_image, cv::Size(72 * 4, 72 * 4));
+			} else {
+				prepare_image--;
+			}
+
+			now = (now + 1) % 2;
+		}
+
+		/* convert image from 10-bits to 16-bits */
+		for(int i = 0; i < image_width * image_height; i++) {
+			buffer[i] = buffer[i] << 6;
+		}
+
+#ifndef THIS_IS_A_HACK
+		cv_image = cv::Mat(image_height, image_width, CV_16UC1, buffer);
+		//cv::resize(cv_image, cv_image, cv::Size(image_width * 4, image_height * 4));
+
+		cv_image = cv_image(cv::Rect(0, 0, 72, 72));
+		cv::resize(cv_image, cv_image, cv::Size(72 * 4, 72 * 4));
+#endif
+		cv::cvtColor(cv_image, cv_image, CV_GRAY2BGR);
+
+		if(gyro_calib_enable == 0) {
+			printf("image size: %dx%d\n"
+			       "lidar distance: %dcm\n"
+			       "gyro_x: %+.3f\n"
+			       "gyro_y: %+.3f\n"
+			       "gyro_z: %+.3f\n"
+			       "fps: %f\n"
+			       "delta: %f\n"
+			       "\033[2J\033[1;1H",
+			       image_width,
+			       image_height,
+			       lidar_distance,
+			       gyro_x,
+			       gyro_y,
+			       gyro_z,
+			       1.0f / delta_t,
+			       delta_t
+			       );
+		} else {
+			printf("[gyroscope bias calibration]\n"
+			       "bias x: %+.3f\n"
+			       "bias y: %+.3f\n"
+			       "bias z: %+.3f\n"
+			       "\033[2J\033[1;1H",
+			       gyro_x,
+			       gyro_y,
+			       gyro_z);
+		}
+
+		if(prepare_image == 0) {
+			flow_visualize();
+		}
+
+		/* send flow velocity message */
+		std_msgs::Float32 flow_vx_msg;
+		std_msgs::Float32 flow_vy_msg;
+		std_msgs::Float32 lidar_distance_msg;
+		flow_vx_msg.data = flow_vx;
+		flow_vy_msg.data = flow_vy;
+		lidar_distance_msg.data = (float)lidar_distance;
+
+		flow_vx_publisher.publish(flow_vx_msg);
+		flow_vy_publisher.publish(flow_vy_msg);
+		lidar_distance_publisher.publish(lidar_distance_msg);
+
+		/* convert image to ros message and send it */
+		cv::Mat cv_image_8u3;
+		cv_image.convertTo(cv_image_8u3, CV_8UC3, 1.0 / 256.0); //ros only support this format
+		sensor_msgs::ImagePtr ros_image_msg =
+		        cv_bridge::CvImage(std_msgs::Header(), "bgr8", cv_image_8u3).toImageMsg();
+
+		ros_image_publisher.publish(ros_image_msg);
+
+		position_x += flow_vx * delta_t;
+		position_y += flow_vy * delta_t;
+		position_z = (float)lidar_distance / 100.0f; //convert unit from cm to m
+
+		transform.setOrigin(tf::Vector3(position_x, position_y, position_z));
+		transform.setRotation(tf::Quaternion(0, 0, 0, 1));
+
+		tf_broadcaster.sendTransform(
+		        tf::StampedTransform(transform, ros::Time::now(),"origin", "quadrotor"));
+
+		//cv::imshow("ursus-flow camera", cv_image);
+		//cv::waitKey(1);
 	}
 
 	printf("[leave]\n");
