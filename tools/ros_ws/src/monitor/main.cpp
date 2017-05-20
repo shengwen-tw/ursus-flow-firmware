@@ -280,8 +280,8 @@ int main(int argc, char **argv)
 
 			ros_image_publisher.publish(ros_image_msg);
 
-			position_x += flow_vx * 0.1; //integration asume delta = 0.1s
-			position_y += flow_vy * 0.1;
+			position_x += flow_vx * delta_t;
+			position_y += flow_vy * delta_t;
 			position_z = (float)lidar_distance / 100.0f; //convert unit from cm to m
 
 			transform.setOrigin(tf::Vector3(position_x, position_y, position_z));
