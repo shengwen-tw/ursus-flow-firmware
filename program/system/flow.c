@@ -50,21 +50,34 @@ uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
 	uint16_t *_template = template_image;
 	uint16_t *_search = search_image;
 
+	/* simd vectors */
+	uint16_t *template_32;
+	uint16_t *search_32;
+	int16_t diff_16[2] = {0};
+	uint32_t *diff_32 = (uint32_t *)diff_16;
+	uint32_t acc_32[2] = {0, 1};
+	uint64_t *acc_64 = (uint64_t *)acc_32;
+
 	int i, j;
 	for(i = 0; i < TEMPLATE_SIZE; i++) {
 		_template += FLOW_IMG_SIZE;
 		_search += FLOW_IMG_SIZE;
 
-		for(j = 0; j < TEMPLATE_SIZE; j++) {
-			int16_t diff = _template[j] - _search[j];
+		template_32 = (uint32_t *)_template;
+		search_32 = (uint32_t *)_search;
 
-			ssd += diff * diff;
+		for(j = 0; j < TEMPLATE_SIZE; j+=2) {
+			*diff_32 = __SSUB16(*template_32, *search_32);
+			*acc_64 = __SMLALD(*diff_32, *diff_32, *acc_64);
+
+			//int16_t diff = _template[j] - _search[j];
+			//ssd += diff * diff;
 		}
 	}
 
 	/* ssd minimum value is 1 since later will do the distance weighting
 	   and required not to be 0 */
-	return ssd;
+	return acc_32[0] + acc_32[1];
 }
 
 /* Find the matching point on two images in local -4 ~ +4 pixels */
@@ -138,8 +151,12 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 			match_point_local_area(frame1, frame2, &match_x, &match_y);
 
 			/* convert the position relative the full image */
-			flow.match_x[x][y] = match_x + start_x;
-			flow.match_y[x][y] = match_y + start_y;
+			//flow.match_x[x][y] = match_x + start_x;
+			//flow.match_y[x][y] = match_y + start_y;
+
+			if(match_x == 0 && match_y == 0) {
+				continue;
+			}
 
 			/* histogram voting */
 			int vote_x =  match_x + 4;
@@ -147,9 +164,8 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 			histogram_x[vote_x]++;
 			histogram_y[vote_y]++;
 
-			if(match_x == 0 && match_y == 0) {
-				continue;
-			}
+			predict_disp_x += match_x;
+			predict_disp_y += match_y;
 
 			vote_count++;
 		}
@@ -165,17 +181,10 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		*flow_vy = 0;
 
 		return;
-	} else {
-		/* calculate weighted average */
-		int disp_px;
-		for(disp_px = -4; disp_px <= 4; disp_px++) {
-			predict_disp_x += disp_px * histogram_x[disp_px + 4];
-			predict_disp_y += disp_px * histogram_y[disp_px + 4];
-		}
-
-		predict_disp_x /= (float)vote_count;
-		predict_disp_y /= (float)vote_count;
 	}
+
+	predict_disp_x /= (float)vote_count;
+	predict_disp_y /= (float)vote_count;
 
 	/* flow unit: [mm/s] */
 	float flow_px_vx = +((float)lidar_distance * 10.0f / FOCAL_LENGTH_PX * predict_disp_x) / delta_t;

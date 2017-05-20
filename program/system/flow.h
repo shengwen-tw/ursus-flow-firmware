@@ -10,7 +10,7 @@
 #define M               166.67 //[# of pixels / mm]
 #define RETINA_SIZE     0.006f //[mm], retina size of mt9v034 is 6um
 
-#define FLOW_COUNT          64 //number of optical flow point to be calculated
+#define FLOW_COUNT          32 //number of optical flow point to be calculated
 #define TEMPLATE_SIZE       8  //sum of absolute difference template size
 #define SEARCH_SUBAREA_SIZE 16 //only match the template in near -4 ~ +4 range
 
