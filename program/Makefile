@@ -16,14 +16,16 @@ GDB=arm-none-eabi-gdb
 #======================================================================#
 
 #Flags
-CFLAGS=-g -O2 -mlittle-endian -mthumb -std=gnu99
+CFLAGS=-g -Ofast -mlittle-endian -mthumb -std=gnu99
 CFLAGS+=-mcpu=cortex-m7
 CFLAGS+=-mfpu=fpv5-d16 -mfloat-abi=hard
 CFLAGS+=-ffunction-sections -fdata-sections -ffast-math
 CFLAGS+=--specs=nano.specs --specs=nosys.specs -fno-builtin-printf
 CFLAGS+=-Wall -Wno-strict-aliasing
 CFLAGS+=-D STM32F767xx \
-	-D USE_HAL_DRIVER
+	-D USE_HAL_DRIVER \
+	-D ARM_MATH_CM7 \
+	-D __FPU_PRESENT
 
 CFLAGS+=-Wl,-T,stm32f767vi_flash.ld
 
@@ -44,6 +46,7 @@ PERIPH=$(DRIVER)/peripherial
 DEVICE=$(DRIVER)/device
 COMMON=./common
 SYSTEM=./system
+DSP=$(ST_LIB)/Drivers/CMSIS/DSP_Lib/Source/
 
 #======================================================================#
 
@@ -90,6 +93,8 @@ SRC+=$(FREERTOS)/Source/croutine.c \
 	$(FREERTOS)/Source/timers.c \
 	$(FREERTOS)/Source/portable/MemMang/heap_4.c \
 	$(FREERTOS)/Source/portable/GCC/$(ARCH)/r0p1/port.c
+
+SRC+=$(DSP)/BasicMathFunctions/arm_abs_f32.c
 
 CFLAGS+=-I$(DRIVER)/peripherial
 CFLAGS+=-I$(DRIVER)/peripherial/usb
