@@ -20,7 +20,9 @@ float focal_length_mm = FOCAL_LENGTH_PX * (1.0f / RETINA_SIZE); //f_mm = f_px * 
 /* calculate sum of absoulte difference for 10-bits image */
 uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
 {
-	uint32_t sad = 0;
+	/* sad minimum value is 1 since later will do the distance weighting
+	   and required not to be 0 */
+	uint32_t sad = 1;
 
 	int i, j;
 	for(i = 0; i < TEMPLATE_SIZE; i++) {
@@ -30,15 +32,15 @@ uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
 		}
 	}
 
-	/* sad minimum value is 1 since later will do the distance weighting
-	   and required not to be 0 */
-	return sad + 1;
+	return sad;
 }
 
 /* calculate sum of squared difference for 10-bits image */
 uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
 {
-	uint32_t ssd = 0;
+	/* ssd minimum value is 1 since later will do the distance weighting
+	   and required not to be 0 */
+	uint32_t ssd = 1;
 
 	int i, j;
 	for(i = 0; i < TEMPLATE_SIZE; i++) {
@@ -52,7 +54,7 @@ uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
 
 	/* ssd minimum value is 1 since later will do the distance weighting
 	   and required not to be 0 */
-	return ssd + 1;
+	return ssd;
 }
 
 /* Find the matching point on two images in local -4 ~ +4 pixels */
