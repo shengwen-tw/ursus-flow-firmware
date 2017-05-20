@@ -17,6 +17,7 @@ uint16_t *current_image;
 
 float focal_length_mm = FOCAL_LENGTH_PX * (1.0f / RETINA_SIZE); //f_mm = f_px * m
 
+/* calculate sum of absoulte difference for 10-bits image */
 uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
 {
 	uint32_t sad = 0;
@@ -34,27 +35,47 @@ uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
 	return sad + 1;
 }
 
+/* calculate sum of squared difference for 10-bits image */
+uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
+{
+	uint64_t ssd = 0;
+
+	int i, j;
+	for(i = 0; i < TEMPLATE_SIZE; i++) {
+		for(j = 0; j < TEMPLATE_SIZE; j++) {
+			uint32_t diff = template_image[i * FLOW_IMG_SIZE + j] -
+					search_image[i * FLOW_IMG_SIZE + j];
+
+			ssd += (uint64_t)diff * (uint64_t)diff; 
+		}
+	}
+
+	/* ssd minimum value is 1 since later will do the distance weighting
+	   and required not to be 0 */
+	return ssd + 1;
+}
+
 /* Find the matching point on two images in local -4 ~ +4 pixels */
 void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
                             int8_t *match_x, int8_t *match_y)
 {
-	int8_t sad_min_x = -4, sad_min_y = -4;
-	uint32_t sad_min_value = UINT32_MAX;
-	uint32_t current_sad;
+	int8_t sd_min_x = -4, sd_min_y = -4;
+	uint64_t sd_min_value = UINT32_MAX;
+	uint64_t current_sd;
 
 	int8_t x, y;
 	for(x = -4; x <= +4; x++) {
 		for(y = -4; y <= +4; y++) {
-			current_sad =
+			current_sd =
 			        calculate_sad16(&current_image[0], &previous_image[x * FLOW_IMG_SIZE + y]);
 
 			/* distance weighting */
-			current_sad *= distance_weighting_table[x + 4][y + 4];
+			current_sd *= distance_weighting_table[x + 4][y + 4];
 
-			if(current_sad < sad_min_value) {
-				sad_min_x = x;
-				sad_min_y = y;
-				sad_min_value = current_sad;
+			if(current_sd < sd_min_value) {
+				sd_min_x = x;
+				sd_min_y = y;
+				sd_min_value = current_sd;
 			}
 		}
 	}
@@ -65,8 +86,8 @@ void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
 //		*match_y = 0;
 //	
 
-	*match_x = sad_min_x;
-	*match_y = sad_min_y;
+	*match_x = sd_min_x;
+	*match_y = sd_min_y;
 }
 
 void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
