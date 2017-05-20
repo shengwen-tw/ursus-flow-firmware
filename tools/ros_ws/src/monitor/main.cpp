@@ -148,10 +148,6 @@ bool usb_receive_onboard_info(uint16_t *buffer)
 
 	if(received_len > 0 && gyro_calib_enable == 0) {
 		//printf("received new image, size = %d bytes\n", received_len);
-
-		for(int i = 0; i < image_width * image_height; i++) {
-			buffer[i] = buffer[i] << 6;
-		}
 	} else if(received_len == 0 || received_len == -1) {
 		return false;
 	}
@@ -195,13 +191,11 @@ int main(int argc, char **argv)
 
 	while(node.ok()) {
 		if(usb_receive_onboard_info(buffer) == true) {
-#ifndef THIS_IS_A_HACK
-			cv_image = cv::Mat(image_height, image_width, CV_16UC1, buffer);
-			//cv::resize(cv_image, cv_image, cv::Size(image_width * 4, image_height * 4));
+			current_time = ros::Time::now().toSec();
+			delta_t = current_time - previous_time; //calculate delta_t
+			previous_time = current_time; //update timer
 
-			cv_image = cv_image(cv::Rect(0, 0, 72, 72));
-			cv::resize(cv_image, cv_image, cv::Size(72 * 4, 72 * 4));
-
+#ifndef SIZE_HACK
 			/* Copy and convet size from 79x79 to 72x72 */
 			for(int i = 0; i < FLOW_IMG_SIZE; i++) {
 				for(int j = 0; j < FLOW_IMG_SIZE; j++) {
@@ -209,11 +203,36 @@ int main(int argc, char **argv)
 				}
 			}
 #endif
-			cv::cvtColor(cv_image, cv_image, CV_GRAY2BGR);
 
-			current_time = ros::Time::now().toSec();
-			delta_t = current_time - previous_time; //calculate delta_t
-			previous_time = current_time; //update timer
+			if(simulate_flow == true) {
+				//memcpy((uint16_t *)flow.image[now].frame, buffer, FLOW_IMG_SIZE * FLOW_IMG_SIZE);
+
+				if(prepare_image == 0) {
+					simulate_opical_flow_on_pc(&flow_vx, &flow_vy, (float)delta_t);
+
+					//debug code
+					//cv_image = cv::Mat(72, 72, CV_16UC1, flow.image[(now + 1) % 2].frame);
+					//cv::resize(cv_image, cv_image, cv::Size(72 * 4, 72 * 4));
+				} else {
+					prepare_image--;
+				}
+
+				now = (now + 1) % 2;
+			}
+
+			/* convert image from 10-bits to 16-bits */
+			for(int i = 0; i < image_width * image_height; i++) {
+				buffer[i] = buffer[i] << 6;
+			}
+
+#ifndef THIS_IS_A_HACK
+			cv_image = cv::Mat(image_height, image_width, CV_16UC1, buffer);
+			//cv::resize(cv_image, cv_image, cv::Size(image_width * 4, image_height * 4));
+
+			cv_image = cv_image(cv::Rect(0, 0, 72, 72));
+			cv::resize(cv_image, cv_image, cv::Size(72 * 4, 72 * 4));
+#endif
+			cv::cvtColor(cv_image, cv_image, CV_GRAY2BGR);
 
 			if(gyro_calib_enable == 0) {
 				printf("image size: %dx%d\n"
@@ -244,20 +263,8 @@ int main(int argc, char **argv)
 				       gyro_z);
 			}
 
-			if(simulate_flow == true) {
-				//memcpy((uint16_t *)flow.image[now].frame, buffer, FLOW_IMG_SIZE * FLOW_IMG_SIZE);
-
-				if(prepare_image == 0) {
-					simulate_opical_flow_on_pc(&flow_vx, &flow_vy, (float)delta_t);
-
-					//debug code
-					//cv_image = cv::Mat(72, 72, CV_16UC1, flow.image[(now + 1) % 2].frame);
-					//cv::resize(cv_image, cv_image, cv::Size(72 * 4, 72 * 4));
-				} else {
-					prepare_image--;
-				}
-
-				now = (now + 1) % 2;
+			if(prepare_image == 0) {
+				flow_visualize();
 			}
 
 			/* send flow velocity message */

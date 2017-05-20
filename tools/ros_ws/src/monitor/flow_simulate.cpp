@@ -38,7 +38,7 @@ uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
 /* calculate sum of squared difference for 10-bits image */
 uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
 {
-	uint64_t ssd = 0;
+	uint32_t ssd = 0;
 
 	int i, j;
 	for(i = 0; i < TEMPLATE_SIZE; i++) {
@@ -46,7 +46,7 @@ uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
 			uint32_t diff = template_image[i * FLOW_IMG_SIZE + j] -
 					search_image[i * FLOW_IMG_SIZE + j];
 
-			ssd += (uint64_t)diff * (uint64_t)diff; 
+			ssd += diff * diff; 
 		}
 	}
 
@@ -60,14 +60,14 @@ void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
                             int8_t *match_x, int8_t *match_y)
 {
 	int8_t sd_min_x = -4, sd_min_y = -4;
-	uint64_t sd_min_value = UINT32_MAX;
-	uint64_t current_sd;
+	uint32_t sd_min_value = UINT32_MAX;
+	uint32_t current_sd;
 
 	int8_t x, y;
 	for(x = -4; x <= +4; x++) {
 		for(y = -4; y <= +4; y++) {
 			current_sd =
-			        calculate_sad16(&current_image[0], &previous_image[x * FLOW_IMG_SIZE + y]);
+			        calculate_ssd16(&current_image[0], &previous_image[x * FLOW_IMG_SIZE + y]);
 
 			/* distance weighting */
 			current_sd *= distance_weighting_table[x + 4][y + 4];
@@ -194,7 +194,10 @@ void simulate_opical_flow_on_pc(float *flow_vx, float *flow_vy, float delta_t)
 
 	/* flow estimation */
 	flow_estimate(previous_image, current_image, flow_vx, flow_vy, delta_t);
+}
 
+void flow_visualize()
+{
 	/* 4x downsampling visualization */
 	int sample_rate = 4; //only visualize 1/4 flow on the image
 	int flow_start = TEMPLATE_MIDPOINT_OFFSET + TEMPLATE_SEARCH_SUBAREA_OFFSET;

@@ -38,4 +38,6 @@ typedef struct {
 
 void simulate_opical_flow_on_pc(float *flow_vx, float *flow_vy, float delta_t);
 
+void flow_visualize();
+
 #endif
