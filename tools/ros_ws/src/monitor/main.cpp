@@ -34,8 +34,8 @@ float gyro_x = 0, gyro_y = 0, gyro_z = 0;
 uint8_t gyro_calib_enable = 0;
 
 bool simulate_flow = true;
-flow_t flow;
 float flow_vx = 0, flow_vy = 0;
+flow_t flow;
 int now = 0;
 
 float position_x = 0, position_y = 0, position_z = 0;
@@ -239,7 +239,7 @@ int main(int argc, char **argv)
 			       gyro_z,
 			       1.0f / delta_t,
 			       delta_t
-			       );
+			      );
 		} else {
 			printf("[gyroscope bias calibration]\n"
 			       "bias x: %+.3f\n"
