@@ -43,7 +43,7 @@ void lidar_write_byte(uint8_t address, uint8_t data)
 
 void lidar_read_distance(uint16_t *distance)
 {
-	gpio_on(LED_2);
+	//gpio_on(LED_2);
 
 	while(xQueueReceive(lidar_queue_handle, distance, portMAX_DELAY) == pdFALSE);
 }
@@ -70,7 +70,7 @@ void I2C2_EV_IRQHandler(void)
 	HAL_I2C_EV_IRQHandler(&i2c2);
 lidar_write_byte(0x11, 0xff);
 	if(HAL_I2C_GetState(&i2c2) == HAL_I2C_STATE_READY) {
-		gpio_off(LED_2);
+		//gpio_off(LED_2);
 
 #if 0           /* use FreeRTOS queue */
 		//convert received data from big endian to little endian
