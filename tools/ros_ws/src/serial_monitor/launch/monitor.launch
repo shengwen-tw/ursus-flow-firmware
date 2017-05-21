@@ -1,5 +1,5 @@
 <launch>
-	<node name="$(anon monitor)" pkg="ursusflow" type="monitor" output="screen"/>
+	<node name="$(anon monitor)" pkg="ursusflow_serial" type="serial_monitor" output="screen"/>
 	<node name="$(anon rviz)" pkg="rviz" type="rviz"/>
 	<node name="$(anon rqt_plot)" pkg="rqt_plot" type="rqt_plot"/>
 </launch>

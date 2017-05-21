@@ -11,7 +11,7 @@
 
 #include "link.hpp"
 
-#define PACKET_SIZE 19
+#define PACKET_SIZE 23
 
 using namespace std;
 
@@ -25,6 +25,10 @@ fcb_data_t link_data = {
 	.frequency = 0.0f,
 	.lidar_distance = 0
 };
+
+float position_x = 0.0f;
+float position_y = 0.0f;
+float position_z = 0.0f;
 
 string port = "/dev/ttyUSB0";
 int baudrate = 57600;
@@ -75,16 +79,13 @@ void receive_onboard_params()
 		memcpy(&link_data.time, &buffer[append_size], sizeof(float));
 		append_size += sizeof(float);
 
+		memcpy(&link_data.period, &buffer[append_size], sizeof(float));
+		append_size += sizeof(float);
+
 		memcpy(&link_data.frequency, &buffer[append_size], sizeof(float));
 		append_size += sizeof(float);
 
-		printf("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, fps:%.1f\n\r",
-			link_data.lidar_distance,
-			link_data.flow_vx,
-			link_data.flow_vy,
-			link_data.time,
-			link_data.frequency
-		);
+		return;
 	}
 }
 
@@ -95,10 +96,10 @@ int main(int argc, char **argv)
 	ros::Time::init();
 
 	ros::NodeHandle node;
-	ros::Publisher flow_vx_publisher = node.advertise<std_msgs::Float32>("/ursusflow/flow_vx", 10);
-	ros::Publisher flow_vy_publisher = node.advertise<std_msgs::Float32>("/ursusflow/flow_vy", 10);
+	ros::Publisher flow_vx_publisher = node.advertise<std_msgs::Float32>("/ursusflow_serial/flow_vx", 10);
+	ros::Publisher flow_vy_publisher = node.advertise<std_msgs::Float32>("/ursusflow_serial/flow_vy", 10);
 	ros::Publisher lidar_distance_publisher =
-	        node.advertise<std_msgs::Float32>("/ursusflow/lidar_distance", 10);
+	        node.advertise<std_msgs::Float32>("/ursusflow_serial/lidar_distance", 10);
 
 	tf::TransformBroadcaster tf_broadcaster;
 	tf::Transform transform;
@@ -113,28 +114,36 @@ int main(int argc, char **argv)
 			receive_onboard_params();
 		}
 
-#if 0
+		printf("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, delta_t: %.2f, fps:%.1f\n\r",
+			link_data.lidar_distance,
+			link_data.flow_vx,
+			link_data.flow_vy,
+			link_data.time,
+			link_data.period,
+			link_data.frequency
+		);
+#if 1
 		/* send flow velocity message */
 		std_msgs::Float32 flow_vx_msg;
 		std_msgs::Float32 flow_vy_msg;
 		std_msgs::Float32 lidar_distance_msg;
-		flow_vx_msg.data = flow_vx;
-		flow_vy_msg.data = flow_vy;
-		lidar_distance_msg.data = (float)lidar_distance;
+		flow_vx_msg.data = link_data.flow_vx;
+		flow_vy_msg.data = link_data.flow_vy;
+		lidar_distance_msg.data = (float)link_data.lidar_distance;
 
 		flow_vx_publisher.publish(flow_vx_msg);
 		flow_vy_publisher.publish(flow_vy_msg);
 		lidar_distance_publisher.publish(lidar_distance_msg);
 
-		position_x += flow_vx * delta_t;
-		position_y += flow_vy * delta_t;
-		position_z = (float)lidar_distance / 100.0f; //convert unit from cm to m
+		position_x += link_data.flow_vx * link_data.period;
+		position_y += link_data.flow_vy * link_data.period;
+		position_z = (float)link_data.lidar_distance / 100.0f; //convert unit from cm to m
 
 		transform.setOrigin(tf::Vector3(position_x, position_y, position_z));
 		transform.setRotation(tf::Quaternion(0, 0, 0, 1));
 
 		tf_broadcaster.sendTransform(
-		        tf::StampedTransform(transform, ros::Time::now(),"origin", "quadrotor"));
+			tf::StampedTransform(transform, ros::Time::now(),"origin", "quadrotor"));
 #endif
 	}
 

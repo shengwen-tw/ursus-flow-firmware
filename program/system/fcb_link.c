@@ -14,7 +14,7 @@
 
 #include "delay.h"
 
-#define PACKET_SIZE 19
+#define PACKET_SIZE 23
 
 extern uint16_t lidar_distance;
 
@@ -77,6 +77,9 @@ static void send_onboard_params(void)
 	append_size += sizeof(float);
 
 	memcpy(message + append_size, &fcb_data.time, sizeof(float));
+	append_size += sizeof(float);
+
+	memcpy(message + append_size, &fcb_data.period, sizeof(float));
 	append_size += sizeof(float);
 
 	memcpy(message + append_size, &fcb_data.frequency, sizeof(float));
