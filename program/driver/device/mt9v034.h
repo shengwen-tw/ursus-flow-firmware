@@ -3,10 +3,12 @@
 
 #include "stdbool.h"
 
+#include "flow.h"
+
 /* ================ camera setting ================ */
 #define IMAGE_BINNING          4
-#define FLOW_IMG_WIDTH         79
-#define FLOW_IMG_HEIGHT        79
+#define FLOW_IMG_WIDTH         FLOW_IMG_SIZE //79 for pc flow
+#define FLOW_IMG_HEIGHT        FLOW_IMG_SIZE
 #define CALIB_IMG_WIDTH        188
 #define CALIB_IMG_HEIGHT       120
 
