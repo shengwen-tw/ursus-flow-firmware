@@ -4,6 +4,7 @@
 TARGET=firmware
 EXECUTABLE=$(TARGET).elf
 BIN_IMAGE=$(TARGET).bin
+DUMP_LOG=$(TARGET).dump
 
 #======================================================================#
 
@@ -166,7 +167,9 @@ $(EXECUTABLE): $(OBJECTS)
 	@echo 'Building object $@'
 
 objdump:
-	$(OBJDUMP) -marm -b binary -D $(BIN_IMAGE)
+	make all
+	rm -rf $(DUMP_LOG)
+	$(OBJDUMP) -d $(EXECUTABLE) >> $(DUMP_LOG)
 
 #Generate tags file
 tags:
