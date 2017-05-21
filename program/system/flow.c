@@ -134,20 +134,23 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 
 	float predict_disp_x = 0, predict_disp_y = 0;
 
-	/* calculate the flow for every 64x64 points */
+	uint16_t *frame1_base;
+	uint16_t *frame2_base;
+
+	/* calculate the flow for 40x40 points using ssd */
 	int x, y;
 	for(x = 0; x < FLOW_COUNT; x++) {
-		for(y = 0; y < FLOW_COUNT; y++) {
-			/* calculate the matching point using SAD */
-			start_x = x + offset;
-			start_y = y + offset;
-			frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
-			frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
-			match_point_local_area(frame1, frame2, &match_x, &match_y);
+		start_x = x + offset;
 
-			/* convert the position relative the full image */
-			//flow.match_x[x][y] = match_x + start_x;
-			//flow.match_y[x][y] = match_y + start_y;
+		frame1_base = &previous_image[start_x * FLOW_IMG_SIZE];
+		frame2_base = &current_image[start_x * FLOW_IMG_SIZE];
+
+		for(y = 0; y < FLOW_COUNT; y++) {
+			start_y = y + offset;
+
+			frame1 = frame1_base + start_y; //locate to previous_image[start_x][start_y]
+			frame2 = frame2_base + start_y; //locate to current_image[start_x][start_y]
+			match_point_local_area(frame1, frame2, &match_x, &match_y);
 
 			if(match_x == 0 && match_y == 0) {
 				continue;
