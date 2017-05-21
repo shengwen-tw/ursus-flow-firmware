@@ -158,17 +158,17 @@ bool usb_receive_onboard_info(uint16_t *buffer)
 int main(int argc, char **argv)
 {
 	/* initialize ROS */
-	ros::init(argc, argv, "ursusflow");
+	ros::init(argc, argv, "ursusflow_usb");
 	ros::Time::init();
 
 	ros::NodeHandle node;
 	ros::Publisher ros_image_publisher =
-	        node.advertise<sensor_msgs::Image>("ursusflow/flow_image", 10);
+	        node.advertise<sensor_msgs::Image>("ursusflow_usb/flow_image", 10);
 
-	ros::Publisher flow_vx_publisher = node.advertise<std_msgs::Float32>("/ursusflow/flow_vx", 10);
-	ros::Publisher flow_vy_publisher = node.advertise<std_msgs::Float32>("/ursusflow/flow_vy", 10);
+	ros::Publisher flow_vx_publisher = node.advertise<std_msgs::Float32>("/ursusflow_usb/flow_vx", 10);
+	ros::Publisher flow_vy_publisher = node.advertise<std_msgs::Float32>("/ursusflow_usb/flow_vy", 10);
 	ros::Publisher lidar_distance_publisher =
-	        node.advertise<std_msgs::Float32>("/ursusflow/lidar_distance", 10);
+	        node.advertise<std_msgs::Float32>("/ursusflow_usb/lidar_distance", 10);
 
 	tf::TransformBroadcaster tf_broadcaster;
 	tf::Transform transform;

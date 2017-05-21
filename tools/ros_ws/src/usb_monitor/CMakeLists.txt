@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(ursusflow)
+project(ursusflow_usb)
 
 set(CMAKE_BUILD_TYPE Debug)
 set(ROS_BUILD_TYPE Debug)
@@ -53,6 +53,6 @@ set(
 )
 
 include_directories(${catkin_INCLUDE_DIRS}  ${OpenCV_INCLUDE_DIRS} ${INC})
-add_executable(monitor ${SRC})
-target_link_libraries (monitor ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} -lusb-1.0)
-add_dependencies(monitor ${PROJECT_NAME}_generate_messages_cpp)
+add_executable(usb_monitor ${SRC})
+target_link_libraries (usb_monitor ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} -lusb-1.0)
+add_dependencies(usb_monitor ${PROJECT_NAME}_generate_messages_cpp)

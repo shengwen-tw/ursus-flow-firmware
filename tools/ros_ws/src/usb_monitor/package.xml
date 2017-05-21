@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>ursusflow</name>
+  <name>ursusflow_usb</name>
   <version>0.0.1</version>
   <description>ursusflow optical flow tools</description>
 

@@ -4,7 +4,7 @@ all:
 clean:
 	catkin_make clean
 run_usb:
-	roslaunch ursusflow monitor.launch
+	roslaunch ursusflow_usb monitor.launch
 
 run_serial:
 	roslaunch ursusflow_serial monitor.launch
