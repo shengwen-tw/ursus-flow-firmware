@@ -16,7 +16,7 @@ SemaphoreHandle_t uart2_tx_semaphore;
 
 void uart_init(void)
 {
-	uart2_init(115200);
+	uart2_init(57600);
 }
 
 static void uart2_init(int baudrate)
