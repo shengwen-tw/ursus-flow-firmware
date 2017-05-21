@@ -16,7 +16,7 @@ make sure you have already installed ROS before building the program.
 **Dependencies**
 
 ```
-sudo apt install ros-kinetic-jsk-visualization
+sudo apt install ros-kinetic-jsk-visualization ros-kinetic-serial
 ```
 
 **Build**
