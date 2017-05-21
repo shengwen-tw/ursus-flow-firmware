@@ -9,15 +9,22 @@
 #include <cv_bridge/cv_bridge.h>
 #include <tf/transform_broadcaster.h>
 
+#include "link.hpp"
+
+#define PACKET_SIZE 23 
+
 using namespace std;
 
 serial::Serial *_serial;
 
-/* on-board info */
-uint16_t lidar_distance = 0;
-float gyro_x = 0, gyro_y = 0, gyro_z = 0;
-float flow_vx = 0, flow_vy = 0;
-float position_x = 0, position_y = 0, position_z = 0;
+fcb_data_t link_data = {
+	.flow_vx = 0.0f,
+	.flow_vy = 0.0f,
+	.time = 0.0f,
+	.period = 0.0f,
+	.frequency = 0.0f,
+	.lidar_distance = 0
+};
 
 string port = "/dev/ttyUSB0";
 int baudrate = 57600;
@@ -35,7 +42,46 @@ bool serial_open(string port, int baudrate)
 
 void serial_gets(uint8_t *s, int size)
 {
-	_serial->read(&s, size);
+	_serial->read(s, size);
+}
+
+void receive_onboard_params()
+{
+	uint8_t buffer[PACKET_SIZE];
+
+	while(1) {
+		/* wait for start byte */
+		serial_gets(buffer, 1);
+		if(buffer[0] != '$') {
+			continue;
+		}
+		int append_size = 1;
+
+		serial_gets(buffer, PACKET_SIZE -1);
+
+		memcpy(&link_data.lidar_distance, &buffer[append_size], sizeof(link_data.lidar_distance));
+		append_size += sizeof(link_data.lidar_distance);
+
+		memcpy(&link_data.flow_vx, &buffer[append_size], sizeof(link_data.flow_vx));
+		append_size += sizeof(link_data.flow_vx);
+
+		memcpy(&link_data.flow_vy, &buffer[append_size], sizeof(link_data.flow_vy));
+		append_size += sizeof(link_data.flow_vy);
+
+		memcpy(&link_data.time, &buffer[append_size], sizeof(link_data.time));
+		append_size += sizeof(link_data.time);
+
+		memcpy(&link_data.frequency, &buffer[append_size], sizeof(link_data.frequency));
+		append_size += sizeof(link_data.frequency);
+
+		printf("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, fps:%.1f\n\r",
+			link_data.lidar_distance,
+			link_data.flow_vx,
+			link_data.flow_vy,
+			link_data.time,
+			link_data.frequency
+		);
+	}
 }
 
 int main(int argc, char **argv)
@@ -60,9 +106,7 @@ int main(int argc, char **argv)
 
 	while(1) {
 		if(_serial->available()) {
-			uint8_t buffer;
-			serial_gets(&buffer, 1);
-			printf("%c", buffer);	
+			receive_onboard_params();
 		}
 
 #if 0
