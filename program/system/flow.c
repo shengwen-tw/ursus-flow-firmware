@@ -55,15 +55,15 @@ uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
 	uint64_t *acc_64 = (uint64_t *)acc_32;
 
 	int i, j;
-	for(i = 0; i < TEMPLATE_SIZE; i++) {
-		_template += FLOW_IMG_SIZE;
-		_search += FLOW_IMG_SIZE;
+	for(i = TEMPLATE_SIZE; i--;) {
+		_template += FLOW_IMG_SIZE - 1;
+		_search += FLOW_IMG_SIZE - 1;
 
 		template_32 = (uint32_t *)_template;
 		search_32 = (uint32_t *)_search;
 
-		for(j = 0; j < TEMPLATE_SIZE; j+=2) {
-			*diff_32 = __SSUB16(*template_32, *search_32);
+		for(j = TEMPLATE_SIZE; j-=2;) {
+			*diff_32 = __SSUB16(*(template_32 + j - 1), *(search_32 + j - 1));
 			*acc_64 = __SMLALD(*diff_32, *diff_32, *acc_64);
 
 			//int16_t diff = _template[j] - _search[j];
