@@ -3,8 +3,11 @@ all:
 
 clean:
 	catkin_make clean
-run:
+run_usb:
 	roslaunch ursusflow monitor.launch
+
+run_serial:
+	roslaunch ursusflow_serial monitor.launch
 
 astyle:
 	astyle -r --style=linux --indent=tab=8 *.cpp *.hpp
