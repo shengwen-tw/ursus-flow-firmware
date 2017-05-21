@@ -170,6 +170,8 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		*flow_vx = 0;
 		*flow_vy = 0;
 
+		gpio_off(LED_2);
+
 		return;
 	}
 
@@ -179,6 +181,8 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	/* flow unit: [cm/s] */
 	*flow_vx = +((float)lidar_distance / FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
 	*flow_vy = -((float)lidar_distance / FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
+
+	gpio_on(LED_2);
 }
 
 void flow_estimate_task(void)
