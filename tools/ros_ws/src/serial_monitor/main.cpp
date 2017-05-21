@@ -11,7 +11,7 @@
 
 #include "link.hpp"
 
-#define PACKET_SIZE 23 
+#define PACKET_SIZE 19
 
 using namespace std;
 
@@ -57,22 +57,26 @@ void receive_onboard_params()
 		}
 		int append_size = 1;
 
-		serial_gets(buffer, PACKET_SIZE -1);
+		for(int i = 0; i < PACKET_SIZE - 1; i++) {
+			serial_gets(buffer + i + 1, 1);
+		}
 
-		memcpy(&link_data.lidar_distance, &buffer[append_size], sizeof(link_data.lidar_distance));
-		append_size += sizeof(link_data.lidar_distance);
+		//serial_gets(buffer, PACKET_SIZE -1);
 
-		memcpy(&link_data.flow_vx, &buffer[append_size], sizeof(link_data.flow_vx));
-		append_size += sizeof(link_data.flow_vx);
+		memcpy(&link_data.lidar_distance, &buffer[append_size], sizeof(uint16_t));
+		append_size += sizeof(uint16_t);
 
-		memcpy(&link_data.flow_vy, &buffer[append_size], sizeof(link_data.flow_vy));
-		append_size += sizeof(link_data.flow_vy);
+		memcpy(&link_data.flow_vx, &buffer[append_size], sizeof(float));
+		append_size += sizeof(float);
 
-		memcpy(&link_data.time, &buffer[append_size], sizeof(link_data.time));
-		append_size += sizeof(link_data.time);
+		memcpy(&link_data.flow_vy, &buffer[append_size], sizeof(float));
+		append_size += sizeof(float);
 
-		memcpy(&link_data.frequency, &buffer[append_size], sizeof(link_data.frequency));
-		append_size += sizeof(link_data.frequency);
+		memcpy(&link_data.time, &buffer[append_size], sizeof(float));
+		append_size += sizeof(float);
+
+		memcpy(&link_data.frequency, &buffer[append_size], sizeof(float));
+		append_size += sizeof(float);
 
 		printf("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, fps:%.1f\n\r",
 			link_data.lidar_distance,

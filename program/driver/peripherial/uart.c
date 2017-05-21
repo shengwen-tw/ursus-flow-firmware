@@ -90,9 +90,9 @@ void DMA1_Stream6_IRQHandler(void)
 	HAL_DMA_IRQHandler(uart2.hdmatx);
 }
 
-void uart2_puts(char *str)
+void uart2_puts(char *str, int size)
 {
 	xSemaphoreTake(uart2_tx_semaphore, portMAX_DELAY);
 
-	HAL_UART_Transmit_DMA(&uart2, (uint8_t*)str, strlen(str));
+	HAL_UART_Transmit_DMA(&uart2, (uint8_t*)str, size);
 }
