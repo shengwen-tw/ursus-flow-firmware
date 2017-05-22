@@ -23,6 +23,7 @@
 #include "fcb_link.h"
 #include "system_time.h"
 #include "distance_weighting.h"
+#include "ssd16.h"
 
 extern TaskHandle_t fcb_link_task_handle;
 extern TaskHandle_t usb_link_task_handle;
@@ -39,42 +40,6 @@ bool do_gyro_calibrate = false; //set true to eanble the calibration function
 float drift_x = 0;
 float drift_y = 0;
 float drift_z = 0;
-
-/* calculate sum of squared difference for 10-bits image */
-uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
-{
-	uint16_t *_template = template_image;
-	uint16_t *_search = search_image;
-
-	/* simd vectors */
-	uint32_t *template_32;
-	uint32_t *search_32;
-	int16_t diff_16[2] = {0};
-	uint32_t *diff_32 = (uint32_t *)diff_16;
-	uint32_t acc_32[2] = {0, 1};
-	uint64_t *acc_64 = (uint64_t *)acc_32;
-
-	int i, j;
-	for(i = TEMPLATE_SIZE; i--;) {
-		_template += FLOW_IMG_SIZE - 1;
-		_search += FLOW_IMG_SIZE - 1;
-
-		template_32 = (uint32_t *)_template;
-		search_32 = (uint32_t *)_search;
-
-		for(j = TEMPLATE_SIZE; j-=2;) {
-			*diff_32 = __SSUB16(*(template_32 + j - 1), *(search_32 + j - 1));
-			*acc_64 = __SMLALD(*diff_32, *diff_32, *acc_64);
-
-			//int16_t diff = _template[j] - _search[j];
-			//ssd += diff * diff;
-		}
-	}
-
-	/* ssd minimum value is 1 since later will do the distance weighting
-	   and required not to be 0 */
-	return acc_32[0] + acc_32[1];
-}
 
 /* Find the matching point on two images in local -4 ~ +4 pixels */
 void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
