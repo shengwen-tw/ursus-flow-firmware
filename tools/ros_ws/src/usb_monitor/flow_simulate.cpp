@@ -35,6 +35,50 @@ uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
 	return sad;
 }
 
+uint32_t calculate_sad16_row(uint16_t *template_image, uint16_t *search_image, int row_number)
+{
+	uint16_t *_template = template_image;
+	uint16_t *_search = search_image;
+
+	uint32_t ssd = 0;
+	int16_t diff;
+
+	_template += row_number * TEMPLATE_SIZE;
+	_search += row_number * TEMPLATE_SIZE;
+
+	for(int i = 0; i < TEMPLATE_SIZE; i++) {
+			diff = *_template - *_search;
+			ssd += diff * diff;
+
+			_template++;
+			_search++;
+	}
+
+	return ssd;
+}
+
+uint32_t calculate_sad16_column(uint16_t *template_image, uint16_t *search_image, int column_number)
+{
+	uint16_t *_template = template_image;
+	uint16_t *_search = search_image;
+
+	uint32_t ssd = 0;
+	int16_t diff;
+
+	_template += column_number;
+	_search += column_number;
+
+	for(int j = 0; j < TEMPLATE_SIZE; j++) {
+			diff = *_template - *_search;
+			ssd += diff * diff;
+
+			_template += TEMPLATE_SIZE;
+			_search += TEMPLATE_SIZE;
+	}
+
+	return ssd;
+}
+
 /* calculate sum of squared difference for 10-bits image */
 uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
 {
