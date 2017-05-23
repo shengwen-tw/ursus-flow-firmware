@@ -114,8 +114,8 @@ void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
 	uint32_t ssd_min_value = UINT32_MAX;
 	uint32_t current_ssd;
 
-	uint16_t *search_on_image = &previous_image[0];
-	uint16_t *running_search_image = current_image;
+	uint16_t *search_on_image = current_image;
+	uint16_t *running_search_image = &previous_image[0];
 
 	uint16_t *row_start = search_on_image;
 
@@ -124,19 +124,19 @@ void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
 	uint32_t row_addin_ssd;
 	uint32_t column_addin_ssd;
 
-	int8_t x, y;
-	for(x = -4; x <= +4; x++) {
-		running_search_image = &current_image[FLOW_IMG_SIZE * x];
+	int8_t r, c;
+	for(r = -4; r <= +4; r++) {
+		search_on_image = &current_image[FLOW_IMG_SIZE * r];
 
-		for(y = -4; y <= +4; y++) {
-			current_ssd = calculate_ssd16(search_on_image, &running_search_image[y]);
+		for(c = -4; c <= +4; c++) {
+			current_ssd = calculate_ssd16(running_search_image, &search_on_image[c]);
 
 			/* distance weighting */
-			current_ssd *= distance_weighting_table[x + 4][y + 4];
+			current_ssd *= distance_weighting_table[r + 4][c + 4];
 
 			if(current_ssd < ssd_min_value) {
-				ssd_min_x = x;
-				ssd_min_y = y;
+				ssd_min_x = r;
+				ssd_min_y = c;
 				ssd_min_value = current_ssd;
 			}
 		}
