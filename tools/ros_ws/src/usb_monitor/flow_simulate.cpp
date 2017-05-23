@@ -115,7 +115,7 @@ void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
 	uint32_t current_ssd;
 
 	uint16_t *search_on_image = current_image;
-	uint16_t *running_search_image = &previous_image[0];
+	uint16_t *running_template_image = &previous_image[0];
 
 	uint16_t *row_start = search_on_image;
 
@@ -129,7 +129,7 @@ void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
 		search_on_image = &current_image[FLOW_IMG_SIZE * r];
 
 		for(c = -4; c <= +4; c++) {
-			current_ssd = calculate_ssd16(running_search_image, &search_on_image[c]);
+			current_ssd = calculate_ssd16(running_template_image, &search_on_image[c]);
 
 			/* distance weighting */
 			current_ssd *= distance_weighting_table[r + 4][c + 4];
