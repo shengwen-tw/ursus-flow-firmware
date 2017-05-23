@@ -22,7 +22,7 @@ def generate_linear_weighting_2d(size):
     #Generate dirac delta function
     linear_weighting = np.zeros((size, size))
 
-    coefficient = 2
+    coefficient = 1
 
     for i in range(-size / 2, size / 2 + 1):
         for j in range(-size / 2, size / 2 + 1):
