@@ -35,7 +35,7 @@ uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
 	return sad;
 }
 
-uint32_t calculate_sad16_row(uint16_t *template_image, uint16_t *search_image, int row_number)
+uint32_t calculate_ssd16_row(uint16_t *template_image, uint16_t *search_image, int row_offset)
 {
 	uint16_t *_template = template_image;
 	uint16_t *_search = search_image;
@@ -43,21 +43,22 @@ uint32_t calculate_sad16_row(uint16_t *template_image, uint16_t *search_image, i
 	uint32_t ssd = 0;
 	int16_t diff;
 
-	_template += row_number * TEMPLATE_SIZE;
-	_search += row_number * TEMPLATE_SIZE;
+	_template += row_offset * FLOW_IMG_SIZE;
+	_search += row_offset * FLOW_IMG_SIZE;
 
-	for(int r = 0; r < TEMPLATE_SIZE; r++) {
-			diff = *_template - *_search;
-			ssd += diff * diff;
+	int r;
+	for(r = 0; r < TEMPLATE_SIZE; r++) {
+		diff = *_template - *_search;
+		ssd += diff * diff;
 
-			_template++;
-			_search++;
+		_template++;
+		_search++;
 	}
 
 	return ssd;
 }
 
-uint32_t calculate_sad16_column(uint16_t *template_image, uint16_t *search_image, int column_number)
+uint32_t calculate_ssd16_column(uint16_t *template_image, uint16_t *search_image, int column_offset)
 {
 	uint16_t *_template = template_image;
 	uint16_t *_search = search_image;
@@ -65,22 +66,23 @@ uint32_t calculate_sad16_column(uint16_t *template_image, uint16_t *search_image
 	uint32_t ssd = 0;
 	int16_t diff;
 
-	_template += column_number;
-	_search += column_number;
+	_template += column_offset;
+	_search += column_offset;
 
-	for(int c = 0; c < TEMPLATE_SIZE; c++) {
-			diff = *_template - *_search;
-			ssd += diff * diff;
+	int c;
+	for(c = 0; c < TEMPLATE_SIZE; c++) {
+		diff = *_template - *_search;
+		ssd += diff * diff;
 
-			_template += TEMPLATE_SIZE;
-			_search += TEMPLATE_SIZE;
+		_template += FLOW_IMG_SIZE;
+		_search += FLOW_IMG_SIZE;
 	}
 
 	return ssd;
 }
 
 /* calculate sum of squared difference for 10-bits image */
-uint32_t calculate_ssd16(uint16_t *template_image, uint16_t *search_image)
+uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 {
 	/* ssd minimum value is 1 since later will do the distance weighting
 	   and required not to be 0 */
@@ -111,33 +113,88 @@ void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
                             int8_t *match_x, int8_t *match_y)
 {
 	int8_t ssd_min_x = -4, ssd_min_y = -4;
-	uint32_t ssd_min_value = UINT32_MAX;
-	uint32_t current_ssd;
+	uint32_t ssd_min_value;
+	uint32_t ssd;
+	uint32_t dw_ssd; //distance weighting ssd
 
-	uint16_t *search_on_image = current_image;
-	uint16_t *running_template_image = &previous_image[0];
+	uint16_t *running_search_image = &current_image[0];
+	uint16_t *fixed_template_image = &previous_image[0];
 
-	uint16_t *row_start = search_on_image;
+	uint16_t *row_start = running_search_image;
+	uint32_t row_start_ssd;
 
 	uint32_t row_cuttoff_ssd;
 	uint32_t column_cuttoff_ssd;
 	uint32_t row_addin_ssd;
 	uint32_t column_addin_ssd;
 
-	int8_t r, c;
-	for(r = -4; r <= +4; r++) {
-		search_on_image = &current_image[FLOW_IMG_SIZE * r];
+	/* calculate full ssd at (-4, -4) */
+	running_search_image = &running_search_image[(-4) * FLOW_IMG_SIZE + (-4)];
+	ssd_min_value = row_start_ssd = ssd =
+		calculate_ssd16_full(fixed_template_image, running_search_image);
 
-		for(c = -4; c <= +4; c++) {
-			current_ssd = calculate_ssd16(running_template_image, &search_on_image[c]);
+	/* search on first row */
+	int8_t r, c;
+	for(c = -3; c <= +4; c++) {
+		running_search_image++;
+
+		column_cuttoff_ssd = calculate_ssd16_column(fixed_template_image, running_search_image, -1);
+		column_addin_ssd = calculate_ssd16_column(fixed_template_image, running_search_image, 7);
+
+		ssd -= column_cuttoff_ssd;
+		ssd += column_addin_ssd;
+
+		/* distance weighting */
+		dw_ssd = ssd * distance_weighting_table[(-4) + 4][c + 4];
+
+		if(dw_ssd < ssd_min_value) {
+			ssd_min_x = -4;
+			ssd_min_y = c;
+			ssd_min_value = dw_ssd;
+		}
+	}
+
+	/* calculate the rest */
+	for(r = -3; r <= +4; r++) {
+		row_start += FLOW_IMG_SIZE;
+		running_search_image = row_start;
+		ssd = row_start_ssd;
+
+		row_cuttoff_ssd = calculate_ssd16_row(fixed_template_image, running_search_image, -1);
+		row_addin_ssd = calculate_ssd16_row(fixed_template_image, running_search_image, 7);
+
+		ssd -= row_cuttoff_ssd;
+		ssd += row_addin_ssd;
+
+		row_start_ssd = ssd;
+
+		/* distance weighting */
+		dw_ssd = ssd * distance_weighting_table[r + 4][(-4) + 4];
+
+		if(dw_ssd < ssd_min_value) {
+			ssd_min_x = r;
+			ssd_min_y = -4;
+			ssd_min_value = dw_ssd;
+		}
+
+		for(c = -3; c <= +4; c++) {
+			running_search_image++;
+
+			column_cuttoff_ssd =
+				calculate_ssd16_column(fixed_template_image, running_search_image, -1);
+			column_addin_ssd =
+				calculate_ssd16_column(fixed_template_image, running_search_image, 7);
+
+			ssd -= column_cuttoff_ssd;
+			ssd += column_addin_ssd;
 
 			/* distance weighting */
-			current_ssd *= distance_weighting_table[r + 4][c + 4];
+			dw_ssd = ssd * distance_weighting_table[r + 4][c + 4];
 
-			if(current_ssd < ssd_min_value) {
+			if(dw_ssd < ssd_min_value) {
 				ssd_min_x = r;
 				ssd_min_y = c;
-				ssd_min_value = current_ssd;
+				ssd_min_value = dw_ssd;
 			}
 		}
 	}
