@@ -46,7 +46,7 @@ uint32_t calculate_sad16_row(uint16_t *template_image, uint16_t *search_image, i
 	_template += row_number * TEMPLATE_SIZE;
 	_search += row_number * TEMPLATE_SIZE;
 
-	for(int i = 0; i < TEMPLATE_SIZE; i++) {
+	for(int r = 0; r < TEMPLATE_SIZE; r++) {
 			diff = *_template - *_search;
 			ssd += diff * diff;
 
@@ -68,7 +68,7 @@ uint32_t calculate_sad16_column(uint16_t *template_image, uint16_t *search_image
 	_template += column_number;
 	_search += column_number;
 
-	for(int j = 0; j < TEMPLATE_SIZE; j++) {
+	for(int c = 0; c < TEMPLATE_SIZE; c++) {
 			diff = *_template - *_search;
 			ssd += diff * diff;
 
