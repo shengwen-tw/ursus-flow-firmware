@@ -109,7 +109,45 @@ uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 }
 
 /* Find the matching point on two images in local -4 ~ +4 pixels */
-void match_point_local_area(uint16_t *previous_image, uint16_t *current_image,
+void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_image,
+                            int8_t *match_x, int8_t *match_y)
+{
+	int8_t sd_min_x = -4, sd_min_y = -4;
+	uint32_t sd_min_value = UINT32_MAX;
+	uint32_t current_sd;
+
+	uint16_t *current_image_run = current_image;
+
+	int8_t x, y;
+	for(x = -4; x <= +4; x++) {
+		current_image_run = &current_image[FLOW_IMG_SIZE * x];
+
+		for(y = -4; y <= +4; y++) {
+			current_sd = calculate_ssd16_full(&previous_image[0], &current_image_run[y]);
+
+			/* distance weighting */
+			current_sd *= distance_weighting_table[x + 4][y + 4];
+
+			if(current_sd < sd_min_value) {
+				sd_min_x = x;
+				sd_min_y = y;
+				sd_min_value = current_sd;
+			}
+		}
+	}
+
+	/* bad result */
+//	if(sad_min_value > BLOCK_MATCHING_THRESHOLD) {
+//		*match_x = 0;
+//		*match_y = 0;
+//
+
+	*match_x = sd_min_x;
+	*match_y = sd_min_y;
+}
+
+/* Find the matching point on two images in local -4 ~ +4 pixels */
+void match_point_local_area_dp(uint16_t *previous_image, uint16_t *current_image,
                             int8_t *match_x, int8_t *match_y)
 {
 	int8_t ssd_min_x = -4, ssd_min_y = -4;
@@ -240,7 +278,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 			frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
 			frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
 	
-			match_point_local_area(frame1, frame2, &match_x, &match_y);
+			match_point_local_area_full(frame1, frame2, &match_x, &match_y);
 			/* convert the position relative the full image */
 			flow.match_x[x][y] = match_x + start_x;
 			flow.match_y[x][y] = match_y + start_y;
