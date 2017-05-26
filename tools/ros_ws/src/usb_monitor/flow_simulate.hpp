@@ -12,6 +12,8 @@
 #define TEMPLATE_SIZE       8  //sum of absolute difference template size
 #define SEARCH_SUBAREA_SIZE 16 //only match the template in near -4 ~ +4 range
 
+#define SUBAREA_SSD_SIZE (SEARCH_SUBAREA_SIZE - TEMPLATE_SIZE + 1) //9x9
+
 #define TEMPLATE_MIDPOINT_OFFSET        3 //distance from template edge to its midpoint (8x8 template)
 #define TEMPLATE_SEARCH_SUBAREA_OFFSET  3 //distance from search subarea edge to the middlemost template
 
@@ -28,6 +30,9 @@ typedef struct {
 } image_t;
 
 typedef struct {
+	uint32_t subarea_ssd_row_start[SEARCH_SUBAREA_SIZE][SEARCH_SUBAREA_SIZE];
+	uint32_t subarea_ssd_last[SEARCH_SUBAREA_SIZE][SEARCH_SUBAREA_SIZE];
+
 	image_t image[2];
 
 	uint8_t match_x[FLOW_IMG_SIZE][FLOW_IMG_SIZE];

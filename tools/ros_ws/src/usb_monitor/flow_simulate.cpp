@@ -17,6 +17,7 @@ uint16_t *current_image;
 
 float focal_length_mm = FOCAL_LENGTH_PX * (1.0f / RETINA_SIZE); //f_mm = f_px * m
 
+#if 0 //not using in this program
 /* calculate sum of absoulte difference for 10-bits image */
 uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
 {
@@ -34,6 +35,7 @@ uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
 
 	return sad;
 }
+#endif
 
 uint32_t calculate_ssd16_row(uint16_t *template_image, uint16_t *search_image, int row_offset)
 {
@@ -110,28 +112,33 @@ uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 
 /* Find the matching point on two images in local -4 ~ +4 pixels */
 void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_image,
-                            int8_t *match_x, int8_t *match_y)
+                                  int8_t *match_x, int8_t *match_y)
 {
-	int8_t sd_min_x = -4, sd_min_y = -4;
-	uint32_t sd_min_value = UINT32_MAX;
-	uint32_t current_sd;
+	int8_t ssd_min_x = -4, ssd_min_y = -4;
+	uint32_t ssd_min_value = UINT32_MAX;
+	uint32_t ssd;
+	uint32_t dw_ssd;
 
-	uint16_t *current_image_run = current_image;
+	uint16_t *running_search_image = &current_image[0];
+	uint16_t *fixed_template_image = &previous_image[0];
 
-	int8_t x, y;
-	for(x = -4; x <= +4; x++) {
-		current_image_run = &current_image[FLOW_IMG_SIZE * x];
+	int8_t r, c;
+	for(r = -4; r <= +4; r++) {
+		running_search_image = &current_image[FLOW_IMG_SIZE * r];
 
-		for(y = -4; y <= +4; y++) {
-			current_sd = calculate_ssd16_full(&previous_image[0], &current_image_run[y]);
+		for(c = -4; c <= +4; c++) {
+			ssd = calculate_ssd16_full(fixed_template_image, &running_search_image[c]);
+
+			flow.subarea_ssd_row_start[r + 4][c + 4] = ssd;
+			flow.subarea_ssd_last[r + 4][c + 4] = ssd;
 
 			/* distance weighting */
-			current_sd *= distance_weighting_table[x + 4][y + 4];
+			dw_ssd = ssd * distance_weighting_table[r + 4][c + 4];
 
-			if(current_sd < sd_min_value) {
-				sd_min_x = x;
-				sd_min_y = y;
-				sd_min_value = current_sd;
+			if(dw_ssd < ssd_min_value) {
+				ssd_min_x = r;
+				ssd_min_y = c;
+				ssd_min_value = dw_ssd;
 			}
 		}
 	}
@@ -142,91 +149,92 @@ void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_ima
 //		*match_y = 0;
 //
 
-	*match_x = sd_min_x;
-	*match_y = sd_min_y;
+	*match_x = ssd_min_x;
+	*match_y = ssd_min_y;
 }
 
-/* Find the matching point on two images in local -4 ~ +4 pixels */
-void match_point_local_area_dp(uint16_t *previous_image, uint16_t *current_image,
-                            int8_t *match_x, int8_t *match_y)
+void match_point_local_area_row_dp(uint16_t *previous_image, uint16_t *current_image,
+                                      int8_t *match_x, int8_t *match_y)
 {
 	int8_t ssd_min_x = -4, ssd_min_y = -4;
-	uint32_t ssd_min_value;
+	uint32_t ssd_min_value = UINT32_MAX;
 	uint32_t ssd;
-	uint32_t dw_ssd; //distance weighting ssd
+	uint32_t dw_ssd;
 
 	uint16_t *running_search_image = &current_image[0];
 	uint16_t *fixed_template_image = &previous_image[0];
 
-	uint16_t *row_start = running_search_image;
-	uint32_t row_start_ssd;
-
 	uint32_t row_cuttoff_ssd;
-	uint32_t column_cuttoff_ssd;
 	uint32_t row_addin_ssd;
-	uint32_t column_addin_ssd;
 
-	/* calculate full ssd at (-4, -4) */
-	running_search_image = &running_search_image[(-4) * FLOW_IMG_SIZE + (-4)];
-	ssd_min_value = row_start_ssd = ssd =
-		calculate_ssd16_full(fixed_template_image, running_search_image);
-
-	/* search on first row */
 	int8_t r, c;
-	for(c = -3; c <= +4; c++) {
-		running_search_image++;
+	for(r = -4; r <= +4; r++) {
+		running_search_image = &current_image[FLOW_IMG_SIZE * r];
 
-		column_cuttoff_ssd = calculate_ssd16_column(fixed_template_image, running_search_image, -1);
-		column_addin_ssd = calculate_ssd16_column(fixed_template_image, running_search_image, 7);
+		for(c = -4; c <= +4; c++) {
+			row_cuttoff_ssd = calculate_ssd16_row(fixed_template_image, &running_search_image[c], -1);
+			row_addin_ssd = calculate_ssd16_row(fixed_template_image, &running_search_image[c], 7);
 
-		ssd -= column_cuttoff_ssd;
-		ssd += column_addin_ssd;
+			ssd = flow.subarea_ssd_row_start[r + 4][c + 4];
+			//cut left old edge and add right new edge
+			ssd -= row_cuttoff_ssd;
+			ssd += row_addin_ssd;
+			//update ssd table
+			flow.subarea_ssd_row_start[r + 4][c + 4] = ssd;
+			flow.subarea_ssd_last[r + 4][c + 4] = ssd;
 
-		/* distance weighting */
-		dw_ssd = ssd * distance_weighting_table[(-4) + 4][c + 4];
+			//distance weighting
+			dw_ssd = ssd * distance_weighting_table[r + 4][c + 4];
 
-		if(dw_ssd < ssd_min_value) {
-			ssd_min_x = -4;
-			ssd_min_y = c;
-			ssd_min_value = dw_ssd;
+			if(dw_ssd < ssd_min_value) {
+				ssd_min_x = r;
+				ssd_min_y = c;
+				ssd_min_value = dw_ssd;
+			}
 		}
 	}
 
-	/* calculate the rest */
-	for(r = -3; r <= +4; r++) {
-		row_start += FLOW_IMG_SIZE;
-		running_search_image = row_start;
-		ssd = row_start_ssd;
+	/* bad result */
+//	if(sad_min_value > BLOCK_MATCHING_THRESHOLD) {
+//		*match_x = 0;
+//		*match_y = 0;
+//
 
-		row_cuttoff_ssd = calculate_ssd16_row(fixed_template_image, running_search_image, -1);
-		row_addin_ssd = calculate_ssd16_row(fixed_template_image, running_search_image, 7);
+	*match_x = ssd_min_x;
+	*match_y = ssd_min_y;
+}
 
-		ssd -= row_cuttoff_ssd;
-		ssd += row_addin_ssd;
+void match_point_local_area_column_dp(uint16_t *previous_image, uint16_t *current_image,
+                                   int8_t *match_x, int8_t *match_y)
+{
+	int8_t ssd_min_x = -4, ssd_min_y = -4;
+	uint32_t ssd_min_value = UINT32_MAX;
+	uint32_t ssd;
+	uint32_t dw_ssd;
 
-		row_start_ssd = ssd;
+	uint16_t *running_search_image = &current_image[0];
+	uint16_t *fixed_template_image = &previous_image[0];
 
-		/* distance weighting */
-		dw_ssd = ssd * distance_weighting_table[r + 4][(-4) + 4];
+	uint32_t column_cuttoff_ssd;
+	uint32_t column_addin_ssd;
 
-		if(dw_ssd < ssd_min_value) {
-			ssd_min_x = r;
-			ssd_min_y = -4;
-			ssd_min_value = dw_ssd;
-		}
+	int8_t r, c;
+	for(r = -4; r <= +4; r++) {
+		running_search_image = &current_image[FLOW_IMG_SIZE * r];
 
-		for(c = -3; c <= +4; c++) {
-			running_search_image++;
+		for(c = -4; c <= +4; c++) {
+			column_cuttoff_ssd = calculate_ssd16_column(fixed_template_image, &running_search_image[c], -1);
+			column_addin_ssd = calculate_ssd16_column(fixed_template_image, &running_search_image[c], 7);
 
-			column_cuttoff_ssd =
-				calculate_ssd16_column(fixed_template_image, running_search_image, -1);
-			column_addin_ssd =
-				calculate_ssd16_column(fixed_template_image, running_search_image, 7);
-
+			//read last ssd
+			ssd = flow.subarea_ssd_last[r + 4][c + 4];
+			//cut left old edge and add right new edge
 			ssd -= column_cuttoff_ssd;
 			ssd += column_addin_ssd;
+			//update ssd table
+			flow.subarea_ssd_last[r + 4][c + 4] = ssd;
 
-			/* distance weighting */
+			//distance weighting
 			dw_ssd = ssd * distance_weighting_table[r + 4][c + 4];
 
 			if(dw_ssd < ssd_min_value) {
@@ -250,7 +258,6 @@ void match_point_local_area_dp(uint16_t *previous_image, uint16_t *current_image
 void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
                    float *flow_vx, float *flow_vy, float delta_t)
 {
-
 	/* convert the 72x72 start address into 64x64 address */
 	int offset = TEMPLATE_MIDPOINT_OFFSET + TEMPLATE_SEARCH_SUBAREA_OFFSET;
 	int start_x, start_y;
@@ -264,32 +271,56 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	uint16_t histogram_x[FLOW_DISP_SIZE] = {0};
 	uint16_t histogram_y[FLOW_DISP_SIZE] = {0};
 	int8_t highest_vote_x = 0, highest_vote_y = 0;
+	int vote_x, vote_y;
 	int vote_count = 0;
 
 	float predict_disp_x = 0, predict_disp_y = 0;
-
-	/* calculate the flow for every 64x64 points */
-	int x, y;
-	for(x = 0; x < FLOW_COUNT; x++) {
-		for(y = 0; y < FLOW_COUNT; y++) {
-			/* calculate the matching point using SAD */
-			start_x = x + offset;
-			start_y = y + offset;
-			frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
-			frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
 	
-			match_point_local_area_full(frame1, frame2, &match_x, &match_y);
-			/* convert the position relative the full image */
-			flow.match_x[x][y] = match_x + start_x;
-			flow.match_y[x][y] = match_y + start_y;
+	/* estimate the first flow by calculating all ssd */
+	start_x = 0 + offset;
+	start_y = 0 + offset;
+	frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
+	frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
+	match_point_local_area_full(frame1, frame2, &match_x, &match_y);
 
-			if(match_x == 0 && match_y == 0) {
-				continue;
-			}
+	flow.match_x[0][0] = match_x + start_x;
+	flow.match_y[0][0] = match_y + start_y;
 
+	//if not both equal zero
+	if(match_x || match_y) {
+		/* histogram voting */
+		vote_x =  match_x + 4;
+		vote_y =  match_y + 4;
+		histogram_x[vote_x]++;
+		histogram_y[vote_y]++;
+
+		predict_disp_x += match_x;
+		predict_disp_y += match_y;
+
+		vote_count++;
+	}
+
+	/* row iteration for first row */
+	int x, y;
+	for(y = 1; y < FLOW_COUNT; y++) {
+		start_x = 0 + offset;
+		start_y = y + offset;
+		frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
+		frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
+	
+		//XXX:match_point_local_area_column_dp(frame1, frame2, &match_x, &match_y);
+		match_point_local_area_full(frame1, frame2, &match_x, &match_y);
+
+
+		/* convert the position relative the full image */
+		flow.match_x[0][y] = match_x + start_x;
+		flow.match_y[0][y] = match_y + start_y;
+
+		//if not both equal zero
+		if(match_x || match_y) {
 			/* histogram voting */
-			int vote_x =  match_x + 4;
-			int vote_y =  match_y + 4;
+			vote_x =  match_x + 4;
+			vote_y =  match_y + 4;
 			histogram_x[vote_x]++;
 			histogram_y[vote_y]++;
 
@@ -297,6 +328,70 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 			predict_disp_y += match_y;
 
 			vote_count++;
+		} else {
+			continue;
+		}
+	}
+
+	/* estimate the flow by only calculate the non-overlap region's ssd (start from second row) */
+	for(x = 1; x < FLOW_COUNT; x++) {
+		/* row iteration (go down) */
+		start_x = x + offset;
+		start_y = 0 + offset;
+		frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
+		frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
+	
+		//XXX:match_point_local_area_row_dp(frame1, frame2, &match_x, &match_y);
+		match_point_local_area_full(frame1, frame2, &match_x, &match_y);
+
+		/* convert the position relative the full image */
+		flow.match_x[x][0] = match_x + start_x;
+		flow.match_y[x][0] = match_y + start_y;
+
+		//if not both equal zero
+		if(match_x || match_y) {
+			/* histogram voting */
+			vote_x =  match_x + 4;
+			vote_y =  match_y + 4;
+			histogram_x[vote_x]++;
+			histogram_y[vote_y]++;
+
+			predict_disp_x += match_x;
+			predict_disp_y += match_y;
+
+			vote_count++;
+		}
+
+		/* column iteration (go right) */
+		for(y = 1; y < FLOW_COUNT; y++) {
+			start_x = x + offset;
+			start_y = y + offset;
+			frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
+			frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
+	
+			//XXX:match_point_local_area_column_dp(frame1, frame2, &match_x, &match_y);
+			match_point_local_area_full(frame1, frame2, &match_x, &match_y);
+
+
+			/* convert the position relative the full image */
+			flow.match_x[x][y] = match_x + start_x;
+			flow.match_y[x][y] = match_y + start_y;
+
+			//if not both equal zero
+			if(match_x || match_y) {
+				/* histogram voting */
+				vote_x =  match_x + 4;
+				vote_y =  match_y + 4;
+				histogram_x[vote_x]++;
+				histogram_y[vote_y]++;
+
+				predict_disp_x += match_x;
+				predict_disp_y += match_y;
+
+				vote_count++;
+			} else {
+				continue;
+			}
 		}
 	}
 
