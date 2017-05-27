@@ -30,8 +30,8 @@ typedef struct {
 } image_t;
 
 typedef struct {
-	uint32_t subarea_ssd_row_start[SEARCH_SUBAREA_SIZE][SEARCH_SUBAREA_SIZE];
-	uint32_t subarea_ssd_last[SEARCH_SUBAREA_SIZE][SEARCH_SUBAREA_SIZE];
+	uint32_t subarea_ssd_row_start[SUBAREA_SSD_SIZE][SUBAREA_SSD_SIZE];
+	uint32_t subarea_ssd_last[SUBAREA_SSD_SIZE][SUBAREA_SSD_SIZE];
 
 	image_t image[2];
 
