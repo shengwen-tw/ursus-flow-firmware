@@ -8,28 +8,6 @@
 extern uint16_t lidar_distance;
 extern flow_t flow;
 
-float focal_length_mm = FOCAL_LENGTH_PX * (1.0f / RETINA_SIZE); //f_mm = f_px * m
-
-#if 0 //not using in this program
-/* calculate sum of absoulte difference for 10-bits image */
-uint32_t calculate_sad16(uint16_t *template_image, uint16_t *search_image)
-{
-	/* sad minimum value is 1 since later will do the distance weighting
-	   and required not to be 0 */
-	uint32_t sad = 1;
-
-	int i, j;
-	for(i = 0; i < TEMPLATE_SIZE; i++) {
-		for(j = 0; j < TEMPLATE_SIZE; j++) {
-			sad += abs(template_image[i * FLOW_IMG_SIZE + j] -
-			           search_image[i * FLOW_IMG_SIZE + j]);
-		}
-	}
-
-	return sad;
-}
-#endif
-
 uint32_t calculate_ssd16_row(uint16_t *template_image, uint16_t *search_image, int row_offset)
 {
 	uint16_t *_template = template_image;
@@ -106,7 +84,7 @@ uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 
 /* Find the matching point on two images in local -4 ~ +4 pixels */
 void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_image,
-                                  int8_t *match_x, int8_t *match_y)
+                                 int8_t *match_x, int8_t *match_y)
 {
 	int8_t ssd_min_x = -4, ssd_min_y = -4;
 	uint32_t ssd_min_value = UINT32_MAX;
@@ -137,18 +115,20 @@ void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_ima
 		}
 	}
 
+#if 0
 	/* bad result */
-//	if(sad_min_value > BLOCK_MATCHING_THRESHOLD) {
-//		*match_x = 0;
-//		*match_y = 0;
-//
+	if(ssd_min_value > BLOCK_MATCHING_THRESHOLD) {
+		*match_x = 0;
+		*match_y = 0;
+	}
+#endif
 
 	*match_x = ssd_min_x;
 	*match_y = ssd_min_y;
 }
 
 void match_point_local_area_row_dp(uint16_t *previous_image, uint16_t *current_image,
-                                      int8_t *match_x, int8_t *match_y)
+                                   int8_t *match_x, int8_t *match_y)
 {
 	int8_t ssd_min_x = -4, ssd_min_y = -4;
 	uint32_t ssd_min_value = UINT32_MAX;
@@ -188,18 +168,20 @@ void match_point_local_area_row_dp(uint16_t *previous_image, uint16_t *current_i
 		}
 	}
 
+#if 0
 	/* bad result */
-//	if(sad_min_value > BLOCK_MATCHING_THRESHOLD) {
-//		*match_x = 0;
-//		*match_y = 0;
-//
+	if(ssd_min_value > BLOCK_MATCHING_THRESHOLD) {
+		*match_x = 0;
+		*match_y = 0;
+	}
+#endif
 
 	*match_x = ssd_min_x;
 	*match_y = ssd_min_y;
 }
 
 void match_point_local_area_column_dp(uint16_t *previous_image, uint16_t *current_image,
-                                   int8_t *match_x, int8_t *match_y)
+                                      int8_t *match_x, int8_t *match_y)
 {
 	int8_t ssd_min_x = -4, ssd_min_y = -4;
 	uint32_t ssd_min_value = UINT32_MAX;
@@ -239,11 +221,14 @@ void match_point_local_area_column_dp(uint16_t *previous_image, uint16_t *curren
 		}
 	}
 
+#if 0
 	/* bad result */
-//	if(sad_min_value > BLOCK_MATCHING_THRESHOLD) {
-//		*match_x = 0;
-//		*match_y = 0;
-//
+	if(ssd_min_value > BLOCK_MATCHING_THRESHOLD) {
+		*match_x = 0;
+		*match_y = 0;
+
+	}
+#endif
 
 	*match_x = ssd_min_x;
 	*match_y = ssd_min_y;
@@ -269,7 +254,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	int vote_count = 0;
 
 	float predict_disp_x = 0, predict_disp_y = 0;
-	
+
 	/* estimate the first flow by calculating all ssd */
 	start_x = 0 + offset;
 	start_y = 0 + offset;
@@ -301,7 +286,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		start_y = y + offset;
 		frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
 		frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
-	
+
 		match_point_local_area_column_dp(frame1, frame2, &match_x, &match_y);
 
 		/* convert the position relative the full image */
@@ -330,7 +315,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		start_y = 0 + offset;
 		frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
 		frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
-	
+
 		match_point_local_area_row_dp(frame1, frame2, &match_x, &match_y);
 
 		/* convert the position relative the full image */
@@ -357,7 +342,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 			start_y = y + offset;
 			frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
 			frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
-	
+
 			match_point_local_area_column_dp(frame1, frame2, &match_x, &match_y);
 
 			/* convert the position relative the full image */

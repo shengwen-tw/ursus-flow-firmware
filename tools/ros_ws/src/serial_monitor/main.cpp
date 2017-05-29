@@ -115,13 +115,13 @@ int main(int argc, char **argv)
 		}
 
 		printf("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, delta_t: %.2f, fps:%.1f\n\r",
-			link_data.lidar_distance,
-			link_data.flow_vx,
-			link_data.flow_vy,
-			link_data.time,
-			link_data.period,
-			link_data.frequency
-		);
+		       link_data.lidar_distance,
+		       link_data.flow_vx,
+		       link_data.flow_vy,
+		       link_data.time,
+		       link_data.period,
+		       link_data.frequency
+		      );
 #if 1
 		/* send flow velocity message */
 		std_msgs::Float32 flow_vx_msg;
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
 		transform.setRotation(tf::Quaternion(0, 0, 0, 1));
 
 		tf_broadcaster.sendTransform(
-			tf::StampedTransform(transform, ros::Time::now(),"origin", "quadrotor"));
+		        tf::StampedTransform(transform, ros::Time::now(),"origin", "quadrotor"));
 #endif
 	}
 
