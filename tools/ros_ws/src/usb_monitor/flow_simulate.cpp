@@ -259,7 +259,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
                    float *flow_vx, float *flow_vy, float delta_t)
 {
 	/* convert the 72x72 start address into 64x64 address */
-	int offset = TEMPLATE_MIDPOINT_OFFSET + TEMPLATE_SEARCH_SUBAREA_OFFSET;
+	int offset = EDGE_PRESERVE_SIZE; //TEMPLATE_MIDPOINT_OFFSET + TEMPLATE_SEARCH_SUBAREA_OFFSET;
 	int start_x, start_y;
 	uint16_t *frame1;
 	uint16_t *frame2;
@@ -283,8 +283,8 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
 	match_point_local_area_full(frame1, frame2, &match_x, &match_y);
 
-	flow.match_x[0][0] = match_x + start_x;
-	flow.match_y[0][0] = match_y + start_y;
+	flow.match_x[0][0] = match_x + (FLOW_MIDPOINT_OFFSET + 0);
+	flow.match_y[0][0] = match_y + (FLOW_MIDPOINT_OFFSET + 0);
 
 	//if not both equal zero
 	if(match_x || match_y) {
@@ -311,10 +311,9 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		//XXX:match_point_local_area_column_dp(frame1, frame2, &match_x, &match_y);
 		match_point_local_area_full(frame1, frame2, &match_x, &match_y);
 
-
 		/* convert the position relative the full image */
-		flow.match_x[0][y] = match_x + start_x;
-		flow.match_y[0][y] = match_y + start_y;
+		flow.match_x[0][y] = match_x + (FLOW_MIDPOINT_OFFSET + 0);
+		flow.match_y[0][y] = match_y + (FLOW_MIDPOINT_OFFSET + y);
 
 		//if not both equal zero
 		if(match_x || match_y) {
@@ -328,8 +327,6 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 			predict_disp_y += match_y;
 
 			vote_count++;
-		} else {
-			continue;
 		}
 	}
 
@@ -345,8 +342,8 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		match_point_local_area_full(frame1, frame2, &match_x, &match_y);
 
 		/* convert the position relative the full image */
-		flow.match_x[x][0] = match_x + start_x;
-		flow.match_y[x][0] = match_y + start_y;
+		flow.match_x[x][0] = match_x + (FLOW_MIDPOINT_OFFSET + x);
+		flow.match_y[x][0] = match_y + (FLOW_MIDPOINT_OFFSET + 0);
 
 		//if not both equal zero
 		if(match_x || match_y) {
@@ -372,10 +369,9 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 			//XXX:match_point_local_area_column_dp(frame1, frame2, &match_x, &match_y);
 			match_point_local_area_full(frame1, frame2, &match_x, &match_y);
 
-
 			/* convert the position relative the full image */
-			flow.match_x[x][y] = match_x + start_x;
-			flow.match_y[x][y] = match_y + start_y;
+			flow.match_x[x][y] = match_x + (FLOW_MIDPOINT_OFFSET + x);
+			flow.match_y[x][y] = match_y + (FLOW_MIDPOINT_OFFSET + y);
 
 			//if not both equal zero
 			if(match_x || match_y) {
@@ -389,8 +385,6 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 				predict_disp_y += match_y;
 
 				vote_count++;
-			} else {
-				continue;
 			}
 		}
 	}
@@ -450,9 +444,9 @@ void flow_visualize()
 {
 	/* 4x downsampling visualization */
 	int sample_rate = 4; //only visualize 1/4 flow on the image
-	int flow_start = TEMPLATE_MIDPOINT_OFFSET + TEMPLATE_SEARCH_SUBAREA_OFFSET;
-	for(int x = 0; x < 64; x += sample_rate) {
-		for(int y = 0; y < 64; y += sample_rate) {
+	int flow_start = FLOW_MIDPOINT_OFFSET;
+	for(int x = 0; x < FLOW_COUNT; x += sample_rate) {
+		for(int y = 0; y < FLOW_COUNT; y += sample_rate) {
 			cv::Point start((flow_start + y) * 4, (flow_start + x) * 4);
 			cv::Point end(flow.match_y[x][y] * 4, flow.match_x[x][y] * 4);
 
