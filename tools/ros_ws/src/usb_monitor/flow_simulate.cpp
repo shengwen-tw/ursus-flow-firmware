@@ -86,16 +86,17 @@ uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 	uint16_t *_template = template_image;
 	uint16_t *_search = search_image;
 
-	int i, j;
-	for(i = 0; i < TEMPLATE_SIZE; i++) {
-		_template += FLOW_IMG_SIZE;
-		_search += FLOW_IMG_SIZE;
-
-		for(j = 0; j < TEMPLATE_SIZE; j++) {
-			int16_t diff = _template[j] - _search[j];
+	int r, c;
+	for(r = 0; r < TEMPLATE_SIZE; r++) {
+		for(c = 0; c < TEMPLATE_SIZE; c++) {
+			int16_t diff = _template[c] - _search[c];
 
 			ssd += diff * diff;
 		}
+
+		/* point to next row */
+		_template += FLOW_IMG_SIZE;
+		_search += FLOW_IMG_SIZE;
 	}
 
 	/* ssd minimum value is 1 since later will do the distance weighting
