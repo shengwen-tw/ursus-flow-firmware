@@ -281,7 +281,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	flow.match_y[0][0] = match_y + (FLOW_MIDPOINT_OFFSET + 0);
 
 	//if not both equal zero
-	if(match_x || match_y) {
+	if(match_x - match_y) {
 		/* histogram voting */
 		vote_x =  match_x + 4;
 		vote_y =  match_y + 4;
@@ -309,7 +309,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		flow.match_y[0][y] = match_y + (FLOW_MIDPOINT_OFFSET + y);
 
 		//if not both equal zero
-		if(match_x || match_y) {
+		if(match_x - match_y) {
 			/* histogram voting */
 			vote_x =  match_x + 4;
 			vote_y =  match_y + 4;
@@ -338,7 +338,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		flow.match_y[x][0] = match_y + (FLOW_MIDPOINT_OFFSET + 0);
 
 		//if not both equal zero
-		if(match_x || match_y) {
+		if(match_x - match_y) {
 			/* histogram voting */
 			vote_x =  match_x + 4;
 			vote_y =  match_y + 4;
@@ -365,7 +365,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 			flow.match_y[x][y] = match_y + (FLOW_MIDPOINT_OFFSET + y);
 
 			//if not both equal zero
-			if(match_x || match_y) {
+			if(match_x - match_y) {
 				/* histogram voting */
 				vote_x =  match_x + 4;
 				vote_y =  match_y + 4;
