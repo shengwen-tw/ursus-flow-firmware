@@ -302,8 +302,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
 		frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
 	
-		//XXX:match_point_local_area_column_dp(frame1, frame2, &match_x, &match_y);
-		match_point_local_area_full(frame1, frame2, &match_x, &match_y);
+		match_point_local_area_column_dp(frame1, frame2, &match_x, &match_y);
 
 		/* convert the position relative the full image */
 		flow.match_x[0][y] = match_x + (FLOW_MIDPOINT_OFFSET + 0);
@@ -332,8 +331,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
 		frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
 	
-		//XXX:match_point_local_area_row_dp(frame1, frame2, &match_x, &match_y);
-		match_point_local_area_full(frame1, frame2, &match_x, &match_y);
+		match_point_local_area_row_dp(frame1, frame2, &match_x, &match_y);
 
 		/* convert the position relative the full image */
 		flow.match_x[x][0] = match_x + (FLOW_MIDPOINT_OFFSET + x);
@@ -360,8 +358,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 			frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
 			frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
 	
-			//XXX:match_point_local_area_column_dp(frame1, frame2, &match_x, &match_y);
-			match_point_local_area_full(frame1, frame2, &match_x, &match_y);
+			match_point_local_area_column_dp(frame1, frame2, &match_x, &match_y);
 
 			/* convert the position relative the full image */
 			flow.match_x[x][y] = match_x + (FLOW_MIDPOINT_OFFSET + x);
