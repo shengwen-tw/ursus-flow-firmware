@@ -155,6 +155,40 @@ bool usb_receive_onboard_info(uint16_t *buffer)
 	return true;
 }
 
+void simulate_opical_flow_on_pc(float *flow_vx, float *flow_vy, float delta_t)
+{
+	int last = (now + 1) % 2;
+
+	uint16_t *current_image = (uint16_t *)flow.image[now].frame;
+	uint16_t *previous_image = (uint16_t *)flow.image[last].frame;
+
+	if(gyro_z > 1.0f) {
+		*flow_vx = 0;
+		*flow_vy = 0;
+	}
+
+	/* flow estimation */
+	flow_estimate(previous_image, current_image, flow_vx, flow_vy, delta_t);
+}
+
+void flow_visualize()
+{
+	/* 4x downsampling visualization */
+	int sample_rate = 4; //only visualize 1/4 flow on the image
+	int flow_start = FLOW_MIDPOINT_OFFSET;
+	for(int x = 0; x < FLOW_COUNT; x += sample_rate) {
+		for(int y = 0; y < FLOW_COUNT; y += sample_rate) {
+			cv::Point start((flow_start + y) * 4, (flow_start + x) * 4);
+			cv::Point end(flow.match_y[x][y] * 4, flow.match_x[x][y] * 4);
+
+			cv::circle(cv_image, start, 1, cv::Scalar(0, 0, 65535), 1, CV_AA, 0);
+
+			cv::line(cv_image, start, end, cv::Scalar(0, 65535, 0), 1, 8);
+		}
+	}
+}
+
+
 int main(int argc, char **argv)
 {
 	/* initialize ROS */

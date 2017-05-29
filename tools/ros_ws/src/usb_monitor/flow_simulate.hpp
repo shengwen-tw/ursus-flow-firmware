@@ -44,8 +44,7 @@ typedef struct {
 	uint8_t distance[FLOW_IMG_SIZE][FLOW_IMG_SIZE];
 } flow_t;
 
-void simulate_opical_flow_on_pc(float *flow_vx, float *flow_vy, float delta_t);
-
-void flow_visualize();
+void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
+                   float *flow_vx, float *flow_vy, float delta_t);
 
 #endif
