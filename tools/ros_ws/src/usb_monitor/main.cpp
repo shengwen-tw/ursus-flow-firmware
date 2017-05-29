@@ -243,13 +243,13 @@ int main(int argc, char **argv)
 		}
 
 		if(simulate_flow == true) {
+			now = (now + 1) % 2;
+
 			if(prepare_image == 0) {
 				simulate_opical_flow_on_pc(&flow_vx, &flow_vy, (float)delta_t);
 			} else {
 				prepare_image--;
 			}
-
-			now = (now + 1) % 2;
 		}
 
 		cv_image = cv::Mat(FLOW_IMG_SIZE, FLOW_IMG_SIZE, CV_16UC1, hack_buffer);
