@@ -365,7 +365,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		}
 	}
 
-	printf("%d\n", vote_count);
+	//printf("%d\n", vote_count);
 
 	if(vote_count < HISTOGRAM_THRESHOLD) {
 		predict_disp_x = 0.0f;
@@ -391,11 +391,4 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	/* connvert to [cm/s] */
 	*flow_vx /= 10.0f;
 	*flow_vy /= 10.0f;
-
-#if 0
-	printf("x: %f, y: %f\n"
-	       "x vote count: %d, y vote count: %d\n",
-	       predict_disp_x, predict_disp_y,
-	       histogram_y[highest_vote_x], histogram_y[highest_vote_y]);
-#endif
 }
