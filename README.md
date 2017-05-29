@@ -1,5 +1,9 @@
 # Ursus-flow firmware
 
+## Demo videos
+
+[![flow_rviz](https://github.com/shengwen1997/ursus-flow-firmware/blob/master/materials/flow_demo.png?raw=true)](https://www.youtube.com/watch?v=TZlbP051b0A)
+
 ## On-board LEDs
 
 | Color  | Function                    | Description                                                                                                                                                         |
