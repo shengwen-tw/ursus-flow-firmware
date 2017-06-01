@@ -42,7 +42,7 @@ void send_flow_to_fcb(uint16_t _lidar_distance, float _flow_vx, float _flow_vy,
 	xQueueSendToBack(fcb_link_queue_handle, &_fcb_data, 0);
 }
 
-static void send_debug_message(void)
+__attribute__((unused)) static void send_debug_message(void)
 {
 	char buffer[256] = {'\0'};
 

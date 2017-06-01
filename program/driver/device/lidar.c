@@ -21,6 +21,7 @@ const uint8_t lidar_dev_address = 0x62 << 1;
 uint8_t lidar_buffer[2] = {0};
 uint16_t *lidar_distance_ptr;
 
+#if 0
 static uint8_t lidar_read_byte(uint8_t address)
 {
 	uint8_t result = 0;
@@ -29,6 +30,7 @@ static uint8_t lidar_read_byte(uint8_t address)
 
 	return result;
 }
+#endif
 
 static void lidar_read_half_word(uint8_t address, uint16_t *data)
 {
