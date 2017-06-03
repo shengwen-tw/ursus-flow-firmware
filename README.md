@@ -8,11 +8,11 @@
 
 | Color  | Function                    | Description                                                                                                                                                         |
 |--------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| blue   | optical flow update frequency | blinking rate is equal to optical flow update rate|
+| blue   | optical flow update frequency | blinking rate is equal to optical flow updating rate|
 | yellow | flow detecting state        | the led lights up while the flow is detected                                                                                                                                                                   |
 | red    | device initialization state | on: hardware initialization succeed<br />off: hardware initialization failed                                                                                                       |
 
-## USB calibration monitor
+## Flow monitor
 
 The calibration monitor was written in C++ and using ROS (Robotic Operating System),
 make sure you have already installed ROS before building the program.
