@@ -26,8 +26,7 @@ extern float drift_x;
 extern float drift_y;
 extern float drift_z;
 
-/* foward sending the image without calculating the optical flow */
-void usb_image_foward(void)
+static void usb_send_header_message(void)
 {
 	/* The size of the data is too big so need to be seperated into 3 part */
 	char header_message[HEADER_MSG_SIZE];
@@ -78,12 +77,40 @@ void usb_image_foward(void)
 	append_size += sizeof(uint8_t);
 
 	usb_cdc_send((uint8_t *)header_message, HEADER_MSG_SIZE);
+}
 
-	/* image */
+/* foward sending the image without calculating the optical flow */
+void usb_image_foward(void)
+{
+	/* send header message */
+	usb_send_header_message();
+
+	/* send image */
 	const size_t half_image_size = sizeof(flow.image[0].frame) / 2;
 	usb_cdc_send((uint8_t *)flow.image[0].frame, half_image_size);
 	usb_cdc_send((uint8_t *)flow.image[0].frame + half_image_size, half_image_size);
 }
+
+#if (DISABLE_USB == 0)
+/* send gyroscope data, image and flow flow visualization data */
+void usb_send_flow_info(void)
+{
+	/* send header message */
+	usb_send_header_message();
+
+	/* send image */
+	size_t send_size = sizeof(flow.image[0].frame);
+	usb_cdc_send((uint8_t *)flow.image[0].frame, send_size);
+
+	/* send image */
+	send_size = sizeof(flow.match_x);
+	usb_cdc_send((uint8_t *)flow.match_x, send_size);
+
+	/* send image */
+	send_size = sizeof(flow.match_y);
+	usb_cdc_send((uint8_t *)flow.match_y, send_size);
+}
+#endif
 
 void usb_link_task(void)
 {
