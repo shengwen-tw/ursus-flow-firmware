@@ -111,14 +111,3 @@ void usb_send_flow_info(void)
 	usb_cdc_send((uint8_t *)flow.match_y, send_size);
 }
 #endif
-
-void usb_link_task(void)
-{
-	usb_fs_init();
-
-	while(1) {
-		//usb_send_onboard_info();
-
-		vTaskDelay(MILLI_SECOND_TICK(100));
-	}
-}

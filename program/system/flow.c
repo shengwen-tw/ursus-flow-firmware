@@ -432,7 +432,6 @@ void flow_estimate_task(void)
 	/* successfully initialized the hardware == */
 	gpio_on(LED_3); //red led
 	vTaskResume(fcb_link_task_handle);
-	//vTaskResume(usb_link_task_handle); //XXX: remember to unblock me later
 	/* ======================================== */
 
 	if(do_gyro_calibrate == true) {
@@ -441,7 +440,6 @@ void flow_estimate_task(void)
 
 	timer_init();
 
-	/* XXX: usb direct camera output */
 	usb_fs_init();
 
 	float current_time;

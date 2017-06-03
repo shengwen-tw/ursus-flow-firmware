@@ -48,10 +48,6 @@ int main(void)
 	            1024, (void *)0, tskIDLE_PRIORITY + 2, &fcb_link_task_handle);
 	vTaskSuspend(fcb_link_task_handle);
 
-	xTaskCreate((TaskFunction_t)usb_link_task, "usb link task",
-	            1024, (void *)0, tskIDLE_PRIORITY + 1, &usb_link_task_handle);
-	vTaskSuspend(usb_link_task_handle);
-
 	vTaskStartScheduler();
 
 	return 0;
