@@ -26,7 +26,8 @@ extern float drift_x;
 extern float drift_y;
 extern float drift_z;
 
-/*static*/ void usb_send_onboard_info(void)
+/* foward sending the image without calculating the optical flow */
+void usb_image_foward(void)
 {
 	/* The size of the data is too big so need to be seperated into 3 part */
 	char header_message[HEADER_MSG_SIZE];
@@ -89,7 +90,7 @@ void usb_link_task(void)
 	usb_fs_init();
 
 	while(1) {
-		usb_send_onboard_info();
+		//usb_send_onboard_info();
 
 		vTaskDelay(MILLI_SECOND_TICK(100));
 	}

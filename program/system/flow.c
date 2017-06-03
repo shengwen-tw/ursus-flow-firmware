@@ -10,6 +10,7 @@
 
 #include "gpio.h"
 #include "timer.h"
+#include "usb_device.h"
 
 #include "mpu9250.h"
 #include "mt9v034.h"
@@ -471,7 +472,11 @@ void flow_estimate_task(void)
 		previous_time = current_time;
 		fps = 1.0f / delta_t;
 
-#if 1
+#if (IMAGE_FOWARD_NO_FLOW == 1)
+		mt9v034_start_capture_image((uint32_t)flow.image[0].frame);
+
+		usb_image_foward();
+#else
 		flow_estimate(
 		        (uint16_t *)flow.image[0].frame,
 		        (uint16_t *)flow.image[1].frame,
@@ -479,9 +484,6 @@ void flow_estimate_task(void)
 		);
 
 		mt9v034_start_capture_image((uint32_t)flow.image[next].frame);
-#else
-		mt9v034_start_capture_image((uint32_t)flow.image[0].frame);
-		usb_send_onboard_info();
 #endif
 		next = (next + 1) % 2;
 

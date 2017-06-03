@@ -3,7 +3,11 @@
 
 #include "mt9v034.h"
 
-#define FLOW_IMG_SIZE 40 //calculate optical flow for 64x64 points requires 72x72 pixels
+/* disable the optical flow calcuation and directly sending the image to the PC
+ * by setting this flag to 1 */
+#define IMAGE_FOWARD_NO_FLOW 0
+
+#define FLOW_IMG_SIZE 40 //calculate optical flow for 32x32 points requires 40x40 pixels
 
 #define FOCAL_LENGTH_PX 500.0f //[pixels]
 #define FOCAL_LENGTH    3.0  //[mm]

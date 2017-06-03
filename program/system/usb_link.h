@@ -3,4 +3,6 @@
 
 void usb_link_task(void);
 
+void usb_image_foward(void);
+
 #endif
