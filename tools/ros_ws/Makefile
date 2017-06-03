@@ -3,6 +3,10 @@ all:
 
 clean:
 	catkin_make clean
+
+run_usb_sim:
+	roslaunch ursusflow_usb_sim monitor.launch
+
 run_usb:
 	roslaunch ursusflow_usb monitor.launch
 

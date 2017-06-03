@@ -192,7 +192,7 @@ void flow_visualize()
 int main(int argc, char **argv)
 {
 	/* initialize ROS */
-	ros::init(argc, argv, "ursusflow_usb");
+	ros::init(argc, argv, "ursusflow_usb_sim");
 	ros::Time::init();
 
 	ros::NodeHandle node;
