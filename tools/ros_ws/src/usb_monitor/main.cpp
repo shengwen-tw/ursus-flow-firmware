@@ -134,10 +134,16 @@ bool usb_receive_onboard_info(uint16_t *buffer)
 	append_size += sizeof(uint8_t);
 
 	/* receive camera image in two parts */
-	//received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
+	received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
+
+	for(int r = 0; r < 40; r++) {
+		for(int c = 0; c < 40; c++) {
+			buffer[r * 40 + c] = buffer[r * 40 + c] << 6;
+		}
+	}
 
 	if(received_len > 0 && gyro_calib_enable == 0) {
-		//printf("received new image, size = %d bytes\n", received_len);
+		printf("received new image, size = %d bytes\n", received_len);
 	} else if(received_len == 0 || received_len == -1) {
 		return false;
 	}
@@ -175,6 +181,17 @@ int main(int argc, char **argv)
 		delta_t = current_time - previous_time; //calculate delta_t
 		previous_time = current_time; //update timer
 
+		cv_image = cv::Mat(40, 40, CV_16UC1, buffer);
+		cv::cvtColor(cv_image, cv_image, CV_GRAY2BGR);
+
+		/* convert image to ros message and send it */
+		cv::Mat cv_image_8u3;
+		cv_image.convertTo(cv_image_8u3, CV_8UC3, 1.0 / 256.0); //ros only support this format
+		sensor_msgs::ImagePtr ros_image_msg =
+			cv_bridge::CvImage(std_msgs::Header(), "bgr8", cv_image_8u3).toImageMsg();
+
+		ros_image_publisher.publish(ros_image_msg);
+
 		if(gyro_calib_enable == 0) {
 			printf("image size: %dx%d\n"
 			       "lidar distance: %dcm\n"
@@ -203,9 +220,6 @@ int main(int argc, char **argv)
 			       gyro_y,
 			       gyro_z);
 		}
-
-		//cv::imshow("ursus-flow camera", cv_image);
-		//cv::waitKey(1);
 	}
 
 	printf("[leave]\n");
