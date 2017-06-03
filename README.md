@@ -8,29 +8,45 @@
 
 | Color  | Function                    | Description                                                                                                                                                         |
 |--------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| blue   | optical flow task frequency | default: blink in 250hz<br />calibration mode: blink in low frequency |
-| yellow | -                           | -                                                                                                                                                                   |
-| red    | device initialization state | on: everything is good<br />off: hardware initialization failed                                                                                                       |
+| blue   | optical flow update frequency | blinking rate is equal to optical flow updating rate|
+| yellow | flow detecting state        | the led lights up while the flow is detected                                                                                                                                                                   |
+| red    | device initialization state | on: hardware initialization succeed<br />off: hardware initialization failed                                                                                                       |
 
-## USB calibration monitor
+## Flow monitor
 
 The calibration monitor was written in C++ and using ROS (Robotic Operating System),
 make sure you have already installed ROS before building the program.
 
-**Dependencies**
+**1. Install dependencies**
 
 ```
 sudo apt install ros-kinetic-jsk-visualization ros-kinetic-serial
 ```
 
-**Build**
+**2. Build**
 
 ```
 cd tools/ros_ws
 make
 ```
 
-**Run**
+**3. Add USB premission for Ursus-flow board**
+
+1. open or create new linux udev rule file:
+
+```
+sudo vi /etc/udev/rules.d/libusb.rules
+```
+
+2. paste
+
+```
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", MODE:="0666"
+
+```
+
+
+**4. Run**
 
 ```
 cd tools/ros_ws
@@ -38,23 +54,8 @@ cd tools/ros_ws
 roslaunch ursusflow monitor.launch
 ```
 
-**Camera calibration**
+### Camera calibration
 
 ```
 rosrun camera_calibration cameracalibrator.py --size 7x5 --square 0.031 image:=/ursusflow/flow_image --no-service-check --fix-aspect-ratio
-```
-
-**Fix USB "Permission denied" error**
-
-First, open or create the linux udev rule file:
-
-```
-sudo vi /etc/udev/rules.d/libusb.rules
-```
-
-then paste
-
-```
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", MODE:="0666"
-
 ```
