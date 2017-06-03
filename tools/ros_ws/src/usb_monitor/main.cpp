@@ -18,6 +18,11 @@
 
 #define PACKET_HEADER_SIZE 20
 
+#define FLOW_IMG_SIZE 40
+#define FLOW_COUNT 32
+#define FLOW_MIDPOINT_OFFSET 6
+#define FLOW_DISP_SIZE 9
+
 /* Use lsusb -v to find the correspond values */
 static int ep_in_address  = 0x81;
 static int ep_out_address = 0x01;
@@ -32,6 +37,9 @@ int image_height = 40; //Default
 uint16_t lidar_distance = 0;
 float gyro_x = 0, gyro_y = 0, gyro_z = 0;
 uint8_t gyro_calib_enable = 0;
+
+uint8_t match_x[FLOW_IMG_SIZE][FLOW_IMG_SIZE];
+uint8_t match_y[FLOW_IMG_SIZE][FLOW_IMG_SIZE];
 
 bool _usb_init()
 {
@@ -136,19 +144,44 @@ bool usb_receive_onboard_info(uint16_t *buffer)
 	/* receive camera image in two parts */
 	received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
 
-	for(int r = 0; r < 40; r++) {
-		for(int c = 0; c < 40; c++) {
-			buffer[r * 40 + c] = buffer[r * 40 + c] << 6;
+	for(int r = 0; r < FLOW_IMG_SIZE; r++) {
+		for(int c = 0; c < FLOW_IMG_SIZE; c++) {
+			buffer[r * FLOW_IMG_SIZE + c] = buffer[r * FLOW_IMG_SIZE + c] << 6;
 		}
 	}
 
+	cv_image = cv::Mat(FLOW_IMG_SIZE, FLOW_IMG_SIZE, CV_16UC1, buffer);
+	cv::cvtColor(cv_image, cv_image, CV_GRAY2BGR);
+	cv::resize(cv_image, cv_image, cv::Size(FLOW_IMG_SIZE * 4, FLOW_IMG_SIZE * 4));
+
+	//unpack match point
+	memcpy((uint8_t *)match_x, (uint8_t *)buffer + 3200, sizeof(uint8_t) * 1600);
+	memcpy((uint8_t *)match_y, (uint8_t *)buffer + 3200, sizeof(uint8_t) * 1600);
+
 	if(received_len > 0 && gyro_calib_enable == 0) {
-		printf("received new image, size = %d bytes\n", received_len);
+		//printf("received new image, size = %d bytes\n", received_len);
 	} else if(received_len == 0 || received_len == -1) {
 		return false;
 	}
 
 	return true;
+}
+
+void flow_visualize()
+{
+	/* 4x downsampling visualization */
+	int sample_rate = 4; //only visualize 1/4 flow on the image
+	int flow_start = FLOW_MIDPOINT_OFFSET;
+	for(int x = 0; x < FLOW_COUNT; x += sample_rate) {
+		for(int y = 0; y < FLOW_COUNT; y += sample_rate) {
+			cv::Point start((flow_start + y) * 4, (flow_start + x) * 4);
+			cv::Point end(match_y[x][y] * 4, match_x[x][y] * 4);
+
+			cv::circle(cv_image, start, 1, cv::Scalar(0, 0, 65535), 1, CV_AA, 0);
+
+			cv::line(cv_image, start, end, cv::Scalar(0, 65535, 0), 1, 8);
+		}
+	}
 }
 
 int main(int argc, char **argv)
@@ -181,8 +214,7 @@ int main(int argc, char **argv)
 		delta_t = current_time - previous_time; //calculate delta_t
 		previous_time = current_time; //update timer
 
-		cv_image = cv::Mat(40, 40, CV_16UC1, buffer);
-		cv::cvtColor(cv_image, cv_image, CV_GRAY2BGR);
+		flow_visualize();
 
 		/* convert image to ros message and send it */
 		cv::Mat cv_image_8u3;
