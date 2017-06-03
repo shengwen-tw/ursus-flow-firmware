@@ -8,7 +8,7 @@ run_usb_sim:
 	roslaunch ursusflow_usb_sim monitor.launch
 
 run_usb:
-	roslaunch ursusflow_usb monitor.launch
+	roslaunch ursusflow_usb_monitor monitor.launch
 
 run_serial:
 	roslaunch ursusflow_serial monitor.launch
