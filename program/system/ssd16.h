@@ -7,7 +7,7 @@
 	 "ssub16 r4, r4, r5\n"       \
 	 "smlald %[acc_1], %[acc_2], r4, r4\n"
 
-#define calculate_ssd16(previos_frame, current_frame) \
+#define calculate_ssd16_full(previos_frame, current_frame) \
 	({                     \
 	int32_t acc_32[2];   \
 	asm (          \
