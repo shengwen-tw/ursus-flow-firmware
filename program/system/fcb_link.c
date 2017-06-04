@@ -48,12 +48,12 @@ __attribute__((unused)) static void send_debug_message(void)
 
 	/* debug mode */
 	int size = sprintf(buffer, "lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, fps:%.1f\n\r",
-	        fcb_data.lidar_distance,
-	        fcb_data.flow_vx,
-	        fcb_data.flow_vy,
-	        fcb_data.time,
-	        fcb_data.frequency
-       );
+	                   fcb_data.lidar_distance,
+	                   fcb_data.flow_vx,
+	                   fcb_data.flow_vy,
+	                   fcb_data.time,
+	                   fcb_data.frequency
+	                  );
 
 	uart2_puts(buffer, size);
 }

@@ -159,7 +159,7 @@ void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_ima
 }
 
 void match_point_local_area_row_d(uint16_t *previous_image, uint16_t *current_image,
-                                   int8_t *match_x, int8_t *match_y)
+                                  int8_t *match_x, int8_t *match_y)
 {
 	int8_t ssd_min_x = -4, ssd_min_y = -4;
 	uint32_t ssd_min_value = UINT32_MAX;

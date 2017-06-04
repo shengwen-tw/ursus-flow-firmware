@@ -98,7 +98,7 @@ bool usb_receive_onboard_info(uint16_t *buffer)
 {
 	int received_len;
 	int size_to_receive = 6400;
- 
+
 	/* wait for header message */
 	while(1) {
 		received_len = usb_read((uint8_t *)buffer, size_to_receive, 1000);
@@ -220,7 +220,7 @@ int main(int argc, char **argv)
 		cv::Mat cv_image_8u3;
 		cv_image.convertTo(cv_image_8u3, CV_8UC3, 1.0 / 256.0); //ros only support this format
 		sensor_msgs::ImagePtr ros_image_msg =
-			cv_bridge::CvImage(std_msgs::Header(), "bgr8", cv_image_8u3).toImageMsg();
+		        cv_bridge::CvImage(std_msgs::Header(), "bgr8", cv_image_8u3).toImageMsg();
 
 		ros_image_publisher.publish(ros_image_msg);
 
