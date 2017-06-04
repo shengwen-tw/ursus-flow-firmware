@@ -156,7 +156,7 @@ bool usb_receive_onboard_info(uint16_t *buffer)
 
 	//unpack match point
 	memcpy((uint8_t *)match_x, (uint8_t *)buffer + 3200, sizeof(uint8_t) * 1600);
-	memcpy((uint8_t *)match_y, (uint8_t *)buffer + 3200, sizeof(uint8_t) * 1600);
+	memcpy((uint8_t *)match_y, (uint8_t *)buffer + 4800, sizeof(uint8_t) * 1600);
 
 	if(received_len > 0 && gyro_calib_enable == 0) {
 		//printf("received new image, size = %d bytes\n", received_len);
