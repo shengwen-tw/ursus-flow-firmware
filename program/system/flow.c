@@ -158,7 +158,7 @@ void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_ima
 	*match_y = ssd_min_y;
 }
 
-void match_point_local_area_row_dp(uint16_t *previous_image, uint16_t *current_image,
+void match_point_local_area_row_d(uint16_t *previous_image, uint16_t *current_image,
                                    int8_t *match_x, int8_t *match_y)
 {
 	int8_t ssd_min_x = -4, ssd_min_y = -4;
@@ -350,7 +350,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
 		frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
 
-		match_point_local_area_row_dp(frame1, frame2, &match_x, &match_y);
+		match_point_local_area_row_d(frame1, frame2, &match_x, &match_y);
 
 #if (DISABLE_USB == 0)
 		/* convert the position relative the full image */
@@ -455,15 +455,15 @@ void flow_estimate_task(void)
 	float delta_t;
 	float fps;
 
-	int next = 0;
+	int now = 0, next = 1;;
 
 	float flow_vx = 0.0f, flow_vy = 0.0f;
 
-	mt9v034_start_capture_image((uint32_t)flow.image[0].frame);
+	mt9v034_start_capture_image((uint32_t)flow.image[now].frame);
 	mt9v034_wait_finish();
 	previous_time = get_time_sec();
 
-	mt9v034_start_capture_image((uint32_t)flow.image[1].frame);
+	mt9v034_start_capture_image((uint32_t)flow.image[next].frame);
 
 	while(1) {
 		gpio_on(LED_1);
@@ -484,8 +484,8 @@ void flow_estimate_task(void)
 		usb_image_foward();
 #else
 		flow_estimate(
-		        (uint16_t *)flow.image[0].frame,
-		        (uint16_t *)flow.image[1].frame,
+		        (uint16_t *)flow.image[now].frame,
+		        (uint16_t *)flow.image[next].frame,
 		        &flow_vx, &flow_vy, delta_t
 		);
 
@@ -493,6 +493,7 @@ void flow_estimate_task(void)
 
 		usb_send_flow_info();
 #endif
+		now = next;
 		next = (next + 1) % 2;
 
 		send_flow_to_fcb(lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);
