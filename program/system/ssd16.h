@@ -7,7 +7,7 @@
 	 "ssub16 r4, r4, r5\n"       \
 	 "smlald %[acc_1], %[acc_2], r4, r4\n"
 
-#define calculate_ssd16_full(previos_frame, current_frame) \
+#define calculate_ssd16_full(template_image, search_image) \
 	({                     \
 	int32_t acc_32[2];   \
 	asm (          \
@@ -49,7 +49,7 @@
 	 simd_square_diff(244) \
 	 simd_square_diff(246) \
 	 : [acc_1] "=r" (acc_32[0]), [acc_2] "=r" (acc_32[1]) \
-	 : [frame1] "r" (previos_frame), [frame2] "r" (current_frame) \
+	 : [frame1] "r" (template_image), [frame2] "r" (search_image) \
 	 : "r4", "r5"             \
 	);                        \
 	acc_32[0] + acc_32[1];    \
