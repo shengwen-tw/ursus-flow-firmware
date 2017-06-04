@@ -312,10 +312,10 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	}
 
 	/* row iteration for first row */
-	volatile int x, y; //XXX:aggressive optimization warning
-	for(y = 1; y < FLOW_COUNT; y++) {
+	volatile int r, c; //XXX:aggressive optimization warning
+	for(c = 1; c < FLOW_COUNT; c++) {
 		start_x = 0 + offset;
-		start_y = y + offset;
+		start_y = c + offset;
 		frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
 		frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
 
@@ -323,8 +323,8 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 
 #if (DISABLE_USB == 0)
 		/* convert the position relative the full image */
-		flow.match_x[0][y] = match_x + (FLOW_MIDPOINT_OFFSET + 0);
-		flow.match_y[0][y] = match_y + (FLOW_MIDPOINT_OFFSET + y);
+		flow.match_x[0][c] = match_x + (FLOW_MIDPOINT_OFFSET + 0);
+		flow.match_y[0][c] = match_y + (FLOW_MIDPOINT_OFFSET + c);
 #endif
 
 		//if not both equal zero
@@ -343,9 +343,9 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	}
 
 	/* estimate the flow by only calculate the non-overlap region's ssd (start from second row) */
-	for(x = 1; x < FLOW_COUNT; x++) {
+	for(r = 1; r < FLOW_COUNT; r++) {
 		/* row iteration (go down) */
-		start_x = x + offset;
+		start_x = r + offset;
 		start_y = 0 + offset;
 		frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
 		frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
@@ -354,8 +354,8 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 
 #if (DISABLE_USB == 0)
 		/* convert the position relative the full image */
-		flow.match_x[x][0] = match_x + (FLOW_MIDPOINT_OFFSET + x);
-		flow.match_y[x][0] = match_y + (FLOW_MIDPOINT_OFFSET + 0);
+		flow.match_x[r][0] = match_x + (FLOW_MIDPOINT_OFFSET + r);
+		flow.match_y[r][0] = match_y + (FLOW_MIDPOINT_OFFSET + 0);
 #endif
 
 		//if not both equal zero
@@ -373,9 +373,9 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		}
 
 		/* column iteration (go right) */
-		for(y = 1; y < FLOW_COUNT; y++) {
-			start_x = x + offset;
-			start_y = y + offset;
+		for(c = 1; c < FLOW_COUNT; c++) {
+			start_x = r + offset;
+			start_y = c + offset;
 			frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
 			frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
 
@@ -383,8 +383,8 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 
 #if (DISABLE_USB == 0)
 			/* convert the position relative the full image */
-			flow.match_x[x][y] = match_x + (FLOW_MIDPOINT_OFFSET + x);
-			flow.match_y[x][y] = match_y + (FLOW_MIDPOINT_OFFSET + y);
+			flow.match_x[r][c] = match_x + (FLOW_MIDPOINT_OFFSET + r);
+			flow.match_y[r][c] = match_y + (FLOW_MIDPOINT_OFFSET + c);
 #endif
 
 			//if not both equal zero
