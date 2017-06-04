@@ -24,7 +24,7 @@
 #include "fcb_link.h"
 #include "system_time.h"
 #include "distance_weighting.h"
-#include "ssd16.h"
+//#include "ssd16.h"
 
 extern TaskHandle_t fcb_link_task_handle;
 extern TaskHandle_t usb_link_task_handle;
@@ -88,7 +88,6 @@ uint32_t calculate_ssd16_column(uint16_t *template_image, uint16_t *search_image
 	return ssd;
 }
 
-#if 0
 uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 {
 	/* ssd minimum value is 1 since later will do the distance weighting
@@ -113,7 +112,6 @@ uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 
 	return ssd;
 }
-#endif
 
 /* Find the matching point on two images in local -4 ~ +4 pixels */
 void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_image,
