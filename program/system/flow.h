@@ -27,7 +27,7 @@
 #define FLOW_MIDPOINT_OFFSET (TEMPLATE_MIDPOINT_OFFSET + TEMPLATE_SEARCH_SUBAREA_OFFSET)
 
 //#define BLOCK_MATCHING_THRESHOLD 1024 //25% of max difference (16-bits number)
-#define HISTOGRAM_THRESHOLD 409 //64x64 = 4096
+#define HISTOGRAM_THRESHOLD 256 //1024 x 0.25
 
 /* since we only search the near -4 ~ +4 pixels for flow,
    there are only 9x9 matching possibilites */
