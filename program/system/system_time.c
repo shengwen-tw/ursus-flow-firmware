@@ -22,3 +22,11 @@ float get_time_sec(void)
 {
 	return (float)system_time.sec + system_time.sec_remainder;
 }
+
+void delay_ms(float ms)
+{
+	float current_time_sec = get_time_sec();
+	float stop_time = current_time_sec + (ms / 1000.0f);
+
+	while(get_time_sec() < stop_time);
+}

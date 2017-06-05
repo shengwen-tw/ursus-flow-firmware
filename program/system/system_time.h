@@ -16,4 +16,6 @@ typedef struct {
 void update_system_time(void);
 float get_time_sec(void);
 
+void delay_ms(float ms);
+
 #endif
