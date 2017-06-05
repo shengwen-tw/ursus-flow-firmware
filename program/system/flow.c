@@ -132,7 +132,7 @@ void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_ima
 		for(c = -4; c <= +4; c++) {
 			ssd = calculate_ssd16_full(fixed_template_image, &running_search_image[c]);
 
-			flow.subarea_ssd_row_start[r + 4][c + 4] = ssd;
+			flow.subarea_ssd_column_start[r + 4][c + 4] = ssd;
 			flow.subarea_ssd_last[r + 4][c + 4] = ssd;
 
 			/* distance weighting */
@@ -158,7 +158,7 @@ void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_ima
 	*match_y = ssd_min_y;
 }
 
-void match_point_local_area_row_d(uint16_t *previous_image, uint16_t *current_image,
+void match_point_local_area_column_dp(uint16_t *previous_image, uint16_t *current_image,
                                   int8_t *match_x, int8_t *match_y)
 {
 	int8_t ssd_min_x = -4, ssd_min_y = -4;
@@ -169,23 +169,23 @@ void match_point_local_area_row_d(uint16_t *previous_image, uint16_t *current_im
 	uint16_t *running_search_image = &current_image[0];
 	uint16_t *fixed_template_image = &previous_image[0];
 
-	uint32_t row_cuttoff_ssd;
-	uint32_t row_addin_ssd;
+	uint32_t column_cuttoff_ssd;
+	uint32_t column_addin_ssd;
 
 	int8_t r, c;
 	for(r = -4; r <= +4; r++) {
 		running_search_image = &current_image[FLOW_IMG_SIZE * r];
 
 		for(c = -4; c <= +4; c++) {
-			row_cuttoff_ssd = calculate_ssd16_row(fixed_template_image, &running_search_image[c], -1);
-			row_addin_ssd = calculate_ssd16_row(fixed_template_image, &running_search_image[c], 7);
+			column_cuttoff_ssd = calculate_ssd16_column(fixed_template_image, &running_search_image[c], -1);
+			column_addin_ssd = calculate_ssd16_column(fixed_template_image, &running_search_image[c], 7);
 
-			ssd = flow.subarea_ssd_row_start[r + 4][c + 4];
+			ssd = flow.subarea_ssd_column_start[r + 4][c + 4];
 			//cut left old edge and add right new edge
-			ssd -= row_cuttoff_ssd;
-			ssd += row_addin_ssd;
+			ssd -= column_cuttoff_ssd;
+			ssd += column_addin_ssd;
 			//update ssd table
-			flow.subarea_ssd_row_start[r + 4][c + 4] = ssd;
+			flow.subarea_ssd_column_start[r + 4][c + 4] = ssd;
 			flow.subarea_ssd_last[r + 4][c + 4] = ssd;
 
 			//distance weighting
@@ -211,7 +211,7 @@ void match_point_local_area_row_d(uint16_t *previous_image, uint16_t *current_im
 	*match_y = ssd_min_y;
 }
 
-void match_point_local_area_column_dp(uint16_t *previous_image, uint16_t *current_image,
+void match_point_local_area_row_dp(uint16_t *previous_image, uint16_t *current_image,
                                       int8_t *match_x, int8_t *match_y)
 {
 	int8_t ssd_min_x = -4, ssd_min_y = -4;
@@ -222,22 +222,22 @@ void match_point_local_area_column_dp(uint16_t *previous_image, uint16_t *curren
 	uint16_t *running_search_image = &current_image[0];
 	uint16_t *fixed_template_image = &previous_image[0];
 
-	uint32_t column_cuttoff_ssd;
-	uint32_t column_addin_ssd;
+	uint32_t row_cuttoff_ssd;
+	uint32_t row_addin_ssd;
 
 	int8_t r, c;
 	for(r = -4; r <= +4; r++) {
 		running_search_image = &current_image[FLOW_IMG_SIZE * r];
 
 		for(c = -4; c <= +4; c++) {
-			column_cuttoff_ssd = calculate_ssd16_column(fixed_template_image, &running_search_image[c], -1);
-			column_addin_ssd = calculate_ssd16_column(fixed_template_image, &running_search_image[c], 7);
+			row_cuttoff_ssd = calculate_ssd16_row(fixed_template_image, &running_search_image[c], -1);
+			row_addin_ssd = calculate_ssd16_row(fixed_template_image, &running_search_image[c], 7);
 
 			//read last ssd
 			ssd = flow.subarea_ssd_last[r + 4][c + 4];
 			//cut left old edge and add right new edge
-			ssd -= column_cuttoff_ssd;
-			ssd += column_addin_ssd;
+			ssd -= row_cuttoff_ssd;
+			ssd += row_addin_ssd;
 			//update ssd table
 			flow.subarea_ssd_last[r + 4][c + 4] = ssd;
 
@@ -311,9 +311,40 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		vote_count++;
 	}
 
-	/* row iteration for first row */
+	/* column iteration for first column */
 	volatile int r, c; //XXX:aggressive optimization warning
+	for(r = 1; r < FLOW_COUNT; r++) {
+		start_x = r + offset;
+		start_y = 0 + offset;
+		frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
+		frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
+
+		match_point_local_area_row_dp(frame1, frame2, &match_x, &match_y);
+
+#if (DISABLE_USB == 0)
+		/* convert the position relative the full image */
+		flow.match_x[r][0] = match_x + (FLOW_MIDPOINT_OFFSET + r);
+		flow.match_y[r][0] = match_y + (FLOW_MIDPOINT_OFFSET + 0);
+#endif
+
+		//if not both equal zero
+		if(match_x - match_y) {
+			/* histogram voting */
+			vote_x =  match_x + 4;
+			vote_y =  match_y + 4;
+			histogram_x[vote_x]++;
+			histogram_y[vote_y]++;
+
+			predict_disp_x += match_x;
+			predict_disp_y += match_y;
+
+			vote_count++;
+		}
+	}
+
+	/* estimate the flow by only calculate the non-overlap region's ssd (start from second row) */
 	for(c = 1; c < FLOW_COUNT; c++) {
+		/* column iteration (go down) */
 		start_x = 0 + offset;
 		start_y = c + offset;
 		frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
@@ -340,46 +371,15 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 
 			vote_count++;
 		}
-	}
 
-	/* estimate the flow by only calculate the non-overlap region's ssd (start from second row) */
-	for(r = 1; r < FLOW_COUNT; r++) {
 		/* row iteration (go down) */
-		start_x = r + offset;
-		start_y = 0 + offset;
-		frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
-		frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
-
-		match_point_local_area_row_d(frame1, frame2, &match_x, &match_y);
-
-#if (DISABLE_USB == 0)
-		/* convert the position relative the full image */
-		flow.match_x[r][0] = match_x + (FLOW_MIDPOINT_OFFSET + r);
-		flow.match_y[r][0] = match_y + (FLOW_MIDPOINT_OFFSET + 0);
-#endif
-
-		//if not both equal zero
-		if(match_x - match_y) {
-			/* histogram voting */
-			vote_x =  match_x + 4;
-			vote_y =  match_y + 4;
-			histogram_x[vote_x]++;
-			histogram_y[vote_y]++;
-
-			predict_disp_x += match_x;
-			predict_disp_y += match_y;
-
-			vote_count++;
-		}
-
-		/* column iteration (go right) */
-		for(c = 1; c < FLOW_COUNT; c++) {
+		for(r = 1; r < FLOW_COUNT; r++) {
 			start_x = r + offset;
 			start_y = c + offset;
 			frame1 = &previous_image[start_x * FLOW_IMG_SIZE + start_y];
 			frame2 = &current_image[start_x * FLOW_IMG_SIZE + start_y];
 
-			match_point_local_area_column_dp(frame1, frame2, &match_x, &match_y);
+			match_point_local_area_row_dp(frame1, frame2, &match_x, &match_y);
 
 #if (DISABLE_USB == 0)
 			/* convert the position relative the full image */
