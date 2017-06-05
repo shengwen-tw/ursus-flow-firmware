@@ -1,6 +1,6 @@
 #include "system_time.h"
 
-system_time_t system_time = {
+volatile system_time_t system_time = {
 	.sec = 0,
 	.sec_remainder = 0.0f,
 	.tick_number = 0
