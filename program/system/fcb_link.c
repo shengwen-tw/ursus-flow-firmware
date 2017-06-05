@@ -16,18 +16,6 @@
 
 #define PACKET_SIZE 23
 
-#if 0
-__attribute__((unused)) static void send_debug_message(void)
-{
-	char buffer[256] = {'\0'};
-
-	int size = sprintf(buffer, "lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, fps:%.1f\n\r"
-	                  );
-
-	uart2_puts(buffer, size);
-}
-#endif
-
 void send_flow_to_fcb(uint16_t lidar_distance, float flow_vx, float flow_vy,
                       float time, float period, float frequency)
 {
