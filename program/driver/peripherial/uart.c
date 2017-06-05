@@ -12,8 +12,6 @@ static void uart2_init(int baudrate);
 UART_HandleTypeDef uart2;
 DMA_HandleTypeDef uart2_tx_dma;
 
-SemaphoreHandle_t uart2_tx_semaphore;
-
 void uart_init(void)
 {
 	uart2_init(57600);
@@ -21,10 +19,6 @@ void uart_init(void)
 
 static void uart2_init(int baudrate)
 {
-	/* Create semaphore for serial resource */
-	uart2_tx_semaphore = xSemaphoreCreateBinary();
-	xSemaphoreGive(uart2_tx_semaphore);
-
 	/* Hardware initialization */
 	__HAL_RCC_USART2_CLK_ENABLE();
 	__HAL_RCC_DMA1_CLK_ENABLE();
@@ -75,14 +69,7 @@ static void uart2_init(int baudrate)
 
 void USART2_IRQHandler(void)
 {
-	long higher_priority_task_woken = pdFALSE;
-
 	HAL_UART_IRQHandler(&uart2);
-
-	if(HAL_UART_GetState(&uart2) == HAL_UART_STATE_READY) {
-		xSemaphoreGiveFromISR(uart2_tx_semaphore, &higher_priority_task_woken);
-		portYIELD_FROM_ISR(higher_priority_task_woken);
-	}
 }
 
 void DMA1_Stream6_IRQHandler(void)
@@ -92,7 +79,5 @@ void DMA1_Stream6_IRQHandler(void)
 
 void uart2_puts(char *str, int size)
 {
-	xSemaphoreTake(uart2_tx_semaphore, portMAX_DELAY);
-
 	HAL_UART_Transmit_DMA(&uart2, (uint8_t*)str, size);
 }
