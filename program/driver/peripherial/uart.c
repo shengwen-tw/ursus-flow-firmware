@@ -61,7 +61,7 @@ static void uart2_init(int baudrate)
 	uart2_tx_dma.Init.MemInc = DMA_MINC_ENABLE;
 	uart2_tx_dma.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
 	uart2_tx_dma.Init.MemDataAlignment = DMA_PDATAALIGN_BYTE;
-	uart2_tx_dma.Init.Mode = DMA_NORMAL;
+	uart2_tx_dma.Init.Mode = DMA_CIRCULAR;
 	uart2_tx_dma.Init.Priority = DMA_PRIORITY_LOW;
 
 	HAL_DMA_Init(&uart2_tx_dma);
