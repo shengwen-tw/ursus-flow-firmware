@@ -38,15 +38,8 @@ int main(void)
 	i2c_init();
 	dcmi_init();
 
-	fcb_link_data_queue_init();
-
 	xTaskCreate((TaskFunction_t)flow_estimate_task, "flow estimate task",
 	            1024, (void *)0, tskIDLE_PRIORITY + 3, NULL);
-
-	xTaskCreate((TaskFunction_t)flight_ctrl_board_link_task,
-	            "flight control board link task",
-	            1024, (void *)0, tskIDLE_PRIORITY + 2, &fcb_link_task_handle);
-	vTaskSuspend(fcb_link_task_handle);
 
 	vTaskStartScheduler();
 
