@@ -13,6 +13,8 @@
 
 #include "delay.h"
 
+#include "system_time.h"
+
 #define CALIBRATION_ENABLED 0
 
 __inline__ void mt9v034_wait_finish(void);
@@ -27,7 +29,7 @@ static uint16_t mt9v034_read_half_word(uint8_t address)
 	//convert received data from big endian to little endian
 	uint16_t result = buffer >> 8 | buffer << 8;
 
-	vTaskDelay(MILLI_SECOND_TICK(1));
+	delay_ms(1);
 
 	return result;
 }
