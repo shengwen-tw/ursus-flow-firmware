@@ -5,6 +5,8 @@
 
 #include "delay.h"
 
+#include "system_time.h"
+
 /* System Clock source            = PLL (HSE)
  * SYSCLK(Hz)                     = 216000000
  * HCLK(Hz)                       = 216000000
@@ -100,7 +102,7 @@ void cpu_cache_enable(void)
 /* Override HAL delay function */
 void HAL_Delay(volatile uint32_t millis)
 {
-	vTaskDelay(MILLI_SECOND_TICK(millis));
+	delay_ms((float)millis);
 }
 
 /* The HAL_InitTick() should be override to prevent it initialize

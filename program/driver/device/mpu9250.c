@@ -13,6 +13,8 @@
 #include "delay.h"
 #include "imu.h"
 
+#include "system_time.h"
+
 __inline__ static void mpu9250_select(void);
 __inline__ static void mpu9250_deselect(void);
 
@@ -112,24 +114,24 @@ void mpu9250_drift_error_estimate(float *drift_x, float *drift_y, float *drift_z
 		*drift_x += gyro_data.x / n;
 		*drift_y += gyro_data.y / n;
 		*drift_z += gyro_data.z / n;
-		vTaskDelay(MILLI_SECOND_TICK(1));
+		delay_ms(1);
 	}
 }
 
 int mpu9250_init(void)
 {
 	if(mpu9250_read_who_am_i() != 0x71) {
-		vTaskDelay(MILLI_SECOND_TICK(50));
+		delay_ms(50);
 		return 1;
 	}
-	vTaskDelay(MILLI_SECOND_TICK(50));
+	delay_ms(50);
 
 	mpu9250_write_byte(MPU9250_PWR_MGMT_1, 0x80);   //reset command     = 0x80
-	vTaskDelay(MILLI_SECOND_TICK(50));
+	delay_ms(50);
 	mpu9250_write_byte(MPU9250_GYRO_CONFIG, 0x10);  //full scale 1000Hz = 0x10
-	vTaskDelay(MILLI_SECOND_TICK(50));
+	delay_ms(50);
 	mpu9250_write_byte(MPU9250_ACCEL_CONFIG, 0x10); //full scale 8g     = 0x10
-	vTaskDelay(MILLI_SECOND_TICK(50));
+	delay_ms(50);
 
 	return 0;
 }

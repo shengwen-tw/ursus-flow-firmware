@@ -31,6 +31,7 @@ int main(void)
 	cpu_cache_enable();
 	system_clock_init();
 
+	timer_init();
 	gpio_init();
 	uart_init();
 	spi_init();

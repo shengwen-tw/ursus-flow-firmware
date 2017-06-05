@@ -425,7 +425,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 void flow_estimate_task(void)
 {
 	/* wait until the mcu peripherial initialization is finished */
-	vTaskDelay(MILLI_SECOND_TICK(5));
+	delay_ms(5);
 
 	if(mpu9250_init()) {
 		while(1); //This is bad
@@ -443,8 +443,6 @@ void flow_estimate_task(void)
 	if(do_gyro_calibrate == true) {
 		mpu9250_drift_error_estimate(&drift_x, &drift_y, &drift_z);
 	}
-
-	timer_init();
 
 	usb_fs_init();
 

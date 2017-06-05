@@ -14,6 +14,8 @@
 
 #include "delay.h"
 
+#include "system_time.h"
+
 const uint8_t lidar_dev_address = 0x62 << 1;
 
 uint8_t lidar_buffer[2] = {0};
@@ -76,22 +78,22 @@ void lidar_init(uint16_t *_lidar_distance_ptr)
 
 	/* reset lidar */
 	lidar_write_byte(LIDAR_ACQ_COMMAND, 0x00);
-	vTaskDelay(MILLI_SECOND_TICK(1000));
+	delay_ms(1000);
 
 	lidar_write_byte(0x11, 0xff);
-	vTaskDelay(MILLI_SECOND_TICK(10));
+	delay_ms(10);
 
 	/* measurement rate */
 	lidar_write_byte(0x45, 0x02);
-	vTaskDelay(MILLI_SECOND_TICK(10));
+	delay_ms(10);
 
 	/* continuous reading mode */
 	lidar_write_byte(0x04, 0x21);
-	vTaskDelay(MILLI_SECOND_TICK(10));
+	delay_ms(10);
 
 	/* start distance measurement */
 	lidar_write_byte(LIDAR_ACQ_COMMAND, 0x04);
-	vTaskDelay(MILLI_SECOND_TICK(10));
+	delay_ms(10);
 
 	exti3_init();
 }
