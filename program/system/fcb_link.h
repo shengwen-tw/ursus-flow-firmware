@@ -8,7 +8,7 @@
 	int size = sprintf(buffer, s, ##__VA_ARGS__); \
 	uart2_puts(buffer, size); \
 
-void send_flow_to_fcb(uint16_t _lidar_distance, float _flow_vx,
-                      float _flow_vy, float _time, float period, float _frequency);
+void send_flow_to_fcb(uint16_t *lidar_distance, float *flow_vx,
+                      float *flow_vy, float *time, float *period, float *frequency);
 
 #endif

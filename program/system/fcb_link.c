@@ -16,8 +16,8 @@
 
 #define PACKET_SIZE 23
 
-void send_flow_to_fcb(uint16_t lidar_distance, float flow_vx, float flow_vy,
-                      float time, float period, float frequency)
+void send_flow_to_fcb(uint16_t *lidar_distance, float *flow_vx, float *flow_vy,
+                      float *time, float *period, float *frequency)
 {
 	/* pack message */
 	char start_byte = '$';
@@ -27,22 +27,22 @@ void send_flow_to_fcb(uint16_t lidar_distance, float flow_vx, float flow_vy,
 	memcpy(message + append_size, &start_byte, sizeof(char));
 	append_size += sizeof(char);
 
-	memcpy(message + append_size, &lidar_distance, sizeof(uint16_t));
+	memcpy(message + append_size, lidar_distance, sizeof(uint16_t));
 	append_size += sizeof(uint16_t);
 
-	memcpy(message + append_size, &flow_vx, sizeof(float));
+	memcpy(message + append_size, flow_vx, sizeof(float));
 	append_size += sizeof(float);
 
-	memcpy(message + append_size, &flow_vy, sizeof(float));
+	memcpy(message + append_size, flow_vy, sizeof(float));
 	append_size += sizeof(float);
 
-	memcpy(message + append_size, &time, sizeof(float));
+	memcpy(message + append_size, time, sizeof(float));
 	append_size += sizeof(float);
 
-	memcpy(message + append_size, &period, sizeof(float));
+	memcpy(message + append_size, period, sizeof(float));
 	append_size += sizeof(float);
 
-	memcpy(message + append_size, &frequency, sizeof(float));
+	memcpy(message + append_size, frequency, sizeof(float));
 	append_size += sizeof(float);
 
 	uart2_puts(message, append_size + 1);
