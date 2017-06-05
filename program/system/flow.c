@@ -494,7 +494,7 @@ void flow_estimate_task(void)
 		now = next;
 		next = (next + 1) % 2;
 
-		send_flow_to_fcb(lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);
+		send_flow_to_fcb(&lidar_distance, &flow_vx, &flow_vy, &current_time, &delta_t, &fps);
 
 		gpio_off(LED_1);
 		//gpio_toggle(LED_1);
