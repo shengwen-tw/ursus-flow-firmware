@@ -437,10 +437,8 @@ void flow_estimate_task(void)
 
 	lidar_init(&lidar_distance);
 
-	/* successfully initialized the hardware == */
+	//successfully initialized the hardware
 	gpio_on(LED_3); //red led
-	vTaskResume(fcb_link_task_handle);
-	/* ======================================== */
 
 	if(do_gyro_calibrate == true) {
 		mpu9250_drift_error_estimate(&drift_x, &drift_y, &drift_z);
