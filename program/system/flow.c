@@ -159,7 +159,7 @@ void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_ima
 }
 
 void match_point_local_area_column_dp(uint16_t *previous_image, uint16_t *current_image,
-                                  int8_t *match_x, int8_t *match_y)
+                                      int8_t *match_x, int8_t *match_y)
 {
 	int8_t ssd_min_x = -4, ssd_min_y = -4;
 	uint32_t ssd_min_value = UINT32_MAX;
@@ -212,7 +212,7 @@ void match_point_local_area_column_dp(uint16_t *previous_image, uint16_t *curren
 }
 
 void match_point_local_area_row_dp(uint16_t *previous_image, uint16_t *current_image,
-                                      int8_t *match_x, int8_t *match_y)
+                                   int8_t *match_x, int8_t *match_y)
 {
 	int8_t ssd_min_x = -4, ssd_min_y = -4;
 	uint32_t ssd_min_value = UINT32_MAX;
@@ -494,7 +494,9 @@ void flow_estimate_task(void)
 
 		send_flow_to_fcb(&lidar_distance, &flow_vx, &flow_vy, &current_time, &delta_t, &fps);
 
+		//send_debug_message("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, delta_t:%1f, fps:%.1f\n\r",
+		//                   lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);
+
 		gpio_off(LED_1);
-		//gpio_toggle(LED_1);
 	}
 }
