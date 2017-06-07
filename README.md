@@ -10,7 +10,9 @@
 |--------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | blue   | optical flow update frequency | blinking rate is equal to optical flow updating rate|
 | yellow | flow detecting state        | the led lights up while the flow is detected                                                                                                                                                                   |
-| red    | device initialization state | on: hardware initialization succeed<br />off: hardware initialization failed                                                                                                       |
+| red    | device initialization state | constant light: hardware initialization succeed<br />blinking: hardware initialization succeed, **USB is enabled**<br />off: hardware initialization failed                                                                                                       |
+
+**USB should only be enabled during the development stage, otherwise it may interfere the flight controller!**
 
 ## Flow monitor
 
