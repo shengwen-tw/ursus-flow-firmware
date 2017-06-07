@@ -4,6 +4,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "gpio.h"
 #include "usb_device.h"
 
 #include "mpu9250.h"
@@ -13,6 +14,7 @@
 
 #include "flow.h"
 #include "usb_link.h"
+#include "system_time.h"
 
 #define HEADER_MSG_SIZE 20
 
@@ -25,6 +27,8 @@ extern bool do_gyro_calibrate;
 extern float drift_x;
 extern float drift_y;
 extern float drift_z;
+
+float led_blink_time_previous = 0;
 
 static void usb_send_header_message(void)
 {
@@ -95,7 +99,11 @@ void usb_image_foward(void)
 /* send gyroscope data, image and flow flow visualization data */
 void usb_send_flow_info(void)
 {
-	if(usb_cdc_connected() != 0) {return;}
+	float current_time = get_time_sec();
+	if((current_time - led_blink_time_previous) > 0.5) { 
+		gpio_toggle(LED_3);
+		led_blink_time_previous = current_time;
+	}
 
 	/* send header message */
 	usb_send_header_message();
