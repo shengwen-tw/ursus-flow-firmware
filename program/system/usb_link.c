@@ -95,6 +95,8 @@ void usb_image_foward(void)
 /* send gyroscope data, image and flow flow visualization data */
 void usb_send_flow_info(void)
 {
+	if(usb_cdc_connected() != 0) {return;}
+
 	/* send header message */
 	usb_send_header_message();
 

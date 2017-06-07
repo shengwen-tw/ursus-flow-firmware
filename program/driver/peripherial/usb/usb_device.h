@@ -9,5 +9,6 @@ extern USBD_HandleTypeDef hUsbDeviceFS;
 
 void usb_fs_init(void);
 void usb_cdc_send(uint8_t *buf, uint16_t len);
+int usb_cdc_connected(void);
 
 #endif

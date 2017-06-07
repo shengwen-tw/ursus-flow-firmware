@@ -46,3 +46,8 @@ void usb_cdc_send(uint8_t *buf, uint16_t len)
 	USBD_CDC_SetTxBuffer(&hUsbDeviceFS, buf, len);
 	USBD_CDC_TransmitPacket(&hUsbDeviceFS);
 }
+
+int usb_cdc_connected(void)
+{
+	return USBD_LL_DevConnected(&hUsbDeviceFS);
+}
