@@ -2,16 +2,13 @@
 
 #include "stm32f7xx_hal.h"
 
-#include "FreeRTOS.h"
-#include "semphr.h"
-
 #include "gpio.h"
 #include "interrupt.h"
 
 DMA_HandleTypeDef dcmi_dma;
 DCMI_HandleTypeDef dcmi;
 
-SemaphoreHandle_t dcmi_semaphore;
+volatile bool frame_captured = false;
 
 /* DCMI_D4     = PE4
  * DCMI_D6     = PE5
@@ -29,10 +26,6 @@ SemaphoreHandle_t dcmi_semaphore;
  */
 void dcmi_init(void)
 {
-	/* Create semaphore for dcmi resource */
-	dcmi_semaphore = xSemaphoreCreateBinary();
-	xSemaphoreGive(dcmi_semaphore);
-
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	__HAL_RCC_GPIOC_CLK_ENABLE();
@@ -100,13 +93,14 @@ void dcmi_init(void)
 
 void dcmi_dma_config(uint32_t buffer_address, uint32_t image_width, uint32_t image_height)
 {
+	frame_captured = false;
 	HAL_DMA_Init(&dcmi_dma);
 	HAL_DCMI_Start_DMA(&dcmi, DCMI_MODE_SNAPSHOT, buffer_address, image_width * image_height / 2);
 }
 
 void dcmi_wait_finish(void)
 {
-	while(xSemaphoreTake(dcmi_semaphore, portMAX_DELAY) == pdFALSE);
+	while(frame_captured == false);
 }
 
 void DCMI_IRQHandler(void)
@@ -116,10 +110,7 @@ void DCMI_IRQHandler(void)
 
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *dcmi)
 {
-	long higher_priority_task_woken = pdFALSE;
-
-	xSemaphoreGiveFromISR(dcmi_semaphore, &higher_priority_task_woken);
-	portYIELD_FROM_ISR(higher_priority_task_woken);
+	frame_captured = true;
 }
 
 void DMA2_Stream1_IRQHandler(void)
