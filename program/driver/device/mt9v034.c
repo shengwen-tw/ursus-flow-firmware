@@ -44,7 +44,7 @@ static void mt9v034_write_half_word(uint8_t address, uint16_t data)
 
 	i2c1_write(MT9V034_DEV_ADDRESS, buffer, 3);
 
-	vTaskDelay(MILLI_SECOND_TICK(1));
+	delay_ms(1);
 }
 
 static void mt9v034_context_config(void)
@@ -58,7 +58,7 @@ static void mt9v034_context_config(void)
 	mt9v034_write_half_word(MT9V034_AGC_AEC_PIXEL_CNT, IMG_WIDTH * IMG_HEIGHT);
 	mt9v034_write_half_word(MT9V034_MAX_ANALOG_GAIN, 40);
 	mt9v034_write_half_word(MT9V034_MIN_COARSE_SHUTTER_WIDTH, 1);
-	mt9v034_write_half_word(MT9V034_MAX_COARSE_SHUTTER_WIDTH, 1000);
+	mt9v034_write_half_word(MT9V034_MAX_COARSE_SHUTTER_WIDTH, 480);
 
 	/* reserved register (read mt9v034 rev 7.1 datasheet table 8) */
 	mt9v034_write_half_word(0x13, 0x2d2e);
@@ -80,8 +80,8 @@ static void mt9v034_context_config(void)
 	mt9v034_write_half_word(MT9V034_WINDOW_WIDTH_A, FLOW_IMG_WIDTH * IMAGE_BINNING);
 	mt9v034_write_half_word(MT9V034_HORIZONTAL_BLANKING_A, 709 + MT9V034_HORIZONTAL_BLANKING_MIN);
 	mt9v034_write_half_word(MT9V034_VERTICAL_BLANKING_A, 10);
-	mt9v034_write_half_word(MT9V034_COARSE_SW_1_A, 900);       //default value
-	mt9v034_write_half_word(MT9V034_COARSE_SW_2_A, 900);       //default value
+	mt9v034_write_half_word(MT9V034_COARSE_SW_1_A, 443);       //default value
+	mt9v034_write_half_word(MT9V034_COARSE_SW_2_A, 473);       //default value
 	mt9v034_write_half_word(MT9V034_COARSE_SW_CTRL_A, 0x0164); //default value
 	mt9v034_write_half_word(MT9V034_COARSE_SW_TOTAL_A, 480);   //default value
 	mt9v034_write_half_word(MT9V034_READ_MODE_A, 0x030a);      //enable 4x pixel binning
