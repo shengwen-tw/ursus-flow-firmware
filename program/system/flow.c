@@ -4,10 +4,6 @@
 #include "stm32f7xx.h"
 #include "stm32f7xx_hal.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
-
 #include "gpio.h"
 #include "timer.h"
 #include "usb_device.h"
@@ -16,7 +12,6 @@
 #include "mt9v034.h"
 #include "lidar.h"
 
-#include "delay.h"
 #include "imu.h"
 
 #include "flow.h"
@@ -25,11 +20,6 @@
 #include "system_time.h"
 #include "distance_weighting.h"
 //#include "ssd16.h"
-
-extern TaskHandle_t fcb_link_task_handle;
-extern TaskHandle_t usb_link_task_handle;
-
-SemaphoreHandle_t flow_task_semaphore;
 
 flow_t flow;
 

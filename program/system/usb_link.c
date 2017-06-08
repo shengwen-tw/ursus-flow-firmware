@@ -1,16 +1,11 @@
 #include "stm32f7xx.h"
 #include "stm32f7xx_hal.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
-
 #include "gpio.h"
 #include "usb_device.h"
 
 #include "mpu9250.h"
 #include "mt9v034.h"
-
-#include "delay.h"
 
 #include "flow.h"
 #include "usb_link.h"

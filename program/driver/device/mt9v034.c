@@ -3,15 +3,10 @@
 
 #include "stm32f7xx_hal.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
-
 #include "i2c.h"
 #include "dcmi.h"
 
 #include "mt9v034.h"
-
-#include "delay.h"
 
 #include "system_time.h"
 

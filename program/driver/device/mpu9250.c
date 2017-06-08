@@ -2,15 +2,11 @@
 
 #include "stm32f7xx_hal.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
-
 #include "gpio.h"
 #include "spi.h"
 
 #include "mpu9250.h"
 
-#include "delay.h"
 #include "imu.h"
 
 #include "system_time.h"

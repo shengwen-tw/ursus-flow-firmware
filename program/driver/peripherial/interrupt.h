@@ -1,9 +1,7 @@
 #ifndef __INTERRUPT_H__
 #define __INTERRUPT_H__
 
-#include "FreeRTOS.h"
-
-#define DRIVER_MAX_PRIORITY configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY //equals 5
+#define DRIVER_MAX_PRIORITY 5
 
 /* smaller number means higher priority, valid range: 0 ~ 15 */
 #define DCMI_PRIORITY     (DRIVER_MAX_PRIORITY - 2)

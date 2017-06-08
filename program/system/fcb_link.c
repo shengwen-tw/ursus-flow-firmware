@@ -3,16 +3,9 @@
 #include "stm32f7xx.h"
 #include "stm32f7xx_hal.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
-#include "queue.h"
-
 #include "uart.h"
 
 #include "fcb_link.h"
-
-#include "delay.h"
 
 #define PACKET_SIZE 23
 

@@ -86,15 +86,15 @@ SRC+=$(ST_USB_LIB)/Core/Src/usbd_core.c \
 	$(ST_USB_LIB)/Core/Src/usbd_ioreq.c
 
 #Freertos
-CFLAGS+=-I$(FREERTOS)/Source/include \
-	-I$(FREERTOS)/Source/portable/GCC/$(ARCH)/r0p1/
-SRC+=$(FREERTOS)/Source/croutine.c \
-	$(FREERTOS)/Source/list.c \
-	$(FREERTOS)/Source/queue.c \
-	$(FREERTOS)/Source/tasks.c \
-	$(FREERTOS)/Source/timers.c \
-	$(FREERTOS)/Source/portable/MemMang/heap_4.c \
-	$(FREERTOS)/Source/portable/GCC/$(ARCH)/r0p1/port.c
+#CFLAGS+=-I$(FREERTOS)/Source/include \
+#	-I$(FREERTOS)/Source/portable/GCC/$(ARCH)/r0p1/
+#SRC+=$(FREERTOS)/Source/croutine.c \
+#	$(FREERTOS)/Source/list.c \
+#	$(FREERTOS)/Source/queue.c \
+#	$(FREERTOS)/Source/tasks.c \
+#	$(FREERTOS)/Source/timers.c \
+#	$(FREERTOS)/Source/portable/MemMang/heap_4.c \
+#	$(FREERTOS)/Source/portable/GCC/$(ARCH)/r0p1/port.c
 
 SRC+=$(DSP)/BasicMathFunctions/arm_abs_f32.c
 
@@ -120,7 +120,6 @@ SRC+=$(DRIVER)/device/mpu9250.c \
 	$(DRIVER)/device/lidar.c
 
 CFLAGS+=-I$(COMMON)
-SRC+=$(COMMON)/delay.c
 
 CFLAGS+=-I$(SYSTEM)
 SRC+=$(SYSTEM)/main.c \

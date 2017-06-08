@@ -1,7 +1,5 @@
 #include "stm32f7xx_hal.h"
 
-#include "FreeRTOS.h"
-
 #include "interrupt.h"
 
 #include "flow.h"

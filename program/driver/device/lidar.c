@@ -2,17 +2,10 @@
 
 #include "stm32f7xx.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
-#include "queue.h"
-
 #include "gpio.h"
 #include "i2c.h"
 
 #include "lidar.h"
-
-#include "delay.h"
 
 #include "system_time.h"
 
