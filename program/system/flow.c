@@ -6,7 +6,6 @@
 
 #include "gpio.h"
 #include "timer.h"
-#include "usb_device.h"
 
 #include "mpu9250.h"
 #include "mt9v034.h"
@@ -25,12 +24,6 @@ flow_t flow;
 
 vector3d_f_t gyro_data;
 uint16_t lidar_distance;
-
-bool do_gyro_calibrate = false; //set true to eanble the calibration function
-
-float drift_x = 0;
-float drift_y = 0;
-float drift_z = 0;
 
 uint32_t calculate_ssd16_row(uint16_t *template_image, uint16_t *search_image, int row_offset)
 {
@@ -414,28 +407,6 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 
 void flow_estimate_task(void)
 {
-	/* wait until the mcu peripherial initialization is finished */
-	delay_ms(5);
-
-	if(mpu9250_init()) {
-		while(1); //This is bad
-	}
-
-	if(mt9v034_init()) {
-		while(1); //This is bad
-	}
-
-	lidar_init(&lidar_distance);
-
-	//successfully initialized the hardware
-	gpio_on(LED_3); //red led
-
-	if(do_gyro_calibrate == true) {
-		mpu9250_drift_error_estimate(&drift_x, &drift_y, &drift_z);
-	}
-
-	usb_fs_init();
-
 	float current_time;
 	float previous_time;
 	float delta_t;
