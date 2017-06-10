@@ -1,4 +1,3 @@
 <launch>
 	<node name="$(anon monitor)" pkg="ursusflow_usb_monitor" type="usb_monitor" output="screen"/>
-	<node name="$(anon rviz)" pkg="rviz" type="rviz"/>
 </launch>
