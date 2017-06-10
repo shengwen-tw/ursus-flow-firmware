@@ -52,41 +52,34 @@ void serial_gets(uint8_t *s, int size)
 void receive_onboard_params()
 {
 	uint8_t buffer[PACKET_SIZE];
+	int append_size = 1;
 
-	while(1) {
-		/* wait for start byte */
+	/* wait for start byte */
+	do {
 		serial_gets(buffer, 1);
-		if(buffer[0] != '$') {
-			continue;
-		}
-		int append_size = 1;
+	} while(buffer[0] != '$');
 
-		for(int i = 0; i < PACKET_SIZE - 1; i++) {
-			serial_gets(buffer + i + 1, 1);
-		}
-
-		//serial_gets(buffer, PACKET_SIZE -1);
-
-		memcpy(&link_data.lidar_distance, &buffer[append_size], sizeof(uint16_t));
-		append_size += sizeof(uint16_t);
-
-		memcpy(&link_data.flow_vx, &buffer[append_size], sizeof(float));
-		append_size += sizeof(float);
-
-		memcpy(&link_data.flow_vy, &buffer[append_size], sizeof(float));
-		append_size += sizeof(float);
-
-		memcpy(&link_data.time, &buffer[append_size], sizeof(float));
-		append_size += sizeof(float);
-
-		memcpy(&link_data.period, &buffer[append_size], sizeof(float));
-		append_size += sizeof(float);
-
-		memcpy(&link_data.frequency, &buffer[append_size], sizeof(float));
-		append_size += sizeof(float);
-
-		return;
+	for(int i = 0; i < PACKET_SIZE - 1; i++) {
+		serial_gets(buffer + i + 1, 1);
 	}
+
+	memcpy(&link_data.lidar_distance, &buffer[append_size], sizeof(uint16_t));
+	append_size += sizeof(uint16_t);
+
+	memcpy(&link_data.flow_vx, &buffer[append_size], sizeof(float));
+	append_size += sizeof(float);
+
+	memcpy(&link_data.flow_vy, &buffer[append_size], sizeof(float));
+	append_size += sizeof(float);
+
+	memcpy(&link_data.time, &buffer[append_size], sizeof(float));
+	append_size += sizeof(float);
+
+	memcpy(&link_data.period, &buffer[append_size], sizeof(float));
+	append_size += sizeof(float);
+
+	memcpy(&link_data.frequency, &buffer[append_size], sizeof(float));
+	append_size += sizeof(float);
 }
 
 int main(int argc, char **argv)
@@ -109,19 +102,24 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	while(1) {
-		if(_serial->available()) {
-			receive_onboard_params();
-		}
+	ROS_INFO("\033[2J\033[1;1H"
+	         "\033[33m" //yellow
+	         "Connection established, waiting for message...");
 
-		printf("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, delta_t: %.2f, fps:%.1f\n\r",
-		       link_data.lidar_distance,
-		       link_data.flow_vx,
-		       link_data.flow_vy,
-		       link_data.time,
-		       link_data.period,
-		       link_data.frequency
-		      );
+	while(1) {
+		while(!_serial->available());
+
+		receive_onboard_params();
+
+		ROS_INFO("\033[32m" //green
+		         "lidar:%3d, vx:%+3.3f, vy:%+3.3f, time:%.1f, delta_t: %.2f, fps:%.1f",
+		         link_data.lidar_distance,
+		         link_data.flow_vx,
+		         link_data.flow_vy,
+		         link_data.time,
+		         link_data.period,
+		         link_data.frequency
+		        );
 #if 1
 		/* send flow velocity message */
 		std_msgs::Float32 flow_vx_msg;
