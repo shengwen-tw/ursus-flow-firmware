@@ -44,7 +44,6 @@ sudo vi /etc/udev/rules.d/libusb.rules
 
 ```
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", MODE:="0666"
-
 ```
 
 
@@ -54,9 +53,28 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", MODE:="066
 cd tools/ros_ws
 . devel/setup.bash
 roslaunch ursusflow monitor.launch
+#terminal a
+make run_usb
+#terminal b
+make run_serial
 ```
 
-### Camera calibration
+open rqt then add new plot plugin and rviz plugin
+
+```
+rqt
+```
+
+the following ros topics are available to check
+
+```
+/ursusflow_serial/flow_vx
+/ursusflow_serial/flow_vy
+/ursusflow_serial/lidar_distance
+/ursusflow_usb/flow_image
+```
+
+## Camera calibration
 
 ```
 rosrun camera_calibration cameracalibrator.py --size 7x5 --square 0.031 image:=/ursusflow/flow_image --no-service-check --fix-aspect-ratio
