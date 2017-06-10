@@ -38,5 +38,5 @@ void send_flow_to_fcb(uint16_t *lidar_distance, float *flow_vx, float *flow_vy,
 	memcpy(message + append_size, frequency, sizeof(float));
 	append_size += sizeof(float);
 
-	uart2_puts(message, append_size + 1);
+	uart2_puts(message, PACKET_SIZE);
 }
