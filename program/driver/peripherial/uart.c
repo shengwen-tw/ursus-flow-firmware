@@ -74,7 +74,9 @@ void DMA1_Stream6_IRQHandler(void)
 	HAL_DMA_IRQHandler(uart2.hdmatx);
 }
 
-void uart2_puts(char *str, int size)
+void uart2_puts(char *s, int size)
 {
-	HAL_UART_Transmit_DMA(&uart2, (uint8_t*)str, size);
+	SCB_CleanDCache_by_Addr((uint32_t *)s, (uint32_t)size); //flush cache
+
+	HAL_UART_Transmit_DMA(&uart2, (uint8_t*)s, size);
 }
