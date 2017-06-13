@@ -48,6 +48,11 @@
 	 simd_square_diff(242) \
 	 simd_square_diff(244) \
 	 simd_square_diff(246) \
+	 \
+	 simd_square_diff(280) \
+	 simd_square_diff(282) \
+	 simd_square_diff(284) \
+	 simd_square_diff(286) \
 	 : [acc_1] "=r" (acc_32[0]), [acc_2] "=r" (acc_32[1]) \
 	 : [frame1] "r" (template_image), [frame2] "r" (search_image) \
 	 : "r4", "r5"             \
