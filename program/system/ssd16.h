@@ -63,4 +63,27 @@
 	acc_32; \
 	})
 
+#define simd_calculate_ssd16_row(template_image, search_image, row_offset) \
+	({ \
+	uint32_t acc_32; \
+        uint16_t *_template = template_image + (row_offset * FLOW_IMG_SIZE); \
+        uint16_t *_search = search_image + (row_offset * FLOW_IMG_SIZE);   \
+	asm ( \
+	 "mov r6, $0\n"  \
+	 "mov r7, $1\n"  \
+	 \
+	 simd_square_diff(0) \
+	 simd_square_diff(2) \
+	 simd_square_diff(4) \
+	 simd_square_diff(6) \
+	 \
+	 "add r6, r6, r7\n"    \
+	 "str r6, %[acc]\n"    \
+	 : [acc] "=m" (acc_32) \
+	 : [frame1] "r" (_template), [frame2] "r" (_search) \
+	 : "r4", "r5", "r6", "r7" \
+	);                        \
+	acc_32; \
+	})
+
 #endif
