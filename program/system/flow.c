@@ -295,7 +295,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	}
 
 	/* column iteration for first column */
-	volatile int r, c; //XXX:aggressive optimization warning
+	int r, c;
 	for(r = 1; r < FLOW_COUNT; r++) {
 		start_x = r + offset;
 		start_y = 0 + offset;
