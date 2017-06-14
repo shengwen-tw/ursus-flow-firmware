@@ -18,7 +18,7 @@
 #include "fcb_link.h"
 #include "system_time.h"
 #include "distance_weighting.h"
-//#include "ssd16.h"
+#include "ssd16.h"
 
 flow_t flow;
 
@@ -113,7 +113,7 @@ void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_ima
 		running_search_image = &current_image[FLOW_IMG_SIZE * r];
 
 		for(c = -4; c <= +4; c++) {
-			ssd = calculate_ssd16_full(fixed_template_image, &running_search_image[c]);
+			ssd = simd_calculate_ssd16_full(fixed_template_image, &running_search_image[c]);
 
 			flow.subarea_ssd_column_start[r + 4][c + 4] = ssd;
 			flow.subarea_ssd_last[r + 4][c + 4] = ssd;
@@ -213,8 +213,8 @@ void match_point_local_area_row_dp(uint16_t *previous_image, uint16_t *current_i
 		running_search_image = &current_image[FLOW_IMG_SIZE * r];
 
 		for(c = -4; c <= +4; c++) {
-			row_cuttoff_ssd = calculate_ssd16_row(fixed_template_image, &running_search_image[c], -1);
-			row_addin_ssd = calculate_ssd16_row(fixed_template_image, &running_search_image[c], 7);
+			row_cuttoff_ssd = simd_calculate_ssd16_row(fixed_template_image, &running_search_image[c], -1);
+			row_addin_ssd = simd_calculate_ssd16_row(fixed_template_image, &running_search_image[c], 7);
 
 			//read last ssd
 			ssd = flow.subarea_ssd_last[r + 4][c + 4];
