@@ -23,42 +23,42 @@
 	 simd_square_diff(0, 0) \
 	 simd_square_diff(0, 2) \
 	 simd_square_diff(0, 4) \
-	 simd_square_diff(0, 8) \
+	 simd_square_diff(0, 6) \
 	 \
 	 simd_square_diff(1, 0) \
 	 simd_square_diff(1, 2) \
 	 simd_square_diff(1, 4) \
-	 simd_square_diff(1, 8) \
+	 simd_square_diff(1, 6) \
 	 \
 	 simd_square_diff(2, 0) \
 	 simd_square_diff(2, 2) \
 	 simd_square_diff(2, 4) \
-	 simd_square_diff(2, 8) \
+	 simd_square_diff(2, 6) \
 	 \
 	 simd_square_diff(3, 0) \
 	 simd_square_diff(3, 2) \
 	 simd_square_diff(3, 4) \
-	 simd_square_diff(3, 8) \
+	 simd_square_diff(3, 6) \
 	 \
 	 simd_square_diff(4, 0) \
 	 simd_square_diff(4, 2) \
 	 simd_square_diff(4, 4) \
-	 simd_square_diff(4, 8) \
+	 simd_square_diff(4, 6) \
 	 \
 	 simd_square_diff(5, 0) \
 	 simd_square_diff(5, 2) \
 	 simd_square_diff(5, 4) \
-	 simd_square_diff(5, 8) \
+	 simd_square_diff(5, 6) \
 	 \
 	 simd_square_diff(6, 0) \
 	 simd_square_diff(6, 2) \
 	 simd_square_diff(6, 4) \
-	 simd_square_diff(6, 8) \
+	 simd_square_diff(6, 6) \
 	 \
 	 simd_square_diff(7, 0) \
 	 simd_square_diff(7, 2) \
 	 simd_square_diff(7, 4) \
-	 simd_square_diff(7, 8) \
+	 simd_square_diff(7, 6) \
 	 \
 	 "add r6, r6, r7\n"    \
 	 "str r6, %[acc]\n"    \
@@ -78,10 +78,10 @@
 	 "mov r6, $0\n"  \
 	 "mov r7, $1\n"  \
 	 \
-	 simd_square_diff(0) \
-	 simd_square_diff(2) \
-	 simd_square_diff(4) \
-	 simd_square_diff(6) \
+	 simd_square_diff(0, 0) \
+	 simd_square_diff(0, 2) \
+	 simd_square_diff(0, 4) \
+	 simd_square_diff(0, 6) \
 	 \
 	 "add r6, r6, r7\n"    \
 	 "str r6, %[acc]\n"    \
