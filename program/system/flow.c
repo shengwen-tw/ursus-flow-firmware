@@ -25,6 +25,7 @@ flow_t flow;
 vector3d_f_t gyro_data;
 uint16_t lidar_distance;
 
+#if 0 //implemented in assembly
 uint32_t calculate_ssd16_row(uint16_t *template_image, uint16_t *search_image, int row_offset)
 {
 	uint16_t *_template = template_image;
@@ -47,7 +48,9 @@ uint32_t calculate_ssd16_row(uint16_t *template_image, uint16_t *search_image, i
 
 	return ssd;
 }
+#endif
 
+__attribute__((section(".itcmtext")))
 uint32_t calculate_ssd16_column(uint16_t *template_image, uint16_t *search_image, int column_offset)
 {
 	uint16_t *_template = template_image;
@@ -71,6 +74,7 @@ uint32_t calculate_ssd16_column(uint16_t *template_image, uint16_t *search_image
 	return ssd;
 }
 
+#if 0 //implemented in assembly
 uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 {
 	/* ssd minimum value is 1 since later will do the distance weighting
@@ -95,6 +99,7 @@ uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 
 	return ssd;
 }
+#endif
 
 /* Find the matching point on two images in local -4 ~ +4 pixels */
 __attribute__((section(".itcmtext")))
