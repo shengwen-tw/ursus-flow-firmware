@@ -52,14 +52,9 @@ SECTIONS
 .itcmtext : 
 { 
   . = ALIGN(4); 
-    _svect = .; 
-    KEEP(*(.isr_vector)) 
-    _evect = .; 
     *(.nutinit) 
-    *(.text .text.* .gnu.linkonce.t.*) 
     *(.glue_7t) 
     *(.glue_7) 
-    *(.gcc_except_table) 
     . = ALIGN(4); 
   } > ITCMFL AT > FLASH
 
