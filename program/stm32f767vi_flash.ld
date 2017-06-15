@@ -40,13 +40,29 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 512K
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 2048K
+ITCM (rwx)  : ORIGIN = 0x00000000, LENGTH = 16K      /* ITCM RAM   */
+ITCMFL (rx) : ORIGIN = 0x00200000, LENGTH = 1024K    /* ITCM FLASH */
+RAM (xrw)   : ORIGIN = 0x20000000, LENGTH = 512K     /* RAM        */
+FLASH (rx)  : ORIGIN = 0x8000000, LENGTH = 1024K     /* AXIM FLASH */
 }
 
 /* Define output sections */
 SECTIONS
 {
+.itcmtext : 
+{ 
+  . = ALIGN(4); 
+    _svect = .; 
+    KEEP(*(.isr_vector)) 
+    _evect = .; 
+    *(.nutinit) 
+    *(.text .text.* .gnu.linkonce.t.*) 
+    *(.glue_7t) 
+    *(.glue_7) 
+    *(.gcc_except_table) 
+    . = ALIGN(4); 
+  } > ITCMFL AT > FLASH
+
   /* The startup code goes first into FLASH */
   .isr_vector :
   {
