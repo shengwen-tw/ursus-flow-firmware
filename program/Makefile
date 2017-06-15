@@ -13,6 +13,7 @@ CC=arm-none-eabi-gcc
 LD=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
 OBJDUMP=arm-none-eabi-objdump
+ELF_SIZE=arm-none-eabi-size
 GDB=arm-none-eabi-gdb
 
 #======================================================================#
@@ -200,6 +201,9 @@ openocd:
 
 gdbauto:
 	cgdb -d $(GDB) -x ./debug/openocd_gdb.gdb
+
+size:
+	$(ELF_SIZE) $(EXECUTABLE) 
 
 .ONESHELL:
 astyle:
