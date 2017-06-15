@@ -40,24 +40,33 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-ITCM (rwx)  : ORIGIN = 0x00000000, LENGTH = 16K      /* ITCM RAM   */
-ITCMFL (rx) : ORIGIN = 0x00200000, LENGTH = 1024K    /* ITCM FLASH */
-DTCM (rwx)  : ORIGIN = 0x20000000, LENGTH = 64K      /* DTCM FLASH */
-RAM (xrw)   : ORIGIN = 0x20000000, LENGTH = 512K     /* RAM        */
-FLASH (rx)  : ORIGIN = 0x8000000, LENGTH = 1024K     /* AXIM FLASH */
+  ITCM (rwx)  : ORIGIN = 0x00000000, LENGTH = 16K      /* ITCM RAM   */
+  ITCMFL (rx) : ORIGIN = 0x00200000, LENGTH = 1024K    /* ITCM FLASH */
+  DTCM (rw)   : ORIGIN = 0x20000000, LENGTH = 128K      /* DTCM RAM */
+  RAM (rwx)   : ORIGIN = 0x20020000, LENGTH = 384K     /* RAM        */
+  FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = 1024K     /* AXIM FLASH */
 }
 
 /* Define output sections */
 SECTIONS
 {
-.itcmtext : 
-{ 
-  . = ALIGN(4); 
+  .itcmtext : 
+  { 
+    . = ALIGN(4); 
     *(.nutinit) 
     *(.glue_7t) 
     *(.glue_7) 
     . = ALIGN(4); 
   } > ITCMFL AT > FLASH
+
+  .dtcm : {
+    . = ALIGN(4);
+    _sdtcm = .;
+    flow = .;
+    *(.dtcm)
+    . = ALIGN(4);      
+    _edtcm = .;
+  } > DTCM
 
   /* The startup code goes first into FLASH */
   .isr_vector :

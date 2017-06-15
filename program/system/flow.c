@@ -20,7 +20,7 @@
 #include "distance_weighting.h"
 #include "ssd16.h"
 
-flow_t flow;
+extern flow_t flow; //declare symbol in linker script (.dtcm section)
 
 vector3d_f_t gyro_data;
 uint16_t lidar_distance;
