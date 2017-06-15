@@ -97,7 +97,7 @@ uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 }
 
 /* Find the matching point on two images in local -4 ~ +4 pixels */
-//__attribute__((section(".itcmtext")))
+__attribute__((section(".itcmtext")))
 void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_image,
                                  int8_t *match_x, int8_t *match_y)
 {
@@ -142,6 +142,7 @@ void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_ima
 	*match_y = ssd_min_y;
 }
 
+__attribute__((section(".itcmtext")))
 void match_point_local_area_column_dp(uint16_t *previous_image, uint16_t *current_image,
                                       int8_t *match_x, int8_t *match_y)
 {
@@ -195,7 +196,7 @@ void match_point_local_area_column_dp(uint16_t *previous_image, uint16_t *curren
 	*match_y = ssd_min_y;
 }
 
-//__attribute__((section(".itcmtext")))
+__attribute__((section(".itcmtext")))
 void match_point_local_area_row_dp(uint16_t *previous_image, uint16_t *current_image,
                                    int8_t *match_x, int8_t *match_y)
 {
@@ -250,6 +251,7 @@ void match_point_local_area_row_dp(uint16_t *previous_image, uint16_t *current_i
 	*match_y = ssd_min_y;
 }
 
+__attribute__((section(".itcmtext")))
 void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
                    float *flow_vx, float *flow_vy, float delta_t)
 {
@@ -407,6 +409,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	gpio_on(LED_2); //flow detected
 }
 
+__attribute__((section(".itcmtext")))
 void flow_estimate_task(void)
 {
 	float current_time;
