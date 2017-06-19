@@ -118,7 +118,19 @@ void mpu9250_drift_error_estimate(float *drift_x, float *drift_y, float *drift_z
 	int n = 10000;
 	int count = n;
 
+	float led_blink_time_previous = 0;
+
 	while(count--) {
+		float current_time = get_time_sec();
+
+		if((current_time - led_blink_time_previous) > 0.1) {
+			gpio_toggle(LED_1);
+			gpio_toggle(LED_2);
+			gpio_toggle(LED_3);
+
+			led_blink_time_previous = current_time;
+		}
+
 		mpu9250_read(&gyro_data);
 		*drift_x += gyro_data.x / n;
 		*drift_y += gyro_data.y / n;
