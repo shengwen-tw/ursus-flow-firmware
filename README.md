@@ -11,8 +11,9 @@ This is Ursus-flow, an velocity estimator for quadrotor liked MAV based on optic
 | Color  | Function                    | Description                                                                                                                                                         |
 |--------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | blue   | optical flow update frequency | blinking rate is equal to optical flow updating rate|
-| yellow | flow detecting state        | the led lights up while the flow is detected                                                                                                                                                                   |
-| red    | device initialization state | </br>constant on: hardware initialization succeed</br>blinking: hardware initialization succeed, **USB is enabled**</br>off: hardware initialization failed                                                                                                       |
+| yellow | flow detecting state        | the led lights up while the flow is detected                                                                                                                                                                 |
+| red    | device initialization state | </br>constant on: hardware initialization succeed</br>blinking: hardware initialization succeed, **USB is enabled**</br>off: hardware initialization failed  |
+| all blink    | IMU calibration indicator | IMU calibration mode is enabled, place the board properly and avoid the vibration
 
 **USB should only be enabled during the development stage, otherwise it may interfere the flight controller!**
 
