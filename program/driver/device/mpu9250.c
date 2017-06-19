@@ -110,10 +110,13 @@ void mpu9250_read(vector3d_f_t *gyro_data)
 	mpu9250_convert_to_scale(&unscaled_gyro_data, gyro_data);
 }
 
-void mpu9250_drift_error_estimate(float *drift_x, float *drift_y, float *drift_z)
+void mpu9250_bias_error_estimate(vector3d_f_t *gyro_bias)
 {
 	vector3d_f_t gyro_data;
-	*drift_x = *drift_y = *drift_z = 0;
+
+	gyro_bias->x = 0;
+	gyro_bias->y = 0;
+	gyro_bias->z = 0;
 
 	int n = 10000;
 	int count = n;
@@ -132,9 +135,10 @@ void mpu9250_drift_error_estimate(float *drift_x, float *drift_y, float *drift_z
 		}
 
 		mpu9250_read(&gyro_data);
-		*drift_x += gyro_data.x / n;
-		*drift_y += gyro_data.y / n;
-		*drift_z += gyro_data.z / n;
+		gyro_bias->x += gyro_data.x / n;
+		gyro_bias->y += gyro_data.y / n;
+		gyro_bias->z += gyro_data.z / n;
+
 		delay_ms(1);
 	}
 }

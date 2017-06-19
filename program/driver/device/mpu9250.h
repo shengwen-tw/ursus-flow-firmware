@@ -54,7 +54,7 @@
 #define MPU9250T_85degC        ((float)0.00294f)         //0.00294 degC/LSB
 
 int mpu9250_init(void);
-void mpu9250_drift_error_estimate(float *drift_x, float *drift_y, float *drift_z);
+void mpu9250_bias_error_estimate(vector3d_f_t *gyro_bias);
 
 void mpu9250_read(vector3d_f_t *gyro_data);
 
