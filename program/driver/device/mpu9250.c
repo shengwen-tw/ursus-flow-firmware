@@ -63,7 +63,7 @@ static void mpu9250_read_unscaled_data(vector3d_16_t *unscaled_gyro_data,
 
 	uint8_t buffer[14] = {0};
 
-	spi1_write_byte(MPU9250_GYRO_XOUT_H | 0x80);
+	spi1_write_byte(MPU9250_ACCEL_XOUT_H | 0x80);
 
 #if 0
 	spi1_read(buffer, 13);
