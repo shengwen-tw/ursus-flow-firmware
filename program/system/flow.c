@@ -23,6 +23,7 @@
 extern flow_t flow; //declare symbol in linker script (.dtcm section)
 
 vector3d_f_t gyro_data;
+vector3d_f_t accel_data;
 uint16_t lidar_distance;
 
 #if 0 //implemented in assembly
@@ -435,7 +436,7 @@ void flow_estimate_task(void)
 	while(1) {
 		gpio_on(LED_1);
 
-		mpu9250_read(&gyro_data);
+		mpu9250_read(&gyro_data, &accel_data);
 
 		/* wait until image finished capturing */
 		mt9v034_wait_finish();

@@ -16,7 +16,7 @@
 #define MAX_IMAGE_SIZE (188 * 120)
 #define BUFFER_SIZE (MAX_IMAGE_SIZE + 512)
 
-#define PACKET_HEADER_SIZE 20
+#define PACKET_HEADER_SIZE 32
 
 #define FLOW_IMG_SIZE 40
 #define FLOW_COUNT 32
@@ -36,6 +36,7 @@ int image_height = 40; //Default
 /* on-board info */
 uint16_t lidar_distance = 0;
 float gyro_x = 0, gyro_y = 0, gyro_z = 0;
+float accel_x = 0, accel_y = 0, accel_z = 0;
 uint8_t gyro_calib_enable = 0;
 
 uint8_t match_x[FLOW_IMG_SIZE][FLOW_IMG_SIZE];
@@ -129,8 +130,20 @@ bool usb_receive_onboard_info(uint16_t *buffer)
 	memcpy(&gyro_y, (uint8_t *)buffer + append_size, sizeof(float));
 	append_size += sizeof(float);
 
-	//unpack header -  gyro z
+	//unpack header - gyro z
 	memcpy(&gyro_z, (uint8_t *)buffer + append_size, sizeof(float));
+	append_size += sizeof(float);
+
+	//unpack header - accel x
+	memcpy(&accel_x, (uint8_t *)buffer + append_size, sizeof(float));
+	append_size += sizeof(float);
+
+	//unpack header - accel y
+	memcpy( &accel_y, (uint8_t *)buffer + append_size,  sizeof(float));
+	append_size += sizeof(float);
+
+	//unpack header - accel z
+	memcpy(&accel_z, (uint8_t *)buffer + append_size, sizeof(float));
 	append_size += sizeof(float);
 
 	//unpack header - image width
@@ -230,6 +243,9 @@ int main(int argc, char **argv)
 			       "gyro_x: %+.3f\n"
 			       "gyro_y: %+.3f\n"
 			       "gyro_z: %+.3f\n"
+			       "accel_x: %+.3f\n"
+			       "accel_y: %+.3f\n"
+			       "accel_z: %+.3f\n"
 			       "fps: %f\n"
 			       "delta t: %f\n"
 			       "\033[2J\033[1;1H",
@@ -239,6 +255,9 @@ int main(int argc, char **argv)
 			       gyro_x,
 			       gyro_y,
 			       gyro_z,
+			       accel_x,
+			       accel_y,
+			       accel_z,	
 			       1.0f / delta_t,
 			       delta_t
 			      );

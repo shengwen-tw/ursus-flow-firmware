@@ -57,7 +57,7 @@ static uint8_t mpu9250_read_who_am_i(void)
 }
 
 static void mpu9250_read_unscaled_data(vector3d_16_t *unscaled_gyro_data,
-				       vector3d_16_t *unscaled_accel_data)
+                                       vector3d_16_t *unscaled_accel_data)
 {
 	mpu9250_select();
 
@@ -94,25 +94,33 @@ static void mpu9250_read_unscaled_data(vector3d_16_t *unscaled_gyro_data,
 	mpu9250_deselect();
 }
 
-static void mpu9250_convert_to_scale(vector3d_16_t *unscaled_gyro_data, vector3d_f_t *scaled_gyro_data)
+static void mpu9250_convert_to_scale(
+        vector3d_16_t *unscaled_gyro_data, vector3d_f_t *scaled_gyro_data,
+        vector3d_16_t *unscaled_accel_data, vector3d_f_t *scaled_accel_data)
 {
 	scaled_gyro_data->x = -unscaled_gyro_data->y * MPU9250G_1000dps - MPU9250_OFFSET_X;
 	scaled_gyro_data->y = -unscaled_gyro_data->x * MPU9250G_1000dps - MPU9250_OFFSET_Y;
 	scaled_gyro_data->z = -unscaled_gyro_data->z * MPU9250G_1000dps - MPU9250_OFFSET_Z;
+
+	scaled_accel_data->x = unscaled_accel_data->y * MPU9250A_8g;
+	scaled_accel_data->y = unscaled_accel_data->x * MPU9250A_8g;
+	scaled_accel_data->z = unscaled_accel_data->z * MPU9250A_8g;
 }
 
-void mpu9250_read(vector3d_f_t *gyro_data)
+void mpu9250_read(vector3d_f_t *gyro_data, vector3d_f_t *accel_data)
 {
 	vector3d_16_t unscaled_gyro_data;
 	vector3d_16_t unscaled_accel_data;
 
 	mpu9250_read_unscaled_data(&unscaled_gyro_data, &unscaled_accel_data);
-	mpu9250_convert_to_scale(&unscaled_gyro_data, gyro_data);
+	mpu9250_convert_to_scale(&unscaled_gyro_data, gyro_data,
+				 &unscaled_accel_data, accel_data);
 }
 
 void mpu9250_bias_error_estimate(vector3d_f_t *gyro_bias)
 {
 	vector3d_f_t gyro_data;
+	vector3d_f_t accel_data;
 
 	gyro_bias->x = 0;
 	gyro_bias->y = 0;
@@ -134,7 +142,7 @@ void mpu9250_bias_error_estimate(vector3d_f_t *gyro_bias)
 			led_blink_time_previous = current_time;
 		}
 
-		mpu9250_read(&gyro_data);
+		mpu9250_read(&gyro_data, &accel_data);
 		gyro_bias->x += gyro_data.x / n;
 		gyro_bias->y += gyro_data.y / n;
 		gyro_bias->z += gyro_data.z / n;

@@ -11,16 +11,16 @@
 #include "usb_link.h"
 #include "system_time.h"
 
-#define HEADER_MSG_SIZE 20
+#define HEADER_MSG_SIZE 32
 
 extern flow_t flow;
 
 extern vector3d_f_t gyro_data;
+extern vector3d_f_t accel_data;
+
 extern uint16_t lidar_distance;
 
 extern bool do_imu_calibrate;
-extern vector3d_f_t gyro_bias;
-
 extern vector3d_f_t gyro_bias;
 
 float led_blink_time_previous = 0;
@@ -67,6 +67,16 @@ static void usb_send_header_message(void)
 		append_size += sizeof(float);
 	}
 
+	//accel x
+	memcpy(header_message + append_size, &accel_data.x, sizeof(float));
+	append_size += sizeof(float);
+	//accel y
+	memcpy(header_message + append_size, &accel_data.y, sizeof(float));
+	append_size += sizeof(float);
+	//accel z
+	memcpy(header_message + append_size, &accel_data.z, sizeof(float));
+	append_size += sizeof(float);
+
 	uint8_t image_width = IMG_WIDTH, image_height = IMG_HEIGHT;
 
 	memcpy(header_message + append_size, &image_width, sizeof(uint8_t));
@@ -95,7 +105,7 @@ void usb_image_foward(void)
 void usb_send_flow_info(void)
 {
 	float current_time = get_time_sec();
-	if((current_time - led_blink_time_previous) > 0.5) { 
+	if((current_time - led_blink_time_previous) > 0.5) {
 		gpio_toggle(LED_3);
 		led_blink_time_previous = current_time;
 	}
