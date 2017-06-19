@@ -56,16 +56,17 @@ static uint8_t mpu9250_read_who_am_i(void)
 	return mpu9250_read_byte(MPU9250_WHO_AM_I);
 }
 
-static void mpu9250_read_unscaled_gyro(vector3d_16_t *unscaled_gyro_data)
+static void mpu9250_read_unscaled_data(vector3d_16_t *unscaled_gyro_data,
+				       vector3d_16_t *unscaled_accel_data)
 {
 	mpu9250_select();
 
-	uint8_t buffer[6] = {0};
+	uint8_t buffer[14] = {0};
 
 	spi1_write_byte(MPU9250_GYRO_XOUT_H | 0x80);
 
 #if 0
-	spi1_read(buffer, 6);
+	spi1_read(buffer, 13);
 #else
 	spi1_read_byte(&buffer[0]);
 	spi1_read_byte(&buffer[1]);
@@ -73,11 +74,22 @@ static void mpu9250_read_unscaled_gyro(vector3d_16_t *unscaled_gyro_data)
 	spi1_read_byte(&buffer[3]);
 	spi1_read_byte(&buffer[4]);
 	spi1_read_byte(&buffer[5]);
+	spi1_read_byte(&buffer[6]);
+	spi1_read_byte(&buffer[7]);
+	spi1_read_byte(&buffer[8]);
+	spi1_read_byte(&buffer[9]);
+	spi1_read_byte(&buffer[10]);
+	spi1_read_byte(&buffer[11]);
+	spi1_read_byte(&buffer[12]);
+	spi1_read_byte(&buffer[13]);
 #endif
+	unscaled_accel_data->x = ((uint16_t)buffer[0] << 8) | (uint16_t)buffer[1];
+	unscaled_accel_data->y = ((uint16_t)buffer[2] << 8) | (uint16_t)buffer[3];
+	unscaled_accel_data->z = ((uint16_t)buffer[4] << 8) | (uint16_t)buffer[5];
 
-	unscaled_gyro_data->x = ((uint16_t)buffer[0] << 8) | (uint16_t)buffer[1];
-	unscaled_gyro_data->y = ((uint16_t)buffer[2] << 8) | (uint16_t)buffer[3];
-	unscaled_gyro_data->z = ((uint16_t)buffer[4] << 8) | (uint16_t)buffer[5];
+	unscaled_gyro_data->x = ((uint16_t)buffer[8] << 8) | (uint16_t)buffer[9];
+	unscaled_gyro_data->y = ((uint16_t)buffer[10] << 8) | (uint16_t)buffer[11];
+	unscaled_gyro_data->z = ((uint16_t)buffer[12] << 8) | (uint16_t)buffer[13];
 
 	mpu9250_deselect();
 }
@@ -92,8 +104,9 @@ static void mpu9250_convert_to_scale(vector3d_16_t *unscaled_gyro_data, vector3d
 void mpu9250_read(vector3d_f_t *gyro_data)
 {
 	vector3d_16_t unscaled_gyro_data;
+	vector3d_16_t unscaled_accel_data;
 
-	mpu9250_read_unscaled_gyro(&unscaled_gyro_data);
+	mpu9250_read_unscaled_data(&unscaled_gyro_data, &unscaled_accel_data);
 	mpu9250_convert_to_scale(&unscaled_gyro_data, gyro_data);
 }
 
