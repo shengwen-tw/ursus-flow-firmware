@@ -56,6 +56,6 @@
 int mpu9250_init(void);
 void mpu9250_bias_error_estimate(vector3d_f_t *gyro_bias);
 
-void mpu9250_read(vector3d_f_t *gyro_data);
+void mpu9250_read(vector3d_f_t *gyro_data, vector3d_f_t *accel_data);
 
 #endif
