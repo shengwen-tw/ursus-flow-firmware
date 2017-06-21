@@ -42,8 +42,8 @@ def kalman_filter():
         p21 = 0        ; p22 = p22 + q22
 
         #update
-        g11 = (p11) / (p11 + r11); g12 = (p12) / (p12 + r12)
-        g21 = (p21) / (p21 + r21); g22 = (p22) / (p22 + r22)
+        g11 = (p11) / (p11 + r11); g12 = 0
+        g21 = 0                  ; g22 = (p22) / (p22 + r22)
 
         vx = vx_predict[k] + g11(flow_vx[k] - vx_predict[k])
         vy = vy_predict[k] + g22(flow_vy[k] - vy_predict[k])
