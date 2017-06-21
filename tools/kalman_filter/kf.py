@@ -1,3 +1,8 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+csv = np.genfromtxt('input_data.csv', delimiter=',')
+
 test_data_size = 100
 
 #kalman filter final result
@@ -9,13 +14,14 @@ vx_predict = []
 vy_predict = []
 
 #prediction control variable u (from accelerometer)
-accel_ax = []
-accel_ay = []
-delta_t = []
+accel_ax = csv[:, 2]
+accel_ay = csv[:, 3]
+delta_t = csv[:, 4]
+time = csv[:, 5]
 
 #measurement state variables z (from optical flow)
-flow_vx = []
-flow_vy = []
+flow_vx = csv[:, 0]
+flow_vy = csv[:, 1]
 
 #process error covariance matrix
 p11 = 0; p12 = 0
@@ -50,3 +56,16 @@ def kalman_filter():
 
         p11 = (1 - g11) * p11; p12 = 0
         p21 = 0              ; p22 = (1 - g22) * p22
+
+#plot result
+plt.figure('Kalman Filter - x')
+plt.plot(time, flow_vx)
+plt.plot(time, accel_ax)
+plt.legend(['flow_vx', 'accel_ax'], loc='upper left')
+
+plt.figure('Kalman Filter - y')
+plt.plot(time, flow_vy)
+plt.plot(time, accel_ay)
+plt.legend(['flow_vy', 'accel_ay'], loc='upper left')
+
+plt.show()
