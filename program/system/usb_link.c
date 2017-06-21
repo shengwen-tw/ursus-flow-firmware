@@ -20,7 +20,6 @@ extern vector3d_f_t accel_data;
 
 extern uint16_t lidar_distance;
 
-extern bool do_imu_calibrate;
 extern vector3d_f_t gyro_bias;
 
 float led_blink_time_previous = 0;
@@ -38,9 +37,9 @@ static void usb_send_header_message(void)
 	memcpy(header_message + append_size, &lidar_distance, sizeof(uint16_t));
 	append_size += sizeof(uint16_t);
 
-	if(do_imu_calibrate == false) {
-		uint8_t gyro_calib_enable = 0;
-		memcpy(header_message + append_size, &gyro_calib_enable, sizeof(uint8_t));
+	#if (DO_IMU_CALIBRATION == 0)
+		uint8_t imu_calib_enable = 0;
+		memcpy(header_message + append_size, &imu_calib_enable, sizeof(uint8_t));
 		append_size += sizeof(uint8_t);
 		//gyro x
 		memcpy(header_message + append_size, &gyro_data.x, sizeof(float));
@@ -51,9 +50,9 @@ static void usb_send_header_message(void)
 		//gyro z
 		memcpy(header_message + append_size, &gyro_data.z, sizeof(float));
 		append_size += sizeof(float);
-	} else {
-		uint8_t gyro_calib_enable = 0;
-		memcpy(header_message + append_size, &gyro_calib_enable, sizeof(uint8_t));
+	#else
+		uint8_t imu_calib_enable = 1;
+		memcpy(header_message + append_size, &imu_calib_enable, sizeof(uint8_t));
 		append_size += sizeof(uint8_t);
 
 		//gyro drift x
@@ -65,7 +64,7 @@ static void usb_send_header_message(void)
 		//gyro drift z
 		memcpy(header_message + append_size, &gyro_bias.z, sizeof(float));
 		append_size += sizeof(float);
-	}
+	#endif
 
 	//accel x
 	memcpy(header_message + append_size, &accel_data.x, sizeof(float));

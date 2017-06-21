@@ -22,8 +22,6 @@
 
 extern uint16_t lidar_distance;
 
-bool do_imu_calibrate = false; //set true to eanble the calibration function
-
 vector3d_f_t gyro_bias;
 
 int main(void)
@@ -55,9 +53,9 @@ int main(void)
 
 	lidar_init(&lidar_distance);
 
-	if(do_imu_calibrate == true) {
+	#if (DO_IMU_CALIBRATION != 0)
 		mpu9250_bias_error_estimate(&gyro_bias);
-	}
+	#endif
 
 	//successfully initialized the hardware
 	gpio_on(LED_3); //red led

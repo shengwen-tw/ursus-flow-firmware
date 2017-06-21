@@ -266,10 +266,17 @@ int main(int argc, char **argv)
 			       "bias x: %+.3f\n"
 			       "bias y: %+.3f\n"
 			       "bias z: %+.3f\n"
+			       "[unscaled accelerometer data]\n"
+			       "accel x: %+.3f\n"
+			       "accel y: %+.3f\n"
+			       "accel z: %+.3f\n"
 			       "\033[2J\033[1;1H",
 			       gyro_x,
 			       gyro_y,
-			       gyro_z);
+			       gyro_z,
+			       accel_x,
+			       accel_y,
+			       accel_z);
 		}
 	}
 

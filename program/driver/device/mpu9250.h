@@ -3,6 +3,8 @@
 
 #include "imu.h"
 
+#define DO_IMU_CALIBRATION 0
+
 /* calibration */
 #define MPU9250_OFFSET_X +0.137f
 #define MPU9250_OFFSET_Y -2.338f
