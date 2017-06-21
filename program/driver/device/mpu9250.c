@@ -102,7 +102,7 @@ static void mpu9250_convert_to_scale(
 	scaled_gyro_data->y = -unscaled_gyro_data->x * MPU9250G_1000dps - MPU9250_OFFSET_Y;
 	scaled_gyro_data->z = -unscaled_gyro_data->z * MPU9250G_1000dps - MPU9250_OFFSET_Z;
 
-	#if (DO_IMU_CALIBRATION == 0)
+#if (DO_IMU_CALIBRATION == 0)
 	//fix sensor bias and rescale
 	scaled_accel_data->x = (float)((unscaled_accel_data->y - ACCEL_X_OFFSET) * ACCEL_X_SCALE);
 	scaled_accel_data->y = (float)((unscaled_accel_data->x - ACCEL_Y_OFFSET) * ACCEL_Y_SCALE);
@@ -111,11 +111,11 @@ static void mpu9250_convert_to_scale(
 	scaled_accel_data->x *= -MPU9250A_8g;
 	scaled_accel_data->y *= -MPU9250A_8g;
 	scaled_accel_data->z *= -MPU9250A_8g;
-	#else
+#else
 	scaled_accel_data->x = (float)-unscaled_accel_data->y;
 	scaled_accel_data->y = (float)-unscaled_accel_data->x;
 	scaled_accel_data->z = (float)-unscaled_accel_data->z;
-	#endif
+#endif
 }
 
 void mpu9250_read(vector3d_f_t *gyro_data, vector3d_f_t *accel_data)
@@ -125,7 +125,7 @@ void mpu9250_read(vector3d_f_t *gyro_data, vector3d_f_t *accel_data)
 
 	mpu9250_read_unscaled_data(&unscaled_gyro_data, &unscaled_accel_data);
 	mpu9250_convert_to_scale(&unscaled_gyro_data, gyro_data,
-				 &unscaled_accel_data, accel_data);
+	                         &unscaled_accel_data, accel_data);
 }
 
 void mpu9250_bias_error_estimate(vector3d_f_t *gyro_bias)

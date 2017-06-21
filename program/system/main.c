@@ -53,9 +53,9 @@ int main(void)
 
 	lidar_init(&lidar_distance);
 
-	#if (DO_IMU_CALIBRATION != 0)
-		mpu9250_bias_error_estimate(&gyro_bias);
-	#endif
+#if (DO_IMU_CALIBRATION != 0)
+	mpu9250_bias_error_estimate(&gyro_bias);
+#endif
 
 	//successfully initialized the hardware
 	gpio_on(LED_3); //red led

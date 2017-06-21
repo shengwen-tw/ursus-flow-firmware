@@ -37,34 +37,34 @@ static void usb_send_header_message(void)
 	memcpy(header_message + append_size, &lidar_distance, sizeof(uint16_t));
 	append_size += sizeof(uint16_t);
 
-	#if (DO_IMU_CALIBRATION == 0)
-		uint8_t imu_calib_enable = 0;
-		memcpy(header_message + append_size, &imu_calib_enable, sizeof(uint8_t));
-		append_size += sizeof(uint8_t);
-		//gyro x
-		memcpy(header_message + append_size, &gyro_data.x, sizeof(float));
-		append_size += sizeof(float);
-		//gyro y
-		memcpy(header_message + append_size, &gyro_data.y, sizeof(float));
-		append_size += sizeof(float);
-		//gyro z
-		memcpy(header_message + append_size, &gyro_data.z, sizeof(float));
-		append_size += sizeof(float);
-	#else
-		uint8_t imu_calib_enable = 1;
-		memcpy(header_message + append_size, &imu_calib_enable, sizeof(uint8_t));
-		append_size += sizeof(uint8_t);
+#if (DO_IMU_CALIBRATION == 0)
+	uint8_t imu_calib_enable = 0;
+	memcpy(header_message + append_size, &imu_calib_enable, sizeof(uint8_t));
+	append_size += sizeof(uint8_t);
+	//gyro x
+	memcpy(header_message + append_size, &gyro_data.x, sizeof(float));
+	append_size += sizeof(float);
+	//gyro y
+	memcpy(header_message + append_size, &gyro_data.y, sizeof(float));
+	append_size += sizeof(float);
+	//gyro z
+	memcpy(header_message + append_size, &gyro_data.z, sizeof(float));
+	append_size += sizeof(float);
+#else
+	uint8_t imu_calib_enable = 1;
+	memcpy(header_message + append_size, &imu_calib_enable, sizeof(uint8_t));
+	append_size += sizeof(uint8_t);
 
-		//gyro drift x
-		memcpy(header_message + append_size, &gyro_bias.x, sizeof(float));
-		append_size += sizeof(float);
-		//gyro drift y
-		memcpy(header_message + append_size, &gyro_bias.y, sizeof(float));
-		append_size += sizeof(float);
-		//gyro drift z
-		memcpy(header_message + append_size, &gyro_bias.z, sizeof(float));
-		append_size += sizeof(float);
-	#endif
+	//gyro drift x
+	memcpy(header_message + append_size, &gyro_bias.x, sizeof(float));
+	append_size += sizeof(float);
+	//gyro drift y
+	memcpy(header_message + append_size, &gyro_bias.y, sizeof(float));
+	append_size += sizeof(float);
+	//gyro drift z
+	memcpy(header_message + append_size, &gyro_bias.z, sizeof(float));
+	append_size += sizeof(float);
+#endif
 
 	//accel x
 	memcpy(header_message + append_size, &accel_data.x, sizeof(float));
