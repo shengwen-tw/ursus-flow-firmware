@@ -28,11 +28,11 @@ p11 = [0 for k in range(0, test_data_size)]; p12 = [0 for k in range(0, test_dat
 p21 = [0 for k in range(0, test_data_size)]; p22 = [0 for k in range(0, test_data_size)]
 
 #measurement error covariance matrix
-q11 = 0.3; q12 = 0
-q21 = 0  ; q22 = 0.3
+q11 = 0.7; q12 = 0
+q21 = 0  ; q22 = 0.7
 
-r11 = 0.5; r12 = 0
-r21 = 0;   r22 = 0.5
+r11 = 10.0; r12 = 0
+r21 = 0;   r22 = 10.0
 
 #kalman gain matrix
 g11 = 0; g12 = 0
@@ -42,21 +42,6 @@ vx[0] = 0
 vy[0] = 0
 
 def kalman_filter():
-    global vx
-    global vy
-    global p11
-    global p21
-    global p12
-    global p22
-    global q11
-    global q21
-    global q12
-    global q22
-    global r11
-    global r21
-    global r12
-    global r22
-
     for k in range(1, test_data_size):
         #prediction
         vx_predict[k] = vx[k - 1] + (accel_ax[k] * delta_t[k])
@@ -81,11 +66,13 @@ kalman_filter()
 plt.figure('Kalman Filter - x')
 plt.plot(time, flow_vx)
 plt.plot(time, accel_ax)
-plt.legend(['flow_vx', 'accel_ax'], loc='upper left')
+plt.plot(time, vx)
+plt.legend(['flow_vx', 'accel_ax', 'kalman_vx'], loc='upper left')
 
 plt.figure('Kalman Filter - y')
 plt.plot(time, flow_vy)
 plt.plot(time, accel_ay)
-plt.legend(['flow_vy', 'accel_ay'], loc='upper left')
+plt.plot(time, vy)
+plt.legend(['flow_vy', 'accel_ay', 'kalman_vy'], loc='upper left')
 
 plt.show()
