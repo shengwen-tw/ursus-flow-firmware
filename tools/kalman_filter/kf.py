@@ -3,15 +3,15 @@ import matplotlib.pyplot as plt
 
 csv = np.genfromtxt('input_data.csv', delimiter=',')
 
-test_data_size = 100
+test_data_size = len(csv[:, 0])
 
 #kalman filter final result
 vx = [0 for k in range(0, test_data_size)]
 vy = [0 for k in range(0, test_data_size)]
 
 #kalman filter prior prediction
-vx_predict = []
-vy_predict = []
+vx_predict = [0 for k in range(0, test_data_size)]
+vy_predict = [0 for k in range(0, test_data_size)]
 
 #prediction control variable u (from accelerometer)
 accel_ax = csv[:, 2]
@@ -24,12 +24,15 @@ flow_vx = csv[:, 0]
 flow_vy = csv[:, 1]
 
 #process error covariance matrix
-p11 = 0; p12 = 0
-p21 = 0; p22 = 0
+p11 = [0 for k in range(0, test_data_size)]; p12 = [0 for k in range(0, test_data_size)]
+p21 = [0 for k in range(0, test_data_size)]; p22 = [0 for k in range(0, test_data_size)]
 
 #measurement error covariance matrix
-q11 = 0; q12 = 0
-q21 = 0; q22 = 0
+q11 = 0.3; q12 = 0
+q21 = 0  ; q22 = 0.3
+
+r11 = 0.5; r12 = 0
+r21 = 0;   r22 = 0.5
 
 #kalman gain matrix
 g11 = 0; g12 = 0
@@ -39,23 +42,40 @@ vx[0] = 0
 vy[0] = 0
 
 def kalman_filter():
+    global vx
+    global vy
+    global p11
+    global p21
+    global p12
+    global p22
+    global q11
+    global q21
+    global q12
+    global q22
+    global r11
+    global r21
+    global r12
+    global r22
+
     for k in range(1, test_data_size):
         #prediction
-        vx_predict = vx[k - 1] + accel_ax[k] * delta_t
-        vy_predict = vy[k - 1] + accel_ay[k] * delta_t
+        vx_predict = vx[k - 1] + (accel_ax[k] * delta_t[k])
+        vy_predict = vy[k - 1] + (accel_ay[k] * delta_t[k])
 
-        p11 = p11 + q11; p12 = 0
-        p21 = 0        ; p22 = p22 + q22
+        p11[k] = p11[k-1] + q11; p12[k] = 0
+        p21[k] = 0             ; p22[k] = p22[k-1] + q22
 
         #update
-        g11 = (p11) / (p11 + r11); g12 = 0
-        g21 = 0                  ; g22 = (p22) / (p22 + r22)
+        g11 = (p11[k]) / (p11[k] + r11); g12 = 0
+        g21 = 0                        ; g22 = (p22[k]) / (p22[k] + r22)
 
-        vx = vx_predict[k] + g11(flow_vx[k] - vx_predict[k])
-        vy = vy_predict[k] + g22(flow_vy[k] - vy_predict[k])
+        vx[k] = vx_predict[k] + g11 * (flow_vx[k] - vx_predict[k])
+        vy[k] = vy_predict[k] + g22 * (flow_vy[k] - vy_predict[k])
 
-        p11 = (1 - g11) * p11; p12 = 0
-        p21 = 0              ; p22 = (1 - g22) * p22
+        p11[k] = (1 - g11) * p11; p12[k] = 0
+        p21[k] = 0              ; p22[k] = (1 - g22) * p22
+
+#kalman_filter()
 
 #plot result
 plt.figure('Kalman Filter - x')
