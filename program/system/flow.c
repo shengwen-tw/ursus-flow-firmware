@@ -464,11 +464,21 @@ void flow_estimate_task(void)
 		now = next;
 		next = (next + 1) % 2;
 
-		send_flow_to_fcb(&lidar_distance, &flow_vx, &flow_vy, &current_time, &delta_t, &fps);
+		//send_flow_to_fcb(&lidar_distance, &flow_vx, &flow_vy, &current_time, &delta_t, &fps);
 
 		//send_debug_message("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, delta_t:%1f, fps:%.1f\n\r",
 		//                   lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);
 
+#if 1
+		/* print sensor data as csv format */
+		accel_data.x *= 9.8f;
+		accel_data.y *= 9.8f;
+		accel_data.z *= 9.8f;
+
+		//flow_vx, flow_vy, accel_ax, accel_ay, delta_t
+		send_debug_message("%.3f,%.3f,%.3f,%.3f,%.3f\n\r",
+		                   flow_vx, flow_vy, accel_data.x, accel_data.y, delta_t);
+#endif
 		gpio_off(LED_1);
 	}
 }
