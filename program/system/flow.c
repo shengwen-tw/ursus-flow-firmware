@@ -470,14 +470,17 @@ void flow_estimate_task(void)
 		//                   lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);
 
 #if 1
-		/* print sensor data as csv format */
-		accel_data.x *= 9.8f;
-		accel_data.y *= 9.8f;
-		accel_data.z *= 9.8f;
+		if(flow_vx - flow_vy) {
+			/* print sensor data as csv format */
+			accel_data.x *= 9.8f;
+			accel_data.y *= 9.8f;
+			accel_data.z *= 9.8f;
 
-		//flow_vx, flow_vy, accel_ax, accel_ay, delta_t
-		send_debug_message("%.3f,%.3f,%.3f,%.3f,%.3f\n\r",
-		                   flow_vx, flow_vy, accel_data.x, accel_data.y, delta_t);
+			//flow_vx, flow_vy, accel_ax, accel_ay, delta_t, system_time
+			send_debug_message("%+.3f,%+.3f,%+.3f,%+.3f,%+.3f,%+.3f\n\r",
+			                   flow_vx, flow_vy, accel_data.x, accel_data.y,
+			                   delta_t, current_time);
+		}
 #endif
 		gpio_off(LED_1);
 	}
