@@ -59,8 +59,8 @@ def kalman_filter():
 
     for k in range(1, test_data_size):
         #prediction
-        vx_predict = vx[k - 1] + (accel_ax[k] * delta_t[k])
-        vy_predict = vy[k - 1] + (accel_ay[k] * delta_t[k])
+        vx_predict[k] = vx[k - 1] + (accel_ax[k] * delta_t[k])
+        vy_predict[k] = vy[k - 1] + (accel_ay[k] * delta_t[k])
 
         p11[k] = p11[k-1] + q11; p12[k] = 0
         p21[k] = 0             ; p22[k] = p22[k-1] + q22
@@ -72,10 +72,10 @@ def kalman_filter():
         vx[k] = vx_predict[k] + g11 * (flow_vx[k] - vx_predict[k])
         vy[k] = vy_predict[k] + g22 * (flow_vy[k] - vy_predict[k])
 
-        p11[k] = (1 - g11) * p11; p12[k] = 0
-        p21[k] = 0              ; p22[k] = (1 - g22) * p22
+        p11[k] = (1 - g11) * p11[k]; p12[k] = 0
+        p21[k] = 0                 ; p22[k] = (1 - g22) * p22[k]
 
-#kalman_filter()
+kalman_filter()
 
 #plot result
 plt.figure('Kalman Filter - x')
