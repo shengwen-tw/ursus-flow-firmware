@@ -37,9 +37,6 @@ void kalman_filter(float *kalman_vx, float *kalman_vy, float *flow_vx, float *fl
 	*kalman_vx = vx_predict + g11 * (*flow_vx - vx_predict);
 	*kalman_vy = vy_predict + g22 * (*flow_vy - vy_predict);
 
-	kalman_vx_last = *kalman_vx;
-	kalman_vy_last = *kalman_vy;
-
 	p11_last = (1.0f - g11) * p11_now;
 	p22_last = (1.0f - g22) * p22_now;
 
