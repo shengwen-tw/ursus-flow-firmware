@@ -424,7 +424,7 @@ void flow_estimate_task(void)
 	float delta_t;
 	float fps;
 
-	int now = 0, next = 1;;
+	int now = 0, next = 1;
 
 	float flow_vx = 0.0f, flow_vy = 0.0f;
 	float kalman_vx = 0.0f, kalman_vy = 0.0f;
