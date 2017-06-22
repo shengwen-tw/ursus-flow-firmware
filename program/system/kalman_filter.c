@@ -19,6 +19,7 @@ float p21_now = 0.0f, p22_now = 0.0f;
 float kalman_vx_last = 0.0f;
 float kalman_vy_last = 0.0f;
 
+__attribute__((section(".itcmtext")))
 void kalman_filter(float *kalman_vx, float *kalman_vy, float *flow_vx, float *flow_vy,
                    float *accel_ax, float *accel_ay, float delta_t)
 {

@@ -19,6 +19,7 @@
 #include "system_time.h"
 #include "distance_weighting.h"
 #include "ssd16.h"
+#include "kalman_filter.h"
 
 extern flow_t flow; //declare symbol in linker script (.dtcm section)
 
@@ -426,6 +427,7 @@ void flow_estimate_task(void)
 	int now = 0, next = 1;;
 
 	float flow_vx = 0.0f, flow_vy = 0.0f;
+	float kalman_vx = 0.0f, kalman_vy = 0.0f;
 
 	mt9v034_start_capture_image((uint32_t)flow.image[now].frame);
 	mt9v034_wait_finish();
@@ -464,22 +466,23 @@ void flow_estimate_task(void)
 		now = next;
 		next = (next + 1) % 2;
 
-		//send_flow_to_fcb(&lidar_distance, &flow_vx, &flow_vy, &current_time, &delta_t, &fps);
-
-		//send_debug_message("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, delta_t:%1f, fps:%.1f\n\r",
-		//                   lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);
-
-#if 1
-		/* print sensor data as csv format */
 		accel_data.x *= 9.8f;
 		accel_data.y *= 9.8f;
 		accel_data.z *= 9.8f;
 
-		//flow_vx, flow_vy, accel_ax, accel_ay, delta_t, system_time
-		send_debug_message("%+.3f,%+.3f,%+.3f,%+.3f,%+.3f,%+.3f\n\r",
-		                   flow_vx, flow_vy, accel_data.x, accel_data.y,
-		                   delta_t, current_time);
-#endif
+		kalman_filter(&kalman_vx, &kalman_vy, &flow_vx, &flow_vy,
+		              &accel_data.x, &accel_data.y, delta_t);
+
+		send_flow_to_fcb(&lidar_distance, &kalman_vx, &kalman_vy, &current_time, &delta_t, &fps);
+
+		//send_debug_message("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, delta_t:%1f, fps:%.1f\n\r",
+		//                   lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);
+
+		/* print sensor info in the following csv format:
+		 * flow_vx, flow_vy, accel_ax, accel_ay, delta_t, system_time */
+		//send_debug_message("%+.3f,%+.3f,%+.3f,%+.3f,%+.3f,%+.3f\n\r",
+		//                   flow_vx, flow_vy, accel_data.x, accel_data.y, delta_t, current_time);
+
 		gpio_off(LED_1);
 	}
 }
