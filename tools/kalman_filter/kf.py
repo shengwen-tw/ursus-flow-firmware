@@ -75,4 +75,9 @@ plt.plot(time, accel_ay)
 plt.plot(time, vy)
 plt.legend(['flow_vy', 'accel_ay', 'kalman_vy'], loc='upper left')
 
+plt.figure('Error Covariance Matrix')
+plt.plot(p11)
+plt.plot(p22)
+plt.legend(['p11 (vx)', 'p22 (vy)'], loc='upper left')
+
 plt.show()
