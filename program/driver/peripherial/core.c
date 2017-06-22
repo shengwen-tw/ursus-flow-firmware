@@ -66,11 +66,10 @@ void mpu_init(void)
 {
 	HAL_MPU_Disable();
 
-	/* Configure the MPU attributes as WT for SRAM */
 	MPU_Region_InitTypeDef MPU_InitStruct = {
 		.Enable = MPU_REGION_ENABLE,
-		.BaseAddress = 0x20010000,
-		.Size = MPU_REGION_SIZE_256KB,
+		.BaseAddress = 0x00000000,
+		.Size = MPU_REGION_SIZE_512KB,
 		.AccessPermission = MPU_REGION_FULL_ACCESS,
 		.IsBufferable = MPU_ACCESS_NOT_BUFFERABLE,
 		.IsCacheable = MPU_ACCESS_CACHEABLE,
@@ -83,7 +82,6 @@ void mpu_init(void)
 
 	HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
-	/* Enable the MPU */
 	HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 }
 
