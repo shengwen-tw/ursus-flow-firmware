@@ -44,6 +44,7 @@ static void uart2_init(int baudrate)
 
 	HAL_GPIO_Init(GPIOA, &gpio);
 
+#if 0
 	/* DMA1 channel4 stream6 for UART2 tx */
 	uart2_tx_dma.Instance = DMA1_Stream6;
 	uart2_tx_dma.Init.Channel = DMA_CHANNEL_4;
@@ -62,6 +63,7 @@ static void uart2_init(int baudrate)
 	HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, UART2_PRIORITY, 1);
 	HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
 	HAL_NVIC_EnableIRQ(USART2_IRQn);
+#endif
 }
 
 void USART2_IRQHandler(void)
@@ -76,7 +78,8 @@ void DMA1_Stream6_IRQHandler(void)
 
 void uart2_puts(char *s, int size)
 {
-	SCB_CleanDCache_by_Addr((uint32_t *)s, (uint32_t)size); //flush cache
+	//SCB_CleanDCache_by_Addr((uint32_t *)s, (uint32_t)size); //flush cache
+	//HAL_UART_Transmit_DMA(&uart2, (uint8_t*)s, size);
 
-	HAL_UART_Transmit_DMA(&uart2, (uint8_t*)s, size);
+	HAL_UART_Transmit(&uart2, (uint8_t*)s, size, UINT32_MAX);
 }
