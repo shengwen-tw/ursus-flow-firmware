@@ -470,8 +470,8 @@ void flow_estimate_task(void)
 		accel_data.y *= 9.8f;
 		accel_data.z *= 9.8f;
 
-		kalman_filter(&kalman_vx, &kalman_vy, &flow_vx, &flow_vy,
-		              &accel_data.x, &accel_data.y, delta_t);
+		kalman_filter(&kalman_vx, &kalman_vy, flow_vx, flow_vy,
+		              accel_data.x, accel_data.y, delta_t);
 
 		send_flow_to_fcb(&lidar_distance, &kalman_vx, &kalman_vy, &current_time, &delta_t, &fps);
 

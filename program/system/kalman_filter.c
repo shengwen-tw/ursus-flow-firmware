@@ -20,12 +20,12 @@ float kalman_vx_last = 0.0f;
 float kalman_vy_last = 0.0f;
 
 __attribute__((section(".itcmtext")))
-void kalman_filter(float *kalman_vx, float *kalman_vy, float *flow_vx, float *flow_vy,
-                   float *accel_ax, float *accel_ay, float delta_t)
+void kalman_filter(float *kalman_vx, float *kalman_vy, float flow_vx, float flow_vy,
+                   float accel_ax, float accel_ay, float delta_t)
 {
 	/* predict */
-	float vx_predict = kalman_vx_last + (*accel_ax * delta_t);
-	float vy_predict = kalman_vy_last + (*accel_ay * delta_t);
+	float vx_predict = kalman_vx_last + (accel_ax * delta_t);
+	float vy_predict = kalman_vy_last + (accel_ay * delta_t);
 
 	p11_now = p11_last + q11;
 	p22_now = p22_last + q22;
@@ -34,8 +34,8 @@ void kalman_filter(float *kalman_vx, float *kalman_vy, float *flow_vx, float *fl
 	g11 = (p11_now) / (p11_now + r11); //gain
 	g22 = (p22_now) / (p22_now + r22);
 
-	*kalman_vx = vx_predict + g11 * (*flow_vx - vx_predict);
-	*kalman_vy = vy_predict + g22 * (*flow_vy - vy_predict);
+	*kalman_vx = vx_predict + g11 * (flow_vx - vx_predict);
+	*kalman_vy = vy_predict + g22 * (flow_vy - vy_predict);
 
 	p11_last = (1.0f - g11) * p11_now;
 	p22_last = (1.0f - g22) * p22_now;
