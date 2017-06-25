@@ -203,6 +203,9 @@ openocd:
 gdbauto:
 	cgdb -d $(GDB) -x ./debug/openocd_gdb.gdb
 
+gdbtui:
+	$(GDB) -tui -x ./debug/openocd_gdb.gdb
+
 size:
 	$(ELF_SIZE) $(EXECUTABLE) 
 
