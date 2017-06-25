@@ -27,30 +27,34 @@ vector3d_f_t gyro_data;
 vector3d_f_t accel_data;
 uint16_t lidar_distance;
 
-#if 0 //implemented in assembly
+__attribute__((section(".itcmtext")))
 uint32_t calculate_ssd16_row(uint16_t *template_image, uint16_t *search_image, int row_offset)
 {
 	uint16_t *_template = template_image;
 	uint16_t *_search = search_image;
 
-	uint32_t ssd = 0;
-	int16_t diff;
+	uint32_t ssd[2] = {0, 1};
+	int16_t diff[2];
 
 	_template += row_offset * FLOW_IMG_SIZE;
 	_search += row_offset * FLOW_IMG_SIZE;
 
 	int r;
-	for(r = 0; r < TEMPLATE_SIZE; r++) {
+	for(r = 0; r < TEMPLATE_SIZE; r+=2) {
+		*((uint32_t *)diff) = __SSUB16(*((uint32_t *)_template), *((uint32_t *)_search));
+		*((uint64_t *)ssd) = __SMLALD(*((uint32_t *)diff), *((uint32_t *)diff), *((uint64_t *)ssd));
+
+#if 0
 		diff = *_template - *_search;
 		ssd += diff * diff;
+#endif
 
-		_template++;
-		_search++;
+		_template += 2;
+		_search += 2;
 	}
 
-	return ssd;
+	return ssd[0] + ssd[1];
 }
-#endif
 
 __attribute__((section(".itcmtext")))
 uint32_t calculate_ssd16_column(uint16_t *template_image, uint16_t *search_image, int column_offset)
@@ -76,7 +80,7 @@ uint32_t calculate_ssd16_column(uint16_t *template_image, uint16_t *search_image
 	return ssd;
 }
 
-#if 0 //implemented in assembly
+__attribute__((section(".itcmtext")))
 uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 {
 	/* ssd minimum value is 1 since later will do the distance weighting
@@ -101,7 +105,6 @@ uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 
 	return ssd;
 }
-#endif
 
 /* Find the matching point on two images in local -4 ~ +4 pixels */
 __attribute__((section(".itcmtext")))
@@ -121,7 +124,7 @@ void match_point_local_area_full(uint16_t *previous_image, uint16_t *current_ima
 		running_search_image = &current_image[FLOW_IMG_SIZE * r];
 
 		for(c = -4; c <= +4; c++) {
-			ssd = simd_calculate_ssd16_full(fixed_template_image, &running_search_image[c]);
+			ssd = calculate_ssd16_full(fixed_template_image, &running_search_image[c]);
 
 			flow.subarea_ssd_column_start[r + 4][c + 4] = ssd;
 			flow.subarea_ssd_last[r + 4][c + 4] = ssd;
@@ -223,8 +226,8 @@ void match_point_local_area_row_dp(uint16_t *previous_image, uint16_t *current_i
 		running_search_image = &current_image[FLOW_IMG_SIZE * r];
 
 		for(c = -4; c <= +4; c++) {
-			row_cuttoff_ssd = simd_calculate_ssd16_row(fixed_template_image, &running_search_image[c], -1);
-			row_addin_ssd = simd_calculate_ssd16_row(fixed_template_image, &running_search_image[c], 7);
+			row_cuttoff_ssd = calculate_ssd16_row(fixed_template_image, &running_search_image[c], -1);
+			row_addin_ssd = calculate_ssd16_row(fixed_template_image, &running_search_image[c], 7);
 
 			//read last ssd
 			ssd = flow.subarea_ssd_last[r + 4][c + 4];
