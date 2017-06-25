@@ -40,17 +40,14 @@ uint32_t calculate_ssd16_row(uint16_t *template_image, uint16_t *search_image, i
 	_search += row_offset * FLOW_IMG_SIZE;
 
 	int r;
-	for(r = 0; r < TEMPLATE_SIZE; r+=2) {
-		*((uint32_t *)diff) = __SSUB16(*((uint32_t *)_template), *((uint32_t *)_search));
+	for(r = 0; r < (TEMPLATE_SIZE / 2); r++) {
+		*((uint32_t *)diff) = __SSUB16(*(((uint32_t *)_template) + r), *(((uint32_t *)_search) + r));
 		*((uint64_t *)ssd) = __SMLALD(*((uint32_t *)diff), *((uint32_t *)diff), *((uint64_t *)ssd));
 
 #if 0
 		diff = *_template - *_search;
 		ssd += diff * diff;
 #endif
-
-		_template += 2;
-		_search += 2;
 	}
 
 	return ssd[0] + ssd[1];
@@ -85,17 +82,24 @@ uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 {
 	/* ssd minimum value is 1 since later will do the distance weighting
 	   and required not to be 0 */
-	uint32_t ssd = 1;
+	uint32_t ssd[2] = {0, 1};
+	int16_t diff[2];
 
 	uint16_t *_template = template_image;
 	uint16_t *_search = search_image;
 
 	int r, c;
 	for(r = 0; r < TEMPLATE_SIZE; r++) {
-		for(c = 0; c < TEMPLATE_SIZE; c++) {
-			int16_t diff = _template[c] - _search[c];
+		for(c = 0; c < (TEMPLATE_SIZE / 2); c++) {
+			*((uint32_t *)diff) =
+			        __SSUB16(*(((uint32_t *)_template) + c), *(((uint32_t *)_search) + c));
+			*((uint64_t *)ssd) =
+			        __SMLALD(*((uint32_t *)diff), *((uint32_t *)diff), *((uint64_t *)ssd));
 
+#if 0
+			int16_t diff = _template[c] - _search[c];
 			ssd += diff * diff;
+#endif
 		}
 
 		/* point to next row */
@@ -103,7 +107,7 @@ uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 		_search += FLOW_IMG_SIZE;
 	}
 
-	return ssd;
+	return ssd[0] + ssd[1];
 }
 
 /* Find the matching point on two images in local -4 ~ +4 pixels */
