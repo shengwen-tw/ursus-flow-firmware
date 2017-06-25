@@ -61,10 +61,13 @@ void I2C2_EV_IRQHandler(void)
 		//gpio_off(LED_2);
 
 		*lidar_distance_ptr = lidar_buffer[0] << 8 | lidar_buffer[1];
-
-		/* enable the interrupt and start a new transaction */
-		HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 	}
+}
+
+void lidar_read(void)
+{
+	/* enable the interrupt and start a new transaction */
+	HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 }
 
 void lidar_init(uint16_t *_lidar_distance_ptr)

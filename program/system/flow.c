@@ -445,6 +445,8 @@ void flow_estimate_task(void)
 	while(1) {
 		gpio_on(LED_1);
 
+		lidar_read();
+
 		mpu9250_read(&gyro_data, &accel_data);
 
 		/* wait until image finished capturing */

@@ -8,6 +8,6 @@
 
 void lidar_init(uint16_t *_lidar_distance_ptr);
 
-void lidar_read_distance(uint16_t *distance);
+void lidar_read(void);
 
 #endif
