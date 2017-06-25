@@ -36,6 +36,7 @@ void lidar_write_byte(uint8_t address, uint8_t data)
 	i2c2_write_memory(LIDAR_DEV_ADDRESS, address, &data, 1);
 }
 
+__attribute__((section(".itcmtext")))
 void EXTI3_IRQHandler(void)
 {
 	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_3) != RESET) {
@@ -51,6 +52,7 @@ void EXTI3_IRQHandler(void)
 
 extern I2C_HandleTypeDef i2c2;
 
+__attribute__((section(".itcmtext")))
 void I2C2_EV_IRQHandler(void)
 {
 	HAL_I2C_EV_IRQHandler(&i2c2);

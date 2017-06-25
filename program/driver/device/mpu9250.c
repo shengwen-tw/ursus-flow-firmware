@@ -21,11 +21,13 @@ static void mpu9250_select(void)
 }
 
 /* mpu9250 is low active */
+__attribute__((section(".itcmtext")))
 static void mpu9250_deselect(void)
 {
 	gpio_on(MPU9250_CHIP_SELECTOR);
 }
 
+__attribute__((section(".itcmtext")))
 static uint8_t mpu9250_read_byte(uint8_t address)
 {
 	mpu9250_select();
@@ -56,6 +58,7 @@ static uint8_t mpu9250_read_who_am_i(void)
 	return mpu9250_read_byte(MPU9250_WHO_AM_I);
 }
 
+__attribute__((section(".itcmtext")))
 static void mpu9250_read_unscaled_data(vector3d_16_t *unscaled_gyro_data,
                                        vector3d_16_t *unscaled_accel_data)
 {
@@ -94,6 +97,7 @@ static void mpu9250_read_unscaled_data(vector3d_16_t *unscaled_gyro_data,
 	mpu9250_deselect();
 }
 
+__attribute__((section(".itcmtext")))
 static void mpu9250_convert_to_scale(
         vector3d_16_t *unscaled_gyro_data, vector3d_f_t *scaled_gyro_data,
         vector3d_16_t *unscaled_accel_data, vector3d_f_t *scaled_accel_data)
@@ -118,6 +122,7 @@ static void mpu9250_convert_to_scale(
 #endif
 }
 
+__attribute__((section(".itcmtext")))
 void mpu9250_read(vector3d_f_t *gyro_data, vector3d_f_t *accel_data)
 {
 	vector3d_16_t unscaled_gyro_data;

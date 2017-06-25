@@ -34,6 +34,7 @@ static void timer10_init(void)
 	HAL_TIM_Base_Start_IT(&timer10);
 }
 
+__attribute__((section(".itcmtext")))
 void TIM1_UP_TIM10_IRQHandler(void)
 {
 	HAL_TIM_IRQHandler(&timer10);

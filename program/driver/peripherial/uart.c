@@ -44,7 +44,7 @@ static void uart2_init(int baudrate)
 
 	HAL_GPIO_Init(GPIOA, &gpio);
 
-#if 0
+#if 1
 	/* DMA1 channel4 stream6 for UART2 tx */
 	uart2_tx_dma.Instance = DMA1_Stream6;
 	uart2_tx_dma.Init.Channel = DMA_CHANNEL_4;
@@ -66,20 +66,21 @@ static void uart2_init(int baudrate)
 #endif
 }
 
+__attribute__((section(".itcmtext")))
 void USART2_IRQHandler(void)
 {
 	HAL_UART_IRQHandler(&uart2);
 }
 
+__attribute__((section(".itcmtext")))
 void DMA1_Stream6_IRQHandler(void)
 {
 	HAL_DMA_IRQHandler(uart2.hdmatx);
 }
 
+__attribute__((section(".itcmtext")))
 void uart2_puts(char *s, int size)
 {
-	//SCB_CleanDCache_by_Addr((uint32_t *)s, (uint32_t)size); //flush cache
-	//HAL_UART_Transmit_DMA(&uart2, (uint8_t*)s, size);
-
-	HAL_UART_Transmit(&uart2, (uint8_t*)s, size, UINT32_MAX);
+	SCB_CleanDCache_by_Addr((uint32_t *)s, (uint32_t)size); //flush cache
+	HAL_UART_Transmit_DMA(&uart2, (uint8_t*)s, size);
 }

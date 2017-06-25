@@ -91,6 +91,7 @@ void dcmi_init(void)
 	HAL_NVIC_EnableIRQ(DCMI_IRQn);
 }
 
+__attribute__((section(".itcmtext")))
 void dcmi_dma_config(uint32_t buffer_address, uint32_t image_width, uint32_t image_height)
 {
 	frame_captured = false;
@@ -98,21 +99,25 @@ void dcmi_dma_config(uint32_t buffer_address, uint32_t image_width, uint32_t ima
 	HAL_DCMI_Start_DMA(&dcmi, DCMI_MODE_SNAPSHOT, buffer_address, image_width * image_height / 2);
 }
 
+__attribute__((section(".itcmtext")))
 void dcmi_wait_finish(void)
 {
 	while(frame_captured == false);
 }
 
+__attribute__((section(".itcmtext")))
 void DCMI_IRQHandler(void)
 {
 	HAL_DCMI_IRQHandler(&dcmi);
 }
 
+__attribute__((section(".itcmtext")))
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *dcmi)
 {
 	frame_captured = true;
 }
 
+__attribute__((section(".itcmtext")))
 void DMA2_Stream1_IRQHandler(void)
 {
 	HAL_DMA_IRQHandler(&dcmi_dma);
