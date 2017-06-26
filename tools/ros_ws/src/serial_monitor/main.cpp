@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 		receive_onboard_params();
 
 		ROS_INFO("\033[32m" //green
-		         "lidar:%3d, vx:%+3.3f, vy:%+3.3f, time:%.1f, delta_t: %.2f, fps:%.1f",
+		         "lidar:%3d, vx:%+3.3f, vy:%+3.3f, time:%.1f, delta_t: %.3f, fps:%.1f",
 		         link_data.lidar_distance,
 		         link_data.flow_vx,
 		         link_data.flow_vy,
