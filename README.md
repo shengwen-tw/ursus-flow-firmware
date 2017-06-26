@@ -1,6 +1,6 @@
 # Ursus-flow firmware
 
-This is Ursus-flow, an velocity estimator for quadrotor liked MAV based on optical flow.
+This is Ursus-flow, an optical flow velocity estimator for Quadrotor.
 
 ## Demo videos
 
