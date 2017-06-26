@@ -40,7 +40,7 @@ uint32_t calculate_ssd16_row(uint16_t *template_image, uint16_t *search_image, i
 	_search += row_offset * FLOW_IMG_SIZE;
 
 	int r;
-	for(r = 0; r < (TEMPLATE_SIZE / 2); r++) {
+	for(r = 0; r < (TEMPLATE_SIZE >> 1); r++) {
 		*((uint32_t *)diff) = __SSUB16(*(((uint32_t *)_template) + r), *(((uint32_t *)_search) + r));
 		*((uint64_t *)ssd) = __SMLALD(*((uint32_t *)diff), *((uint32_t *)diff), *((uint64_t *)ssd));
 
@@ -66,13 +66,16 @@ uint32_t calculate_ssd16_column(uint16_t *template_image, uint16_t *search_image
 	_search += column_offset;
 
 	int c;
-	for(c = 0; c < TEMPLATE_SIZE; c++) {
+	for(c = 0; c < (TEMPLATE_SIZE - 1); c++) {
 		diff = *_template - *_search;
 		ssd += diff * diff;
 
 		_template += FLOW_IMG_SIZE;
 		_search += FLOW_IMG_SIZE;
 	}
+
+	diff = *_template - *_search;
+	ssd += diff * diff;
 
 	return ssd;
 }
@@ -90,7 +93,7 @@ uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 
 	int r, c;
 	for(r = 0; r < TEMPLATE_SIZE; r++) {
-		for(c = 0; c < (TEMPLATE_SIZE / 2); c++) {
+		for(c = 0; c < (TEMPLATE_SIZE >> 1); c++) {
 			*((uint32_t *)diff) =
 			        __SSUB16(*(((uint32_t *)_template) + c), *(((uint32_t *)_search) + c));
 			*((uint64_t *)ssd) =
