@@ -6,13 +6,13 @@
 #define DO_IMU_CALIBRATION 0
 
 #define ACCEL_1G 4096.0f
-#define ACCEL_X_SCALE (ACCEL_1G / 4100.0f) //calibrate this
-#define ACCEL_Y_SCALE (ACCEL_1G /4110.5f)
-#define ACCEL_Z_SCALE (ACCEL_1G / 4280.0f)
+#define ACCEL_X_SCALE (ACCEL_1G / 4105.0f) //calibrate this
+#define ACCEL_Y_SCALE (ACCEL_1G / 4104.0f)
+#define ACCEL_Z_SCALE (ACCEL_1G / 4133.0f)
 
-#define ACCEL_X_OFFSET +188.5f //clibrate this
-#define ACCEL_Y_OFFSET -46.0f
-#define ACCEL_Z_OFFSET +305.0f
+#define ACCEL_X_OFFSET +82.0f //calibrate this
+#define ACCEL_Y_OFFSET +27.0f
+#define ACCEL_Z_OFFSET -60.0f
 
 /* calibration */
 #define MPU9250_OFFSET_X +0.137f //calibrate this

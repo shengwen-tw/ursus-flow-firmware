@@ -117,9 +117,9 @@ static void mpu9250_convert_to_scale(
 	scaled_accel_data->y *= MPU9250A_8g;
 	scaled_accel_data->z *= MPU9250A_8g;
 #else
-	scaled_accel_data->x = (float)-unscaled_accel_data->y;
-	scaled_accel_data->y = (float)-unscaled_accel_data->x;
-	scaled_accel_data->z = (float)-unscaled_accel_data->z;
+	scaled_accel_data->x = (float)unscaled_accel_data->y;
+	scaled_accel_data->y = (float)unscaled_accel_data->x;
+	scaled_accel_data->z = (float)unscaled_accel_data->z;
 #endif
 }
 
