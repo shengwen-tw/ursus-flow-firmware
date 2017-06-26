@@ -109,7 +109,7 @@ static void mpu9250_convert_to_scale(
 
 #if (DO_IMU_CALIBRATION == 0)
 	//fix sensor bias and rescale
-	scaled_accel_data->x = (float)((unscaled_accel_data->y - ACCEL_X_OFFSET) * ACCEL_X_SCALE);
+	scaled_accel_data->x = -(float)((unscaled_accel_data->y - ACCEL_X_OFFSET) * ACCEL_X_SCALE);
 	scaled_accel_data->y = -(float)((unscaled_accel_data->x - ACCEL_Y_OFFSET) * ACCEL_Y_SCALE);
 	scaled_accel_data->z = -(float)((unscaled_accel_data->z - ACCEL_Z_OFFSET) * ACCEL_Z_SCALE);
 	//fix sensor sign convention and convert the scale to metric unit
