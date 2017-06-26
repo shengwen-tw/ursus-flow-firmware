@@ -3,7 +3,7 @@
 
 /* USB should only be enabled during the development stage,
    otherwise it may slow down low flow estimation process */
-#define DISABLE_USB 0
+#define DISABLE_USB 1
 
 void usb_link_task(void);
 
