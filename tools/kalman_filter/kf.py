@@ -31,8 +31,8 @@ p21 = [0 for k in range(0, test_data_size)]; p22 = [0 for k in range(0, test_dat
 q11 = 0.75; q12 = 0
 q21 = 0   ; q22 = 0.75
 
-r11 = 70.0; r12 = 0
-r21 = 0   ; r22 = 70.0
+r11 = 50.0; r12 = 0
+r21 = 0   ; r22 = 50.0
 
 #kalman gain matrix
 g11 = 0; g12 = 0
@@ -67,13 +67,15 @@ plt.figure('Kalman Filter - x')
 plt.plot(time, flow_vx)
 plt.plot(time, accel_ax)
 plt.plot(time, vx)
-plt.legend(['flow_vx', 'accel_ax', 'kalman_vx'], loc='upper left')
+plt.xlabel('time (t)', fontsize=18)
+plt.legend(['optical flow vx (m/s)', 'ax (m/s^2)', 'kalman filter vx (m/s)'], loc='upper left')
 
 plt.figure('Kalman Filter - y')
 plt.plot(time, flow_vy)
 plt.plot(time, accel_ay)
 plt.plot(time, vy)
-plt.legend(['flow_vy', 'accel_ay', 'kalman_vy'], loc='upper left')
+plt.xlabel('time (t)', fontsize=18)
+plt.legend(['optical flow vy (m/s)', 'ax (m/s^2)', 'kalman filter vy (m/s)'], loc='upper left')
 
 plt.figure('Error Covariance Matrix')
 plt.plot(p11)
