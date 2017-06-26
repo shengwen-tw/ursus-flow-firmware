@@ -451,8 +451,6 @@ void flow_estimate_task(void)
 
 		lidar_read();
 
-		mpu9250_read(&gyro_data, &accel_data);
-
 		next = (now + 1) % 3;
 		mt9v034_start_capture_image((uint32_t)flow.image[next].frame);
 
@@ -476,6 +474,8 @@ void flow_estimate_task(void)
 #endif
 		last = now;
 		now = next;
+
+		mpu9250_read(&gyro_data, &accel_data);
 
 		accel_data.x *= 9.8f;
 		accel_data.y *= 9.8f;
