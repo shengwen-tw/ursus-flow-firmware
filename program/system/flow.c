@@ -484,10 +484,14 @@ void flow_estimate_task(void)
 		kalman_filter(&kalman_vx, &kalman_vy, flow_vx, flow_vy,
 		              accel_data.x, accel_data.y, delta_t);
 
-		//send_flow_to_fcb(&lidar_distance, &kalman_vx, &kalman_vy, &current_time, &delta_t, &fps);
+		send_flow_to_fcb(&lidar_distance, &kalman_vx, &kalman_vy, &current_time, &delta_t, &fps);
 
-		send_debug_message("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, delta_t:%1f, fps:%.1f\n\r",
-		                   lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);
+		/* flush d-cache */
+		SCB_CleanDCache_by_Addr((uint32_t *)&delta_t, (uint32_t)sizeof(delta_t));
+		SCB_CleanDCache_by_Addr((uint32_t *)&fps, (uint32_t)sizeof(fps));
+
+		//send_debug_message("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, delta_t:%1f, fps:%.1f\n\r",
+		//                   lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);
 
 		/* print sensor info in the following csv format:
 		 * flow_vx, flow_vy, accel_ax, accel_ay, delta_t, system_time */
