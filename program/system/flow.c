@@ -102,7 +102,7 @@ uint32_t calculate_ssd16_full(uint16_t *template_image, uint16_t *search_image)
 #endif
 		}
 
-		/* point to next row */
+		/* point to now row */
 		_template += FLOW_IMG_SIZE;
 		_search += FLOW_IMG_SIZE;
 	}
@@ -431,16 +431,17 @@ void flow_estimate_task(void)
 	float delta_t;
 	float fps;
 
-	int now = 0, next = 1;
+	int last = 0, now = 1, next = 2;
 
 	float flow_vx = 0.0f, flow_vy = 0.0f;
 	float kalman_vx = 0.0f, kalman_vy = 0.0f;
 
-	mt9v034_start_capture_image((uint32_t)flow.image[now].frame);
+	mt9v034_start_capture_image((uint32_t)flow.image[last].frame);
 	mt9v034_wait_finish();
 	previous_time = get_time_sec();
 
-	mt9v034_start_capture_image((uint32_t)flow.image[next].frame);
+	mt9v034_start_capture_image((uint32_t)flow.image[now].frame);
+	mt9v034_wait_finish();
 
 	while(1) {
 		gpio_on(LED_1);
@@ -449,8 +450,8 @@ void flow_estimate_task(void)
 
 		mpu9250_read(&gyro_data, &accel_data);
 
-		/* wait until image finished capturing */
-		mt9v034_wait_finish();
+		next = (now + 1) % 3;
+		mt9v034_start_capture_image((uint32_t)flow.image[next].frame);
 
 		current_time = get_time_sec();
 		delta_t = current_time - previous_time;
@@ -463,17 +464,15 @@ void flow_estimate_task(void)
 		usb_image_foward();
 #else
 		flow_estimate(
+		        (uint16_t *)flow.image[last].frame,
 		        (uint16_t *)flow.image[now].frame,
-		        (uint16_t *)flow.image[next].frame,
 		        &flow_vx, &flow_vy, delta_t
 		);
 
-		mt9v034_start_capture_image((uint32_t)flow.image[next].frame);
-
 		usb_send_flow_info();
 #endif
+		last = now;
 		now = next;
-		next = (next + 1) % 2;
 
 		accel_data.x *= 9.8f;
 		accel_data.y *= 9.8f;
@@ -482,15 +481,18 @@ void flow_estimate_task(void)
 		kalman_filter(&kalman_vx, &kalman_vy, flow_vx, flow_vy,
 		              accel_data.x, accel_data.y, delta_t);
 
-		send_flow_to_fcb(&lidar_distance, &kalman_vx, &kalman_vy, &current_time, &delta_t, &fps);
+		//send_flow_to_fcb(&lidar_distance, &kalman_vx, &kalman_vy, &current_time, &delta_t, &fps);
 
-		//send_debug_message("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, delta_t:%1f, fps:%.1f\n\r",
-		//                   lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);
+		send_debug_message("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, delta_t:%1f, fps:%.1f\n\r",
+		                   lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);
 
 		/* print sensor info in the following csv format:
 		 * flow_vx, flow_vy, accel_ax, accel_ay, delta_t, system_time */
 		//send_debug_message("%+.3f,%+.3f,%+.3f,%+.3f,%+.3f,%+.3f\n\r",
 		//                   flow_vx, flow_vy, accel_data.x, accel_data.y, delta_t, current_time);
+
+		/* wait until image finished capturing */
+		mt9v034_wait_finish();
 
 		gpio_off(LED_1);
 	}

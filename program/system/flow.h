@@ -42,7 +42,7 @@ typedef struct {
 	uint32_t subarea_ssd_column_start[SUBAREA_SSD_SIZE][SUBAREA_SSD_SIZE];
 	uint32_t subarea_ssd_last[SUBAREA_SSD_SIZE][SUBAREA_SSD_SIZE];
 
-	image_t image[2];
+	image_t image[3];
 
 	uint8_t match_x[FLOW_IMG_SIZE][FLOW_IMG_SIZE];
 	uint8_t match_y[FLOW_IMG_SIZE][FLOW_IMG_SIZE];
