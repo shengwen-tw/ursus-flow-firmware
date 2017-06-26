@@ -10,8 +10,8 @@
 #define ACCEL_Y_SCALE (ACCEL_1G /4110.5f)
 #define ACCEL_Z_SCALE (ACCEL_1G / 4280.0f)
 
-#define ACCEL_X_OFFSET +80.0f //clibrate this
-#define ACCEL_Y_OFFSET -21.0f
+#define ACCEL_X_OFFSET +188.5f //clibrate this
+#define ACCEL_Y_OFFSET -46.0f
 #define ACCEL_Z_OFFSET +305.0f
 
 /* calibration */
