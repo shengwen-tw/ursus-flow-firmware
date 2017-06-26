@@ -141,11 +141,13 @@ int mt9v034_init(void)
 	return 0;
 }
 
+__attribute__((section(".itcmtext")))
 void mt9v034_start_capture_image(uint32_t image_buffer_address)
 {
 	dcmi_dma_config(image_buffer_address, IMG_WIDTH, IMG_HEIGHT);
 }
 
+__attribute__((section(".itcmtext")))
 void mt9v034_wait_finish(void)
 {
 	dcmi_wait_finish();

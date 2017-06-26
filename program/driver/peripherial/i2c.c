@@ -95,21 +95,25 @@ static void i2c2_init(void)
 	HAL_NVIC_EnableIRQ(I2C2_EV_IRQn);
 }
 
+__attribute__((section(".itcmtext")))
 void i2c2_write(uint16_t device_address, uint8_t *data, uint16_t size)
 {
 	HAL_I2C_Master_Transmit(&i2c2, device_address, data, size, UINT32_MAX);
 }
 
+__attribute__((section(".itcmtext")))
 void i2c2_read(uint16_t device_address, uint8_t *data, uint16_t size)
 {
 	HAL_I2C_Master_Receive_IT(&i2c2, device_address, data, size);
 }
 
+__attribute__((section(".itcmtext")))
 void i2c2_write_memory(uint16_t device_address, uint8_t memory_address, uint8_t *data, uint16_t size)
 {
 	HAL_I2C_Mem_Write(&i2c2, device_address, memory_address, 1, data, size, UINT32_MAX);
 }
 
+__attribute__((section(".itcmtext")))
 void i2c2_read_memory(uint16_t device_address, uint8_t memory_address, uint8_t *data, uint16_t size)
 {
 	HAL_I2C_Mem_Read(&i2c2, device_address, memory_address, 1, data, size, UINT32_MAX);

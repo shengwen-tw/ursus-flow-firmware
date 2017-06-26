@@ -15,6 +15,7 @@ __inline__ static void mpu9250_select(void);
 __inline__ static void mpu9250_deselect(void);
 
 /* mpu9250 is low active */
+__attribute__((section(".itcmtext")))
 static void mpu9250_select(void)
 {
 	gpio_off(MPU9250_CHIP_SELECTOR);

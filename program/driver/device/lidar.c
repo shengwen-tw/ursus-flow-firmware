@@ -25,12 +25,14 @@ static uint8_t lidar_read_byte(uint8_t address)
 }
 #endif
 
+__attribute__((section(".itcmtext")))
 static void lidar_read_half_word(uint8_t address, uint16_t *data)
 {
 	i2c2_write(LIDAR_DEV_ADDRESS, &address, 1);
 	i2c2_read(LIDAR_DEV_ADDRESS, (uint8_t *)data, 2);
 }
 
+__attribute__((section(".itcmtext")))
 void lidar_write_byte(uint8_t address, uint8_t data)
 {
 	i2c2_write_memory(LIDAR_DEV_ADDRESS, address, &data, 1);

@@ -6,6 +6,7 @@ volatile system_time_t system_time = {
 	.tick_number = 0
 };
 
+__attribute__((section(".itcmtext")))
 void update_system_time(void)
 {
 	system_time.tick_number++;
@@ -18,6 +19,7 @@ void update_system_time(void)
 	}
 }
 
+__attribute__((section(".itcmtext")))
 float get_time_sec(void)
 {
 	return (float)system_time.sec + system_time.sec_remainder;
