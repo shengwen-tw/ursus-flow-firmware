@@ -9,6 +9,7 @@
 
 #define PACKET_SIZE 23
 
+__attribute__((section(".itcmtext")))
 void send_flow_to_fcb(uint16_t *lidar_distance, float *flow_vx, float *flow_vy,
                       float *time, float *period, float *frequency)
 {
