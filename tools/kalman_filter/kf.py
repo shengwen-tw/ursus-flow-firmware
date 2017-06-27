@@ -28,11 +28,11 @@ p11 = [0 for k in range(0, test_data_size)]; p12 = [0 for k in range(0, test_dat
 p21 = [0 for k in range(0, test_data_size)]; p22 = [0 for k in range(0, test_data_size)]
 
 #measurement error covariance matrix
-q11 = 0.75; q12 = 0
-q21 = 0   ; q22 = 0.75
+q11 = 0.35; q12 = 0
+q21 = 0   ; q22 = 0.35
 
-r11 = 50.0; r12 = 0
-r21 = 0   ; r22 = 50.0
+r11 = 30.5; r12 = 0
+r21 = 0   ; r22 = 30.5
 
 #kalman gain matrix
 g11 = 0; g12 = 0
