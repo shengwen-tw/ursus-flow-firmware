@@ -1,6 +1,6 @@
 /* process error covariance matrix */
-float q11 = 0.45f, q12 = 0.0f;
-float q21 = 0.0f, q22 = 0.45f;
+float q11 = 0.65f, q12 = 0.0f;
+float q21 = 0.0f,  q22 = 0.65f;
 
 /* measurement error covariance matrix */
 float r11 = 1.0f, r12 = 0.0f;
