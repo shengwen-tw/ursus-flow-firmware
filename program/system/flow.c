@@ -477,14 +477,16 @@ void flow_estimate_task(void)
 
 		mpu9250_read(&gyro_data, &accel_data);
 
-		accel_data.x *= 9.8f;
-		accel_data.y *= 9.8f;
-		accel_data.z *= 9.8f;
+		accel_data.x *= 980.0f;
+		accel_data.y *= 980.0f;
+		accel_data.z *= 980.0f;
 
 		kalman_filter(&kalman_vx, &kalman_vy, flow_vx, flow_vy,
 		              accel_data.x, accel_data.y, delta_t);
 
 		/* flush d-cache */
+		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vx, (uint32_t)sizeof(delta_t));
+		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vy, (uint32_t)sizeof(fps));
 		SCB_CleanDCache_by_Addr((uint32_t *)&delta_t, (uint32_t)sizeof(delta_t));
 		SCB_CleanDCache_by_Addr((uint32_t *)&fps, (uint32_t)sizeof(fps));
 
