@@ -421,7 +421,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 
 	/* flow unit: [m/s] */
 	*flow_vx = -((float)lidar_distance / FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
-	*flow_vy = -((float)lidar_distance / FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
+	*flow_vy = +((float)lidar_distance / FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
 
 	gpio_on(LED_2); //flow detected
 }
@@ -485,8 +485,11 @@ void flow_estimate_task(void)
 		              accel_data.x, accel_data.y, delta_t);
 
 		/* flush d-cache */
+		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vx, (uint32_t)sizeof(delta_t));
+		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vy, (uint32_t)sizeof(fps));
 		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vx, (uint32_t)sizeof(delta_t));
 		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vy, (uint32_t)sizeof(fps));
+		SCB_CleanDCache_by_Addr((uint32_t *)&current_time, (uint32_t)sizeof(fps));
 		SCB_CleanDCache_by_Addr((uint32_t *)&delta_t, (uint32_t)sizeof(delta_t));
 		SCB_CleanDCache_by_Addr((uint32_t *)&fps, (uint32_t)sizeof(fps));
 

@@ -104,7 +104,7 @@ static void mpu9250_convert_to_scale(
         vector3d_16_t *unscaled_accel_data, vector3d_f_t *scaled_accel_data)
 {
 	scaled_gyro_data->x = -unscaled_gyro_data->y * MPU9250G_1000dps - MPU9250_OFFSET_X;
-	scaled_gyro_data->y = -unscaled_gyro_data->x * MPU9250G_1000dps - MPU9250_OFFSET_Y;
+	scaled_gyro_data->y = +unscaled_gyro_data->x * MPU9250G_1000dps - MPU9250_OFFSET_Y;
 	scaled_gyro_data->z = -unscaled_gyro_data->z * MPU9250G_1000dps - MPU9250_OFFSET_Z;
 
 #if (DO_IMU_CALIBRATION == 0)

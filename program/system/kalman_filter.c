@@ -1,10 +1,10 @@
 /* process error covariance matrix */
-float q11 = 2.5f, q12 = 0.0f;
-float q21 = 0.0f, q22 = 2.5f;
+float q11 = 0.45f, q12 = 0.0f;
+float q21 = 0.0f, q22 = 0.45f;
 
 /* measurement error covariance matrix */
-float r11 = 0.01f, r12 = 0.0f;
-float r21 = 0.0f,  r22 = 0.01f;
+float r11 = 1.0f, r12 = 0.0f;
+float r21 = 0.0f, r22 = 1.0f;
 
 /* kalman gain matrix */
 float g11 = 0.0f, g12 = 0.0f;

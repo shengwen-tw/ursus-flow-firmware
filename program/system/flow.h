@@ -7,12 +7,9 @@
  * by setting this flag to 1 */
 #define IMAGE_FOWARD_NO_FLOW 0
 
-#define FLOW_IMG_SIZE 40 //calculate optical flow for 32x32 points requires 40x40 pixels
+#define FLOW_IMG_SIZE 32 //calculate optical flow for 32x32 points requires 40x40 pixels
 
-#define FOCAL_LENGTH_PX 200000.0f //500 [pixels] unit in cm, convert to m
-#define FOCAL_LENGTH    3.0      //[mm]
-#define M               166.67   //[# of pixels / mm]
-#define RETINA_SIZE     0.006f   //[mm], retina size of mt9v034 is 6um
+#define FOCAL_LENGTH_PX 80.0f //2000 [pixel size / cm]
 
 #define FLOW_COUNT          32 //number of optical flow point to be calculated
 #define TEMPLATE_SIZE       8  //sum of absolute difference template size
