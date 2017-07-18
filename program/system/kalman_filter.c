@@ -3,8 +3,8 @@ float q11 = 0.005f, q12 = 0.0f;
 float q21 = 0.0f,  q22 = 0.005f;
 
 /* measurement error covariance matrix */
-float r11 = 0.25f, r12 = 0.0f;
-float r21 = 0.0f, r22 = 0.25f;
+float r11 = 0.075f, r12 = 0.0f;
+float r21 = 0.0f, r22 = 0.75f;
 
 /* kalman gain matrix */
 float g11 = 0.0f, g12 = 0.0f;
