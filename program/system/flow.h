@@ -9,7 +9,7 @@
 
 #define FLOW_IMG_SIZE 40 //calculate optical flow for 32x32 points requires 40x40 pixels
 
-#define FOCAL_LENGTH_PX 100000.0f //500 [pixels] unit in cm, convert to m
+#define FOCAL_LENGTH_PX 200000.0f //500 [pixels] unit in cm, convert to m
 #define FOCAL_LENGTH    3.0      //[mm]
 #define M               166.67   //[# of pixels / mm]
 #define RETINA_SIZE     0.006f   //[mm], retina size of mt9v034 is 6um
