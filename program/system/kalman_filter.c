@@ -19,6 +19,9 @@ float p21_now = 0.0f, p22_now = 0.0f;
 float kalman_vx_last = 0.0f;
 float kalman_vy_last = 0.0f;
 
+float vx_bias = -1.5;
+float vy_bias = -0.2;
+
 __attribute__((section(".itcmtext")))
 void kalman_filter(float *kalman_vx, float *kalman_vy, float flow_vx, float flow_vy,
                    float accel_ax, float accel_ay, float delta_t)
@@ -43,4 +46,8 @@ void kalman_filter(float *kalman_vx, float *kalman_vy, float flow_vx, float flow
 	/* save for next iteration */
 	kalman_vx_last = *kalman_vx;
 	kalman_vy_last = *kalman_vy;
+
+	/* bias correction */
+	*kalman_vx -= vx_bias;
+	*kalman_vy -= vy_bias;
 }
