@@ -449,8 +449,6 @@ void flow_estimate_task(void)
 	while(1) {
 		gpio_on(LED_1);
 
-		lidar_read();
-
 		next = (now + 1) % 3;
 		mt9v034_start_capture_image((uint32_t)flow.image[next].frame);
 
@@ -485,6 +483,7 @@ void flow_estimate_task(void)
 		              accel_data.x, accel_data.y, delta_t);
 
 		/* flush d-cache */
+		SCB_CleanDCache_by_Addr((uint32_t *)&lidar_distance, (uint32_t)sizeof(delta_t));
 		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vx, (uint32_t)sizeof(delta_t));
 		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vy, (uint32_t)sizeof(fps));
 		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vx, (uint32_t)sizeof(delta_t));

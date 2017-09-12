@@ -9,10 +9,16 @@
 
 #include "system_time.h"
 
+#define MEDIAN_FILTER_SIZE 20
+
 const uint8_t lidar_dev_address = 0x62 << 1;
 
 uint8_t lidar_buffer[2] = {0};
 uint16_t *lidar_distance_ptr;
+
+/* median filter */
+uint16_t median_buffer[MEDIAN_FILTER_SIZE];
+int median_counter = 0;
 
 #if 0
 static uint8_t lidar_read_byte(uint8_t address)
@@ -52,6 +58,26 @@ void EXTI3_IRQHandler(void)
 	}
 }
 
+__attribute__((section(".itcmtext")))
+static uint16_t median_filter(uint16_t *buffer)
+{
+	/* bubble sort */
+	int i, j;
+	for(i = MEDIAN_FILTER_SIZE - 1; i >= 0; i--) {
+		for(j = 0; j < i; j++) {
+			if(buffer[i] < buffer[j]) {
+				uint16_t tmp;
+				tmp = buffer[i];
+				buffer[i] = buffer[j];
+				buffer[j] = tmp;
+			}
+		}
+	}
+
+	/* pick the median value */
+	return (buffer[MEDIAN_FILTER_SIZE / 2] + buffer[MEDIAN_FILTER_SIZE / 2 - 1]) / 2;
+}
+
 extern I2C_HandleTypeDef i2c2;
 
 __attribute__((section(".itcmtext")))
@@ -62,14 +88,20 @@ void I2C2_EV_IRQHandler(void)
 	if(HAL_I2C_GetState(&i2c2) == HAL_I2C_STATE_READY) {
 		//gpio_off(LED_2);
 
-		*lidar_distance_ptr = lidar_buffer[0] << 8 | lidar_buffer[1];
-	}
-}
+		/* median filter */
+		if((median_counter + 1) < MEDIAN_FILTER_SIZE) {
+			/* fill the buffer */
+			median_buffer[median_counter] = (lidar_buffer[0] << 8 | lidar_buffer[1]);
+			median_counter++;
+		} else {
+			/* slide the filter window */
+			*lidar_distance_ptr = median_filter(median_buffer);
+			median_counter = 0; //reset filter
+		}
 
-void lidar_read(void)
-{
-	/* enable the interrupt and start a new transaction */
-	HAL_NVIC_EnableIRQ(EXTI3_IRQn);
+		/* enable the interrupt and start a new transaction */
+		HAL_NVIC_EnableIRQ(EXTI3_IRQn);
+	}
 }
 
 void lidar_init(uint16_t *_lidar_distance_ptr)
@@ -80,6 +112,7 @@ void lidar_init(uint16_t *_lidar_distance_ptr)
 	lidar_write_byte(LIDAR_ACQ_COMMAND, 0x00);
 	delay_ms(1000);
 
+	/* continuous reading mode */
 	lidar_write_byte(0x11, 0xff);
 	delay_ms(10);
 
@@ -87,7 +120,7 @@ void lidar_init(uint16_t *_lidar_distance_ptr)
 	lidar_write_byte(0x45, 0x02);
 	delay_ms(10);
 
-	/* continuous reading mode */
+	/* fast reading mode */
 	lidar_write_byte(0x04, 0x21);
 	delay_ms(10);
 
@@ -96,4 +129,5 @@ void lidar_init(uint16_t *_lidar_distance_ptr)
 	delay_ms(10);
 
 	exti3_init();
+	delay_ms(1000);
 }
