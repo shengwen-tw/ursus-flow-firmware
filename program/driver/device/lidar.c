@@ -63,7 +63,7 @@ static uint16_t median_filter(uint16_t *buffer)
 {
 	/* bubble sort */
 	int i, j;
-	for(i = MEDIAN_FILTER_SIZE - 1; i >= 0; i--) {
+	for(i = MEDIAN_FILTER_SIZE - 1; i > 0; i--) {
 		for(j = 0; j < i; j++) {
 			if(buffer[i] < buffer[j]) {
 				uint16_t tmp;
