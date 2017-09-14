@@ -63,8 +63,8 @@ static uint16_t median_filter(uint16_t *buffer)
 {
 	/* bubble sort */
 	int i, j;
-	for(i = MEDIAN_FILTER_SIZE - 1; i > 0; i--) {
-		for(j = 0; j < i; j++) {
+	for(i = 0; i < MEDIAN_FILTER_SIZE; i++) {
+		for(j = 0; j < MEDIAN_FILTER_SIZE - 1 - i; j++) {
 			if(buffer[j] < buffer[j + 1]) {
 				uint16_t tmp;
 				tmp = buffer[j];
@@ -88,21 +88,23 @@ void I2C2_EV_IRQHandler(void)
 
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
 {
-	//gpio_off(LED_2);
+	if(i2c == &i2c2) {
+		//gpio_off(LED_2);
 
-	/* fill the buffer */
-	median_buffer[median_counter] = (lidar_buffer[0] << 8 | lidar_buffer[1]);
-	median_counter++;
+		/* fill the buffer */
+		median_buffer[median_counter] = (lidar_buffer[0] << 8 | lidar_buffer[1]);
+		median_counter++;
 
-	/* buffer is full, ready to aply the filter */
-	if(median_counter == MEDIAN_FILTER_SIZE) {
-		/* slide the filter window */
-		*lidar_distance_ptr = median_filter(median_buffer);
-		median_counter = 0; //reset filter
+		/* buffer is full, ready to aply the filter */
+		if(median_counter == MEDIAN_FILTER_SIZE) {
+			/* slide the filter window */
+			*lidar_distance_ptr = median_filter(median_buffer);
+			median_counter = 0; //reset filter
+		}
+
+		/* enable the interrupt and start a new transaction */
+		HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 	}
-
-	/* enable the interrupt and start a new transaction */
-	HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 }
 
 void lidar_init(uint16_t *_lidar_distance_ptr)
