@@ -86,6 +86,7 @@ void I2C2_EV_IRQHandler(void)
 	HAL_I2C_EV_IRQHandler(&i2c2);
 }
 
+__attribute__((section(".itcmtext")))
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
 {
 	if(i2c == &i2c2) {
