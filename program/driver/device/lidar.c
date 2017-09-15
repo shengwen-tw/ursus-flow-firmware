@@ -89,6 +89,9 @@ void I2C2_EV_IRQHandler(void)
 __attribute__((section(".itcmtext")))
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
 {
+	uint16_t tmp;
+	bool spike = false;
+
 	if(i2c == &i2c2) {
 		//gpio_off(LED_2);
 
@@ -99,7 +102,12 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
 		/* buffer is full, ready to aply the filter */
 		if(median_counter == MEDIAN_FILTER_SIZE) {
 			/* slide the filter window */
-			*lidar_distance_ptr = median_filter(median_buffer);
+			tmp = median_filter(median_buffer);
+
+			if(tmp != 0) {
+				*lidar_distance = tmp;
+			}
+
 			median_counter = 0; //reset filter
 		}
 
