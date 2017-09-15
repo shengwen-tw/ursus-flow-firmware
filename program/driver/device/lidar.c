@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "stm32f7xx.h"
 
@@ -90,7 +91,6 @@ __attribute__((section(".itcmtext")))
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
 {
 	uint16_t tmp;
-	bool spike = false;
 
 	if(i2c == &i2c2) {
 		//gpio_off(LED_2);
@@ -105,8 +105,10 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
 			tmp = median_filter(median_buffer);
 
 			if(tmp != 0) {
-				*lidar_distance = tmp;
+				*lidar_distance_ptr = tmp;
 			}
+
+			/* TODO: kalman filter */
 
 			median_counter = 0; //reset filter
 		}
