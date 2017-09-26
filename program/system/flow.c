@@ -483,12 +483,12 @@ void flow_estimate_task(void)
 		              accel_data.x, accel_data.y, delta_t);
 
 		/* flush d-cache */
-		SCB_CleanDCache_by_Addr((uint32_t *)&lidar_distance, (uint32_t)sizeof(delta_t));
-		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vx, (uint32_t)sizeof(delta_t));
-		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vy, (uint32_t)sizeof(fps));
-		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vx, (uint32_t)sizeof(delta_t));
-		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vy, (uint32_t)sizeof(fps));
-		SCB_CleanDCache_by_Addr((uint32_t *)&current_time, (uint32_t)sizeof(fps));
+		SCB_CleanDCache_by_Addr((uint32_t *)&lidar_distance, (uint32_t)sizeof(lidar_distance));
+		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vx, (uint32_t)sizeof(kalman_vx));
+		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vy, (uint32_t)sizeof(kalman_vy));
+		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vx, (uint32_t)sizeof(flow_vx));
+		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vy, (uint32_t)sizeof(flow_vy));
+		SCB_CleanDCache_by_Addr((uint32_t *)&current_time, (uint32_t)sizeof(current_time));
 		SCB_CleanDCache_by_Addr((uint32_t *)&delta_t, (uint32_t)sizeof(delta_t));
 		SCB_CleanDCache_by_Addr((uint32_t *)&fps, (uint32_t)sizeof(fps));
 
