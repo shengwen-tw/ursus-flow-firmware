@@ -419,9 +419,9 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	predict_disp_x /= (float)vote_count;
 	predict_disp_y /= (float)vote_count;
 
-	/* flow unit: [m/s] */
-	*flow_vx = -((float)lidar_distance / FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
-	*flow_vy = +((float)lidar_distance / FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
+	/* unscaled flow */
+	*flow_vx = -((float)FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
+	*flow_vy = +((float)FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
 
 	gpio_on(LED_2); //flow detected
 }
@@ -479,8 +479,8 @@ void flow_estimate_task(void)
 		accel_data.y *= 980.0f;
 		accel_data.z *= 980.0f;
 
-		kalman_filter(&kalman_vx, &kalman_vy, flow_vx, flow_vy,
-		              accel_data.x, accel_data.y, delta_t);
+		//kalman_filter(&kalman_vx, &kalman_vy, flow_vx, flow_vy,
+		//              accel_data.x, accel_data.y, delta_t);
 
 		/* flush d-cache */
 		SCB_CleanDCache_by_Addr((uint32_t *)&lidar_distance, (uint32_t)sizeof(lidar_distance));
@@ -488,11 +488,18 @@ void flow_estimate_task(void)
 		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vy, (uint32_t)sizeof(kalman_vy));
 		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vx, (uint32_t)sizeof(flow_vx));
 		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vy, (uint32_t)sizeof(flow_vy));
+
+		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.x, (uint32_t)sizeof(accel_data.x));
+		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.y, (uint32_t)sizeof(accel_data.y));
+		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.z, (uint32_t)sizeof(accel_data.z));
+
 		SCB_CleanDCache_by_Addr((uint32_t *)&current_time, (uint32_t)sizeof(current_time));
 		SCB_CleanDCache_by_Addr((uint32_t *)&delta_t, (uint32_t)sizeof(delta_t));
 		SCB_CleanDCache_by_Addr((uint32_t *)&fps, (uint32_t)sizeof(fps));
 
-		send_flow_to_fcb(&lidar_distance, &flow_vx, &flow_vy, &current_time, &delta_t, &fps);
+		send_flow_to_fcb(&lidar_distance, &flow_vx, &flow_vy,
+				 &accel_data.x, &accel_data.y, &accel_data.z,
+				 &current_time, &delta_t, &fps);
 
 		//send_debug_message("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, delta_t:%1f, fps:%.1f\n\r",
 		//                   lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);

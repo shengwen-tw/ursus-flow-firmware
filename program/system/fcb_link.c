@@ -7,7 +7,7 @@
 
 #include "fcb_link.h"
 
-#define PACKET_SIZE 24
+#define PACKET_SIZE 36
 
 static void calculate_checksum(uint8_t *checksum, uint8_t *data, int size)
 {
@@ -19,6 +19,7 @@ static void calculate_checksum(uint8_t *checksum, uint8_t *data, int size)
 
 __attribute__((section(".itcmtext")))
 void send_flow_to_fcb(uint16_t *lidar_distance, float *flow_vx, float *flow_vy,
+		      float *accel_x, float *accel_y, float *accel_z,
                       float *time, float *period, float *frequency)
 {
 	/* pack message */
@@ -38,6 +39,15 @@ void send_flow_to_fcb(uint16_t *lidar_distance, float *flow_vx, float *flow_vy,
 	append_size += sizeof(float);
 
 	memcpy(message + append_size, flow_vy, sizeof(float));
+	append_size += sizeof(float);
+
+	memcpy(message + append_size, accel_x, sizeof(float));
+	append_size += sizeof(float);
+
+	memcpy(message + append_size, accel_y, sizeof(float));
+	append_size += sizeof(float);
+
+	memcpy(message + append_size, accel_z, sizeof(float));
 	append_size += sizeof(float);
 
 	memcpy(message + append_size, time, sizeof(float));
