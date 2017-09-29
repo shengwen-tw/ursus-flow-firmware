@@ -19,7 +19,6 @@
 #include "system_time.h"
 #include "distance_weighting.h"
 #include "ssd16.h"
-#include "kalman_filter.h"
 
 extern flow_t flow; //declare symbol in linker script (.dtcm section)
 
