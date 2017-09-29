@@ -438,6 +438,7 @@ void flow_estimate_task(void)
 
 	float flow_vx = 0.0f, flow_vy = 0.0f;
 	float kalman_vx = 0.0f, kalman_vy = 0.0f;
+	float quality = 0.0f;
 
 	mt9v034_start_capture_image((uint32_t)flow.image[last].frame);
 	mt9v034_wait_finish();
@@ -492,14 +493,14 @@ void flow_estimate_task(void)
 		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.x, (uint32_t)sizeof(accel_data.x));
 		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.y, (uint32_t)sizeof(accel_data.y));
 		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.z, (uint32_t)sizeof(accel_data.z));
-
+		SCB_CleanDCache_by_Addr((uint32_t *)&quality, (uint32_t)sizeof(quality));
 		SCB_CleanDCache_by_Addr((uint32_t *)&current_time, (uint32_t)sizeof(current_time));
 		SCB_CleanDCache_by_Addr((uint32_t *)&delta_t, (uint32_t)sizeof(delta_t));
 		SCB_CleanDCache_by_Addr((uint32_t *)&fps, (uint32_t)sizeof(fps));
 
 		send_flow_to_fcb(&lidar_distance, &flow_vx, &flow_vy,
 				 &accel_data.x, &accel_data.y, &accel_data.z,
-				 &current_time, &delta_t, &fps);
+				 &current_time, &delta_t, &fps, &quality);
 
 		//send_debug_message("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, delta_t:%1f, fps:%.1f\n\r",
 		//                   lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);
