@@ -270,7 +270,7 @@ void match_point_local_area_row_dp(uint16_t *previous_image, uint16_t *current_i
 
 __attribute__((section(".itcmtext")))
 void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
-                   float *flow_vx, float *flow_vy, float delta_t)
+                   float *flow_vx, float *flow_vy, float *quality, float delta_t)
 {
 	/* convert the 40x40 start address into 32*32 address */
 	int offset = EDGE_PRESERVE_SIZE;
@@ -407,6 +407,9 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		}
 	}
 
+	/* flow quality */
+	*quality = (float)vote_count / 1024.0; //flow count = 1024
+
 	if(vote_count < HISTOGRAM_THRESHOLD) {
 		*flow_vx = 0;
 		*flow_vy = 0;
@@ -466,7 +469,8 @@ void flow_estimate_task(void)
 		flow_estimate(
 		        (uint16_t *)flow.image[last].frame,
 		        (uint16_t *)flow.image[now].frame,
-		        &flow_vx, &flow_vy, delta_t
+		        &flow_vx, &flow_vy, &quality,
+			delta_t
 		);
 
 		usb_send_flow_info();
@@ -480,16 +484,12 @@ void flow_estimate_task(void)
 		accel_data.y *= 980.0f;
 		accel_data.z *= 980.0f;
 
-		//kalman_filter(&kalman_vx, &kalman_vy, flow_vx, flow_vy,
-		//              accel_data.x, accel_data.y, delta_t);
-
 		/* flush d-cache */
 		SCB_CleanDCache_by_Addr((uint32_t *)&lidar_distance, (uint32_t)sizeof(lidar_distance));
 		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vx, (uint32_t)sizeof(kalman_vx));
 		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vy, (uint32_t)sizeof(kalman_vy));
 		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vx, (uint32_t)sizeof(flow_vx));
 		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vy, (uint32_t)sizeof(flow_vy));
-
 		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.x, (uint32_t)sizeof(accel_data.x));
 		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.y, (uint32_t)sizeof(accel_data.y));
 		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.z, (uint32_t)sizeof(accel_data.z));
