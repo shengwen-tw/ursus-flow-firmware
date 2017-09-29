@@ -414,10 +414,16 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		*flow_vx = 0;
 		*flow_vy = 0;
 
+		/* flow_quality */
+		*quality = 1.0f - ((float)vote_count / 1024.0);
+
 		gpio_off(LED_2); //no flow
 
 		return;
 	}
+
+	/* flow quality */
+	*quality = (float)vote_count / 1024.0;
 
 	predict_disp_x /= (float)vote_count;
 	predict_disp_y /= (float)vote_count;
