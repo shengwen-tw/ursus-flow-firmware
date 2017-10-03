@@ -64,10 +64,10 @@ void EXTI3_IRQHandler(void)
 		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
 
 		if(lidar_read_mode == READ_LIDAR_DISTANCE) {
-			//start receiving lidar distance (interrupt mode, non-blocking code)
 			lidar_write_byte(LIDAR_ACQ_CONFIG_REG, 0x21);
 			lidar_read_half_word(LIDAR_DISTANCE_REG, (uint16_t *)lidar_distance_buffer);
 		} else if(lidar_read_mode == READ_LIDAR_VELOCITY) {
+			//msb of register 0x04 = 1, velocity mode (not on the datasheet!)
 			lidar_write_byte(LIDAR_ACQ_CONFIG_REG, 0xa1);
 			lidar_read_byte(LIDAR_VELOCITY_REG, (uint8_t *)&lidar_velocity_buffer);
 		}
