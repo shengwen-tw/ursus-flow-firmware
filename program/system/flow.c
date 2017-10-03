@@ -24,7 +24,9 @@ extern flow_t flow; //declare symbol in linker script (.dtcm section)
 
 vector3d_f_t gyro_data;
 vector3d_f_t accel_data;
+
 uint16_t lidar_distance;
+int8_t lidar_velocity;
 
 __attribute__((section(".itcmtext")))
 uint32_t calculate_ssd16_row(uint16_t *template_image, uint16_t *search_image, int row_offset)

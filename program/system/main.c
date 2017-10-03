@@ -21,6 +21,7 @@
 #include "system_time.h"
 
 extern uint16_t lidar_distance;
+extern int8_t lidar_velocity;
 
 vector3d_f_t gyro_bias;
 
@@ -51,7 +52,7 @@ int main(void)
 		while(1); //This is bad
 	}
 
-	lidar_init(&lidar_distance);
+	lidar_init(&lidar_distance, &lidar_velocity);
 
 #if (DO_IMU_CALIBRATION != 0)
 	mpu9250_bias_error_estimate(&gyro_bias);

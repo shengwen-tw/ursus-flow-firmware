@@ -14,8 +14,13 @@
 
 const uint8_t lidar_dev_address = 0x62 << 1;
 
-uint8_t lidar_buffer[2] = {0};
+int lidar_read_mode = 0;
+
+uint8_t lidar_distance_buffer[2] = {0};
+uint8_t lidar_velocity_buffer = 0;
+
 uint16_t *lidar_distance_ptr;
+int8_t *lidar_velocity_ptr;
 
 /* median filter */
 uint16_t median_buffer[MEDIAN_FILTER_SIZE];
@@ -31,6 +36,13 @@ static uint8_t lidar_read_byte(uint8_t address)
 	return result;
 }
 #endif
+
+__attribute__((section(".itcmtext")))
+static void lidar_read_byte(uint8_t address, uint8_t *data)
+{
+	i2c2_write(LIDAR_DEV_ADDRESS, &address, 1);
+	i2c2_read(LIDAR_DEV_ADDRESS, (uint8_t *)data, 1);
+}
 
 __attribute__((section(".itcmtext")))
 static void lidar_read_half_word(uint8_t address, uint16_t *data)
@@ -51,8 +63,14 @@ void EXTI3_IRQHandler(void)
 	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_3) != RESET) {
 		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
 
-		//start receiving lidar distance (interrupt mode, non-blocking code)
-		lidar_read_half_word(0x8f, (uint16_t *)lidar_buffer);
+		if(lidar_read_mode == READ_LIDAR_DISTANCE) {
+			//start receiving lidar distance (interrupt mode, non-blocking code)
+			lidar_read_half_word(0x8f, (uint16_t *)lidar_distance_buffer);
+		} else if(lidar_read_mode == READ_LIDAR_VELOCITY) {
+			lidar_read_byte(0x09, (uint8_t *)&lidar_velocity_buffer);
+		}
+
+		lidar_read_mode = (lidar_read_mode + 1) % 2;
 
 		//disable the interrupt until transaction is finished
 		HAL_NVIC_DisableIRQ(EXTI3_IRQn);
@@ -88,7 +106,7 @@ void I2C2_EV_IRQHandler(void)
 }
 
 __attribute__((section(".itcmtext")))
-void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
+static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 {
 	uint16_t tmp;
 
@@ -96,7 +114,7 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
 		//gpio_off(LED_2);
 
 		/* fill the buffer */
-		median_buffer[median_counter] = (lidar_buffer[0] << 8 | lidar_buffer[1]);
+		median_buffer[median_counter] = (lidar_distance_buffer[0] << 8 | lidar_distance_buffer[1]);
 		median_counter++;
 
 		/* buffer is full, ready to aply the filter */
@@ -116,11 +134,34 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
 		/* enable the interrupt and start a new transaction */
 		HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 	}
+
 }
 
-void lidar_init(uint16_t *_lidar_distance_ptr)
+__attribute__((section(".itcmtext")))
+static void lidar_receive_velocity_handler(I2C_HandleTypeDef *i2c)
+{
+	if(i2c == &i2c2) {
+		*lidar_velocity_ptr = lidar_velocity_buffer;
+
+		/* enable the interrupt and start a new transaction */
+		HAL_NVIC_EnableIRQ(EXTI3_IRQn);
+	}
+}
+
+__attribute__((section(".itcmtext")))
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
+{
+	if(lidar_read_mode == READ_LIDAR_DISTANCE) {
+		lidar_receive_distance_handler(i2c);
+	} else if(lidar_read_mode == READ_LIDAR_VELOCITY) {
+		lidar_receive_velocity_handler(i2c);
+	}
+}
+
+void lidar_init(uint16_t *_lidar_distance_ptr, int8_t *_lidar_velocity_ptr)
 {
 	lidar_distance_ptr = _lidar_distance_ptr;
+	lidar_velocity_ptr = _lidar_velocity_ptr;
 
 	/* reset lidar */
 	lidar_write_byte(LIDAR_ACQ_COMMAND, 0x00);
