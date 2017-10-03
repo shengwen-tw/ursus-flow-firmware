@@ -493,6 +493,7 @@ void flow_estimate_task(void)
 
 		/* flush d-cache */
 		SCB_CleanDCache_by_Addr((uint32_t *)&lidar_distance, (uint32_t)sizeof(lidar_distance));
+		SCB_CleanDCache_by_Addr((uint32_t *)&lidar_velocity, (uint32_t)sizeof(lidar_velocity));
 		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vx, (uint32_t)sizeof(kalman_vx));
 		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vy, (uint32_t)sizeof(kalman_vy));
 		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vx, (uint32_t)sizeof(flow_vx));
@@ -505,7 +506,7 @@ void flow_estimate_task(void)
 		SCB_CleanDCache_by_Addr((uint32_t *)&delta_t, (uint32_t)sizeof(delta_t));
 		SCB_CleanDCache_by_Addr((uint32_t *)&fps, (uint32_t)sizeof(fps));
 
-		send_flow_to_fcb(&lidar_distance, &flow_vx, &flow_vy,
+		send_flow_to_fcb(&lidar_distance, &lidar_velocity, &flow_vx, &flow_vy,
 				 &accel_data.x, &accel_data.y, &accel_data.z,
 				 &current_time, &delta_t, &fps, &quality);
 
