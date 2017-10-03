@@ -65,11 +65,11 @@ void EXTI3_IRQHandler(void)
 
 		if(lidar_read_mode == READ_LIDAR_DISTANCE) {
 			//start receiving lidar distance (interrupt mode, non-blocking code)
-			lidar_write_byte(0x04, 0x21);
-			lidar_read_half_word(0x8f, (uint16_t *)lidar_distance_buffer);
+			lidar_write_byte(LIDAR_ACQ_CONFIG_REG, 0x21);
+			lidar_read_half_word(LIDAR_DISTANCE_REG, (uint16_t *)lidar_distance_buffer);
 		} else if(lidar_read_mode == READ_LIDAR_VELOCITY) {
-			lidar_write_byte(0x04, 0xa1);
-			lidar_read_byte(0x09, (uint8_t *)&lidar_velocity_buffer);
+			lidar_write_byte(LIDAR_ACQ_CONFIG_REG, 0xa1);
+			lidar_read_byte(LIDAR_VELOCITY_REG, (uint8_t *)&lidar_velocity_buffer);
 		}
 
 		//lidar_read_mode = (lidar_read_mode + 1) % 2;
@@ -128,8 +128,6 @@ static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 				*lidar_distance_ptr = tmp;
 			}
 
-			/* TODO: kalman filter */
-
 			median_counter = 0; //reset filter
 		}
 
@@ -166,23 +164,23 @@ void lidar_init(uint16_t *_lidar_distance_ptr, int8_t *_lidar_velocity_ptr)
 	lidar_velocity_ptr = _lidar_velocity_ptr;
 
 	/* reset lidar */
-	lidar_write_byte(LIDAR_ACQ_COMMAND, 0x00);
+	lidar_write_byte(LIDAR_ACQ_COMMAND_REG, 0x00);
 	delay_ms(1000);
 
 	/* continuous reading mode */
-	lidar_write_byte(0x11, 0xff);
+	lidar_write_byte(LIDAR_MEASURE_COUNT_REG, 0xff);
 	delay_ms(10);
 
 	/* measurement rate */
-	lidar_write_byte(0x45, 0x02);
+	lidar_write_byte(LIDAR_MEASURE_DELAY_REG, 0x02);
 	delay_ms(10);
 
 	/* fast reading mode */
-	lidar_write_byte(0x04, 0x21);
+	lidar_write_byte(LIDAR_ACQ_CONFIG_REG, 0x21);
 	delay_ms(10);
 
 	/* start distance measurement */
-	lidar_write_byte(LIDAR_ACQ_COMMAND, 0x04);
+	lidar_write_byte(LIDAR_ACQ_COMMAND_REG, 0x04);
 	delay_ms(10);
 
 	exti3_init();
