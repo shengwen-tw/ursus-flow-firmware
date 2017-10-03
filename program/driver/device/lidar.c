@@ -65,12 +65,14 @@ void EXTI3_IRQHandler(void)
 
 		if(lidar_read_mode == READ_LIDAR_DISTANCE) {
 			//start receiving lidar distance (interrupt mode, non-blocking code)
+			lidar_write_byte(0x04, 0x21);
 			lidar_read_half_word(0x8f, (uint16_t *)lidar_distance_buffer);
 		} else if(lidar_read_mode == READ_LIDAR_VELOCITY) {
+			lidar_write_byte(0x04, 0xa1);
 			lidar_read_byte(0x09, (uint8_t *)&lidar_velocity_buffer);
 		}
 
-		lidar_read_mode = (lidar_read_mode + 1) % 2;
+		//lidar_read_mode = (lidar_read_mode + 1) % 2;
 
 		//disable the interrupt until transaction is finished
 		HAL_NVIC_DisableIRQ(EXTI3_IRQn);
