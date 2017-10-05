@@ -114,6 +114,8 @@ static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 	static float previous_velocity = 0;
 	static float last_distance = 0.0f;
 
+	static int velocity_prescaler = 4;
+
 	if(i2c == &i2c2) {
 		//gpio_off(LED_2);
 
@@ -134,9 +136,14 @@ static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 			median_counter = 0; //reset filter
 
 #if 1 //calculate velocity
-			float velocity = (_lidar_distance - last_distance) / 0.02;
-			*lidar_velocity_ptr = low_pass_filter(velocity, previous_velocity, 0.01);
-			last_distance = _lidar_distance;
+			if(velocity_prescaler == 0) {
+				float velocity = (_lidar_distance - last_distance) / 0.005f;
+				*lidar_velocity_ptr = low_pass_filter(velocity, previous_velocity, 0.01);
+				last_distance = _lidar_distance;
+
+				velocity_prescaler = 4;
+			}
+			velocity_prescaler--;
 #endif
 		}
 
@@ -186,7 +193,7 @@ void lidar_init(float *_lidar_distance_ptr, float *_lidar_velocity_ptr)
 	delay_ms(10);
 
 	/* measurement rate */
-	lidar_write_byte(LIDAR_MEASURE_DELAY_REG, 0x14);
+	lidar_write_byte(LIDAR_MEASURE_DELAY_REG, 0x02);
 	delay_ms(10);
 
 	/* fast reading mode */
