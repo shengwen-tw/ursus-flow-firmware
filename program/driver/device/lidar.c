@@ -9,6 +9,7 @@
 #include "lidar.h"
 
 #include "system_time.h"
+#include "low_pass_filter.h"
 
 #define MEDIAN_FILTER_SIZE 20
 
@@ -69,7 +70,7 @@ void EXTI3_IRQHandler(void)
 			lidar_read_byte(LIDAR_VELOCITY_REG, (uint8_t *)&lidar_velocity_buffer);
 		}
 
-		lidar_read_mode = (lidar_read_mode + 1) % 2;
+		//lidar_read_mode = (lidar_read_mode + 1) % 2;
 
 		//disable the interrupt until transaction is finished
 		HAL_NVIC_DisableIRQ(EXTI3_IRQn);
@@ -107,7 +108,11 @@ void I2C2_EV_IRQHandler(void)
 __attribute__((section(".itcmtext")))
 static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 {
-	uint16_t tmp;
+	uint16_t _lidar_distance;
+
+	//low pass filter for lidar
+	static float previous_velocity = 0;
+	static float last_distance = 0.0f;
 
 	if(i2c == &i2c2) {
 		//gpio_off(LED_2);
@@ -119,10 +124,18 @@ static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 		/* buffer is full, ready to aply the filter */
 		if(median_counter == MEDIAN_FILTER_SIZE) {
 			/* slide the filter window */
-			tmp = median_filter(median_buffer);
+			_lidar_distance = median_filter(median_buffer);
 
-			if(tmp != 0) {
-				*lidar_distance_ptr = tmp;
+			if(_lidar_distance != 0) {
+				*lidar_distance_ptr = _lidar_distance;
+
+#if 1 //calculate velocity
+
+				float velocity = ((float)(*lidar_distance_ptr) - (float)last_distance) / 0.02;
+				*lidar_velocity_ptr = low_pass_filter(velocity, previous_velocity, 0.0001);
+
+				last_distance = (float)_lidar_distance;
+#endif
 			}
 
 			median_counter = 0; //reset filter
@@ -137,8 +150,11 @@ static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 __attribute__((section(".itcmtext")))
 static void lidar_receive_velocity_handler(I2C_HandleTypeDef *i2c)
 {
+	static float previous_velocity = 0;
+
 	if(i2c == &i2c2) {
-		*lidar_velocity_ptr = (float)lidar_velocity_buffer;
+		float new_velocity = (float)lidar_velocity_buffer * 0.001;
+		*lidar_velocity_ptr = low_pass_filter(new_velocity, previous_velocity, 0.1);
 
 		/* enable the interrupt and start a new transaction */
 		HAL_NVIC_EnableIRQ(EXTI3_IRQn);
