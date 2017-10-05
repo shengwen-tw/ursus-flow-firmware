@@ -485,8 +485,6 @@ void flow_estimate_task(void)
 		last = now;
 		now = next;
 
-		mpu9250_read(&gyro_data, &accel_data);
-
 		accel_data.x *= 980.0f;
 		accel_data.y *= 980.0f;
 		accel_data.z *= 980.0f;

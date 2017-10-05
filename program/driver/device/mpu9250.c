@@ -8,6 +8,7 @@
 #include "mpu9250.h"
 
 #include "imu.h"
+#include "low_pass_filter.h"
 
 #include "system_time.h"
 
@@ -124,6 +125,20 @@ static void mpu9250_convert_to_scale(
 }
 
 __attribute__((section(".itcmtext")))
+void mpu9250_low_pass_filter(vector3d_f_t *accel_data)
+{
+	static vector3d_f_t last_filtered_accel = {0.0f, 0.0f, 0.0f};
+
+	accel_data->x = low_pass_filter(accel_data->x, last_filtered_accel.x, 0.01);
+	accel_data->y = low_pass_filter(accel_data->y, last_filtered_accel.y, 0.01);
+	accel_data->z = low_pass_filter(accel_data->z, last_filtered_accel.z, 0.01);
+
+	last_filtered_accel.x = accel_data->x;
+	last_filtered_accel.y = accel_data->y;
+	last_filtered_accel.z = accel_data->z;
+}
+
+__attribute__((section(".itcmtext")))
 void mpu9250_read(vector3d_f_t *gyro_data, vector3d_f_t *accel_data)
 {
 	vector3d_16_t unscaled_gyro_data;
@@ -132,6 +147,8 @@ void mpu9250_read(vector3d_f_t *gyro_data, vector3d_f_t *accel_data)
 	mpu9250_read_unscaled_data(&unscaled_gyro_data, &unscaled_accel_data);
 	mpu9250_convert_to_scale(&unscaled_gyro_data, gyro_data,
 	                         &unscaled_accel_data, accel_data);
+
+	mpu9250_low_pass_filter(accel_data);
 }
 
 void mpu9250_bias_error_estimate(vector3d_f_t *gyro_bias)

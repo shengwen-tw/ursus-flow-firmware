@@ -7,11 +7,16 @@
 #include "i2c.h"
 
 #include "lidar.h"
+#include "mpu9250.h"
 
+#include "imu.h"
 #include "system_time.h"
 #include "low_pass_filter.h"
 
 #define MEDIAN_FILTER_SIZE 20
+
+extern vector3d_f_t gyro_data;
+extern vector3d_f_t accel_data;
 
 const uint8_t lidar_dev_address = 0x62 << 1;
 
@@ -38,12 +43,14 @@ static uint8_t lidar_read_byte(uint8_t address)
 }
 #endif
 
+#if 0
 __attribute__((section(".itcmtext")))
 static void lidar_read_byte(uint8_t address, uint8_t *data)
 {
 	i2c2_write(LIDAR_DEV_ADDRESS, &address, 1);
 	i2c2_read(LIDAR_DEV_ADDRESS, (uint8_t *)data, 1);
 }
+#endif
 
 __attribute__((section(".itcmtext")))
 static void lidar_read_half_word(uint8_t address, uint16_t *data)
@@ -64,13 +71,17 @@ void EXTI3_IRQHandler(void)
 	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_3) != RESET) {
 		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
 
+		lidar_read_half_word(LIDAR_DISTANCE_REG, (uint16_t *)lidar_distance_buffer);
+
+#if 0
 		if(lidar_read_mode == READ_LIDAR_DISTANCE) {
 			lidar_read_half_word(LIDAR_DISTANCE_REG, (uint16_t *)lidar_distance_buffer);
 		} else if(lidar_read_mode == READ_LIDAR_VELOCITY) {
 			lidar_read_byte(LIDAR_VELOCITY_REG, (uint8_t *)&lidar_velocity_buffer);
 		}
 
-		//lidar_read_mode = (lidar_read_mode + 1) % 2;
+		lidar_read_mode = (lidar_read_mode + 1) % 2;
+#endif
 
 		//disable the interrupt until transaction is finished
 		HAL_NVIC_DisableIRQ(EXTI3_IRQn);
@@ -117,14 +128,12 @@ static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 	static int velocity_prescaler = 4;
 
 	if(i2c == &i2c2) {
-		//gpio_off(LED_2);
-
-		/* fill the buffer */
+		/* fill the median filter buffer */
 		median_buffer[median_counter] =
 			(float)(lidar_distance_buffer[0] << 8 | lidar_distance_buffer[1]);
 		median_counter++;
 
-		/* buffer is full, ready to aply the filter */
+		/* buffer is full, aply the median filter */
 		if(median_counter == MEDIAN_FILTER_SIZE) {
 			/* slide the filter window */
 			_lidar_distance = median_filter(median_buffer);
@@ -137,7 +146,8 @@ static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 
 #if 1 //calculate velocity
 			if(velocity_prescaler == 0) {
-				float velocity = (_lidar_distance - last_distance) / 0.005f;
+				const float delta_t = 0.005f;
+				float velocity = (_lidar_distance - last_distance) / delta_t;
 				*lidar_velocity_ptr = low_pass_filter(velocity, previous_velocity, 0.01);
 				last_distance = _lidar_distance;
 
@@ -172,11 +182,16 @@ static void lidar_receive_velocity_handler(I2C_HandleTypeDef *i2c)
 __attribute__((section(".itcmtext")))
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
 {
+	mpu9250_read(&gyro_data, &accel_data);
+	lidar_receive_distance_handler(i2c);
+
+#if 0
 	if(lidar_read_mode == READ_LIDAR_DISTANCE) {
 		lidar_receive_distance_handler(i2c);
 	} else if(lidar_read_mode == READ_LIDAR_VELOCITY) {
-		//lidar_receive_velocity_handler(i2c);
+		lidar_receive_velocity_handler(i2c);
 	}
+#endif
 }
 
 void lidar_init(float *_lidar_distance_ptr, float *_lidar_velocity_ptr)
