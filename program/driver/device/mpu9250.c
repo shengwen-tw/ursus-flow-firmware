@@ -129,9 +129,11 @@ void mpu9250_low_pass_filter(vector3d_f_t *accel_data)
 {
 	static vector3d_f_t last_filtered_accel = {0.0f, 0.0f, 0.0f};
 
-	accel_data->x = low_pass_filter(accel_data->x, last_filtered_accel.x, 0.01);
-	accel_data->y = low_pass_filter(accel_data->y, last_filtered_accel.y, 0.01);
-	accel_data->z = low_pass_filter(accel_data->z, last_filtered_accel.z, 0.01);
+	const int alpha = 0.15;
+
+	accel_data->x = low_pass_filter(accel_data->x, last_filtered_accel.x, alpha);
+	accel_data->y = low_pass_filter(accel_data->y, last_filtered_accel.y, alpha);
+	accel_data->z = low_pass_filter(accel_data->z, last_filtered_accel.z, alpha);
 
 	last_filtered_accel.x = accel_data->x;
 	last_filtered_accel.y = accel_data->y;
