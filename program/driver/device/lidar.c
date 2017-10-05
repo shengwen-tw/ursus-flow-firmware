@@ -129,17 +129,15 @@ static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 
 			if(_lidar_distance != 0) {
 				*lidar_distance_ptr = _lidar_distance;
-
-#if 1 //calculate velocity
-
-				float velocity = (_lidar_distance - last_distance) / 0.02;
-				*lidar_velocity_ptr = low_pass_filter(velocity, previous_velocity, 0.0001);
-
-				last_distance = _lidar_distance;
-#endif
 			}
 
 			median_counter = 0; //reset filter
+
+#if 1 //calculate velocity
+		float velocity = (_lidar_distance - last_distance) / 0.02;
+		*lidar_velocity_ptr = low_pass_filter(velocity, previous_velocity, 0.01);
+		last_distance = _lidar_distance;
+#endif
 		}
 
 		/* enable the interrupt and start a new transaction */
@@ -154,7 +152,7 @@ static void lidar_receive_velocity_handler(I2C_HandleTypeDef *i2c)
 	static float previous_velocity = 0;
 
 	if(i2c == &i2c2) {
-		float new_velocity = (float)lidar_velocity_buffer * 0.001;
+		float new_velocity = (float)lidar_velocity_buffer;
 		*lidar_velocity_ptr = low_pass_filter(new_velocity, previous_velocity, 0.1);
 
 		/* enable the interrupt and start a new transaction */
@@ -186,7 +184,7 @@ void lidar_init(float *_lidar_distance_ptr, float *_lidar_velocity_ptr)
 	delay_ms(10);
 
 	/* measurement rate */
-	lidar_write_byte(LIDAR_MEASURE_DELAY_REG, 0x02);
+	lidar_write_byte(LIDAR_MEASURE_DELAY_REG, 0x14);
 	delay_ms(10);
 
 	/* fast reading mode */
