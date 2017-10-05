@@ -134,9 +134,9 @@ static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 			median_counter = 0; //reset filter
 
 #if 1 //calculate velocity
-		float velocity = (_lidar_distance - last_distance) / 0.02;
-		*lidar_velocity_ptr = low_pass_filter(velocity, previous_velocity, 0.01);
-		last_distance = _lidar_distance;
+			float velocity = (_lidar_distance - last_distance) / 0.02;
+			*lidar_velocity_ptr = low_pass_filter(velocity, previous_velocity, 0.01);
+			last_distance = _lidar_distance;
 #endif
 		}
 
@@ -146,6 +146,7 @@ static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 
 }
 
+#if 0
 __attribute__((section(".itcmtext")))
 static void lidar_receive_velocity_handler(I2C_HandleTypeDef *i2c)
 {
@@ -159,6 +160,7 @@ static void lidar_receive_velocity_handler(I2C_HandleTypeDef *i2c)
 		HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 	}
 }
+#endif
 
 __attribute__((section(".itcmtext")))
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
@@ -166,7 +168,7 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
 	if(lidar_read_mode == READ_LIDAR_DISTANCE) {
 		lidar_receive_distance_handler(i2c);
 	} else if(lidar_read_mode == READ_LIDAR_VELOCITY) {
-		lidar_receive_velocity_handler(i2c);
+		//lidar_receive_velocity_handler(i2c);
 	}
 }
 
