@@ -20,7 +20,7 @@
 #include "fcb_link.h"
 #include "system_time.h"
 
-extern uint16_t lidar_distance;
+extern float lidar_distance;
 extern float lidar_velocity;
 
 vector3d_f_t gyro_bias;

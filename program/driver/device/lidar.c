@@ -20,11 +20,11 @@ int lidar_read_mode = 0;
 uint8_t lidar_distance_buffer[2] = {0};
 int8_t lidar_velocity_buffer = 0;
 
-uint16_t *lidar_distance_ptr;
+float *lidar_distance_ptr;
 float *lidar_velocity_ptr;
 
 /* median filter */
-uint16_t median_buffer[MEDIAN_FILTER_SIZE];
+float median_buffer[MEDIAN_FILTER_SIZE];
 int median_counter = 0;
 
 #if 0
@@ -78,7 +78,7 @@ void EXTI3_IRQHandler(void)
 }
 
 __attribute__((section(".itcmtext")))
-static uint16_t median_filter(uint16_t *buffer)
+static float median_filter(float *buffer)
 {
 	/* bubble sort */
 	int i, j;
@@ -108,7 +108,7 @@ void I2C2_EV_IRQHandler(void)
 __attribute__((section(".itcmtext")))
 static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 {
-	uint16_t _lidar_distance;
+	float _lidar_distance;
 
 	//low pass filter for lidar
 	static float previous_velocity = 0;
@@ -118,7 +118,8 @@ static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 		//gpio_off(LED_2);
 
 		/* fill the buffer */
-		median_buffer[median_counter] = (lidar_distance_buffer[0] << 8 | lidar_distance_buffer[1]);
+		median_buffer[median_counter] =
+			(float)(lidar_distance_buffer[0] << 8 | lidar_distance_buffer[1]);
 		median_counter++;
 
 		/* buffer is full, ready to aply the filter */
@@ -131,10 +132,10 @@ static void lidar_receive_distance_handler(I2C_HandleTypeDef *i2c)
 
 #if 1 //calculate velocity
 
-				float velocity = ((float)(*lidar_distance_ptr) - (float)last_distance) / 0.02;
+				float velocity = (_lidar_distance - last_distance) / 0.02;
 				*lidar_velocity_ptr = low_pass_filter(velocity, previous_velocity, 0.0001);
 
-				last_distance = (float)_lidar_distance;
+				last_distance = _lidar_distance;
 #endif
 			}
 
@@ -171,7 +172,7 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
 	}
 }
 
-void lidar_init(uint16_t *_lidar_distance_ptr, float *_lidar_velocity_ptr)
+void lidar_init(float *_lidar_distance_ptr, float *_lidar_velocity_ptr)
 {
 	lidar_distance_ptr = _lidar_distance_ptr;
 	lidar_velocity_ptr = _lidar_velocity_ptr;
