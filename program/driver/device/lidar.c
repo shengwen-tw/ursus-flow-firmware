@@ -17,10 +17,10 @@ const uint8_t lidar_dev_address = 0x62 << 1;
 int lidar_read_mode = 0;
 
 uint8_t lidar_distance_buffer[2] = {0};
-uint8_t lidar_velocity_buffer = 0;
+int8_t lidar_velocity_buffer = 0;
 
 uint16_t *lidar_distance_ptr;
-int8_t *lidar_velocity_ptr;
+float *lidar_velocity_ptr;
 
 /* median filter */
 uint16_t median_buffer[MEDIAN_FILTER_SIZE];
@@ -138,7 +138,7 @@ __attribute__((section(".itcmtext")))
 static void lidar_receive_velocity_handler(I2C_HandleTypeDef *i2c)
 {
 	if(i2c == &i2c2) {
-		*lidar_velocity_ptr = lidar_velocity_buffer;
+		*lidar_velocity_ptr = (float)lidar_velocity_buffer;
 
 		/* enable the interrupt and start a new transaction */
 		HAL_NVIC_EnableIRQ(EXTI3_IRQn);
@@ -155,7 +155,7 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
 	}
 }
 
-void lidar_init(uint16_t *_lidar_distance_ptr, int8_t *_lidar_velocity_ptr)
+void lidar_init(uint16_t *_lidar_distance_ptr, float *_lidar_velocity_ptr)
 {
 	lidar_distance_ptr = _lidar_distance_ptr;
 	lidar_velocity_ptr = _lidar_velocity_ptr;

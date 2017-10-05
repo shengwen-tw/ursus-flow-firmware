@@ -16,6 +16,6 @@ enum {
 	READ_LIDAR_VELOCITY		
 } LIDAR_MODE;
 
-void lidar_init(uint16_t *_lidar_distance_ptr, int8_t *_lidar_velocity_ptr);
+void lidar_init(uint16_t *_lidar_distance_ptr, float *_lidar_velocity_ptr);
 
 #endif

@@ -21,7 +21,7 @@
 #include "system_time.h"
 
 extern uint16_t lidar_distance;
-extern int8_t lidar_velocity;
+extern float lidar_velocity;
 
 vector3d_f_t gyro_bias;
 
