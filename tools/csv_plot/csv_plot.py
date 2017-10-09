@@ -5,15 +5,18 @@ csv = np.genfromtxt('flow.csv', delimiter=',')
 data_size = len(csv[:, 0])
 
 #prediction control variable u (from accelerometer)
-data1 = csv[:, 0]
-data2 = csv[:, 1]
+time = csv[:, 0]
+end_time = time[data_size - 1] - 3.2
+data1 = csv[:, 1] / 100
+data2 = csv[:, 2] / 100
 
 #plot result
-plt.figure('Optical Flow')
-plt.xlim(0, data_size)
-plt.plot(data1)
-plt.plot(data2)
-plt.xlabel('time (t)', fontsize=18)
-plt.legend(['kalman filter flow (m/s)', 'raw flow vx (m/s)'], loc='upper left')
+plt.figure('csv plot tool')
+plt.xlim(0, end_time)
+plt.plot(time, data1)
+plt.plot(time, data2)
+plt.xlabel('time (s)', fontsize=18)
+plt.ylabel('velocity (m/s)', fontsize=18)
+plt.legend(['kalman filter', 'optical flow'], loc='upper left')
 
 plt.show()
