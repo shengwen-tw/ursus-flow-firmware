@@ -8,13 +8,16 @@ DUMP_LOG=$(TARGET).dump
 
 #======================================================================#
 
+toolchain_path=~/workspace/tools/gcc-arm-none-eabi-5_4-2016q3/bin/
+#toolchain_path=
+
 #Cross Compiler
-CC=arm-none-eabi-gcc
-LD=arm-none-eabi-gcc
-OBJCOPY=arm-none-eabi-objcopy
-OBJDUMP=arm-none-eabi-objdump
-ELF_SIZE=arm-none-eabi-size
-GDB=arm-none-eabi-gdb
+CC=$(toolchain_path)arm-none-eabi-gcc
+LD=$(toolchain_path)arm-none-eabi-gcc
+OBJCOPY=$(toolchain_path)arm-none-eabi-objcopy
+OBJDUMP=$(toolchain_path)arm-none-eabi-objdump
+ELF_SIZE=$(toolchain_path)arm-none-eabi-size
+GDB=$(toolchain_path)arm-none-eabi-gdb
 
 #======================================================================#
 
@@ -144,7 +147,10 @@ STARTUP=./startup_stm32f767xx.s
 OBJECTS=$(SRC:.c=.o)
 OBJECTS+=$(STARTUP:.s=.o)
 
-all:$(BIN_IMAGE) tags
+all: env $(BIN_IMAGE) tags
+
+env:
+	@echo "toolchain path="$(toolchain_path)
 
 #Convert elf file to binary file
 $(BIN_IMAGE):$(EXECUTABLE)
