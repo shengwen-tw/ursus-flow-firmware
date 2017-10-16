@@ -14,6 +14,7 @@
 #include "imu.h"
 
 #include "flow.h"
+#include "low_pass_filter.h"
 #include "usb_link.h"
 #include "fcb_link.h"
 #include "system_time.h"
@@ -447,7 +448,7 @@ void flow_estimate_task(void)
 	int last = 0, now = 1, next = 2;
 
 	float flow_vx = 0.0f, flow_vy = 0.0f;
-	float kalman_vx = 0.0f, kalman_vy = 0.0f;
+	float lpf_flow_vx = 0.0f, lpf_flow_vy = 0.0f;
 	float quality = 0.0f;
 
 	mt9v034_start_capture_image((uint32_t)flow.image[last].frame);
@@ -489,13 +490,18 @@ void flow_estimate_task(void)
 		accel_data.y *= 980.0f;
 		accel_data.z *= 980.0f;
 
+		/* flow low-pass filtering */
+	        const float lpf_flow_alpha = 0.27f;
+		lpf_flow_vx = low_pass_filter(flow_vx, lpf_flow_vx, lpf_flow_alpha);
+        	lpf_flow_vy = low_pass_filter(flow_vy, lpf_flow_vy, lpf_flow_alpha);
+
 		/* flush d-cache */
 		SCB_CleanDCache_by_Addr((uint32_t *)&lidar_distance, (uint32_t)sizeof(lidar_distance));
 		SCB_CleanDCache_by_Addr((uint32_t *)&lidar_velocity, (uint32_t)sizeof(lidar_velocity));
-		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vx, (uint32_t)sizeof(kalman_vx));
-		SCB_CleanDCache_by_Addr((uint32_t *)&kalman_vy, (uint32_t)sizeof(kalman_vy));
 		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vx, (uint32_t)sizeof(flow_vx));
 		SCB_CleanDCache_by_Addr((uint32_t *)&flow_vy, (uint32_t)sizeof(flow_vy));
+		SCB_CleanDCache_by_Addr((uint32_t *)&lpf_flow_vx, (uint32_t)sizeof(lpf_flow_vx));
+		SCB_CleanDCache_by_Addr((uint32_t *)&lpf_flow_vy, (uint32_t)sizeof(lpf_flow_vy));
 		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.x, (uint32_t)sizeof(accel_data.x));
 		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.y, (uint32_t)sizeof(accel_data.y));
 		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.z, (uint32_t)sizeof(accel_data.z));
@@ -504,7 +510,7 @@ void flow_estimate_task(void)
 		SCB_CleanDCache_by_Addr((uint32_t *)&delta_t, (uint32_t)sizeof(delta_t));
 		SCB_CleanDCache_by_Addr((uint32_t *)&fps, (uint32_t)sizeof(fps));
 
-		send_flow_to_fcb(&lidar_distance, &lidar_velocity, &flow_vx, &flow_vy,
+		send_flow_to_fcb(&lidar_distance, &lidar_velocity, &lpf_flow_vx, &lpf_flow_vy,
 				 &accel_data.x, &accel_data.y, &accel_data.z,
 				 &current_time, &delta_t, &fps, &quality);
 
