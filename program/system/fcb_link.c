@@ -55,9 +55,6 @@ void send_flow_to_fcb(float *lidar_distance, float *lidar_velocity,
 	memcpy(message + append_size, accel_z, sizeof(float));
 	append_size += sizeof(float);
 
-	memcpy(message + append_size, time, sizeof(float));
-	append_size += sizeof(float);
-
 	memcpy(message + append_size, period, sizeof(float));
 	append_size += sizeof(float);
 
@@ -67,8 +64,8 @@ void send_flow_to_fcb(float *lidar_distance, float *lidar_velocity,
 	memcpy(message + append_size, quality_vx, sizeof(float));
 	append_size += sizeof(float);
 
-//	memcpy(message + append_size, quality_vy, sizeof(float));
-//	append_size += sizeof(float);
+	memcpy(message + append_size, quality_vy, sizeof(float));
+	append_size += sizeof(float);
 
 	calculate_checksum(&checksum, (uint8_t *)message, PACKET_SIZE - 1);
 	memcpy(message + append_size, &checksum, sizeof(uint8_t));
