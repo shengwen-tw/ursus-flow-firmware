@@ -287,7 +287,7 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	uint16_t histogram_x[FLOW_DISP_SIZE] = {0};
 	uint16_t histogram_y[FLOW_DISP_SIZE] = {0};
 	int vote_x, vote_y;
-	int vote_count = 0;
+	int vote_x_count = 0, vote_y_count = 0;
 
 	float predict_disp_x = 0, predict_disp_y = 0;
 
@@ -303,18 +303,18 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	flow.match_y[0][0] = match_y + (FLOW_MIDPOINT_OFFSET + 0);
 #endif
 
-	//if not both equal zero
-	if(match_x - match_y) {
-		/* histogram voting */
-		vote_x =  match_x + 4;
-		vote_y =  match_y + 4;
+	if(match_x) {
+		vote_x = match_x + 4;
 		histogram_x[vote_x]++;
-		histogram_y[vote_y]++;
-
 		predict_disp_x += match_x;
-		predict_disp_y += match_y;
+		vote_x_count++;
+	}
 
-		vote_count++;
+	if(match_y) {
+		vote_y = match_y + 4;
+		histogram_y[vote_y]++;
+		predict_disp_y += match_y;
+		vote_y_count++;
 	}
 
 	/* column iteration for first column */
@@ -332,19 +332,18 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		flow.match_x[r][0] = match_x + (FLOW_MIDPOINT_OFFSET + r);
 		flow.match_y[r][0] = match_y + (FLOW_MIDPOINT_OFFSET + 0);
 #endif
-
-		//if not both equal zero
-		if(match_x - match_y) {
-			/* histogram voting */
-			vote_x =  match_x + 4;
-			vote_y =  match_y + 4;
+		if(match_x) {
+			vote_x = match_x + 4;
 			histogram_x[vote_x]++;
-			histogram_y[vote_y]++;
-
 			predict_disp_x += match_x;
-			predict_disp_y += match_y;
+			vote_x_count++;
+		}
 
-			vote_count++;
+		if(match_y) {
+			vote_y = match_y + 4;
+			histogram_y[vote_y]++;
+			predict_disp_y += match_y;
+			vote_y_count++;
 		}
 	}
 
@@ -363,19 +362,18 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 		flow.match_x[0][c] = match_x + (FLOW_MIDPOINT_OFFSET + 0);
 		flow.match_y[0][c] = match_y + (FLOW_MIDPOINT_OFFSET + c);
 #endif
-
-		//if not both equal zero
-		if(match_x - match_y) {
-			/* histogram voting */
-			vote_x =  match_x + 4;
-			vote_y =  match_y + 4;
+		if(match_x) {
+			vote_x = match_x + 4;
 			histogram_x[vote_x]++;
-			histogram_y[vote_y]++;
-
 			predict_disp_x += match_x;
-			predict_disp_y += match_y;
+			vote_x_count++;
+		}
 
-			vote_count++;
+		if(match_y) {
+			vote_y = match_y + 4;
+			histogram_y[vote_y]++;
+			predict_disp_y += match_y;
+			vote_y_count++;
 		}
 
 		/* row iteration (go down) */
@@ -392,30 +390,48 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 			flow.match_x[r][c] = match_x + (FLOW_MIDPOINT_OFFSET + r);
 			flow.match_y[r][c] = match_y + (FLOW_MIDPOINT_OFFSET + c);
 #endif
-
-			//if not both equal zero
-			if(match_x - match_y) {
-				/* histogram voting */
-				vote_x =  match_x + 4;
-				vote_y =  match_y + 4;
+			if(match_x) {
+				vote_x = match_x + 4;
 				histogram_x[vote_x]++;
-				histogram_y[vote_y]++;
-
 				predict_disp_x += match_x;
-				predict_disp_y += match_y;
+				vote_x_count++;
+			}
 
-				vote_count++;
+			if(match_y) {
+				vote_y = match_y + 4;
+				histogram_y[vote_y]++;
+				predict_disp_y += match_y;
+				vote_y_count++;
 			}
 		}
 	}
 
-	/* flow quality */
-	*quality = (float)vote_count / 1024.0; //flow count = 1024
+	bool flow_detected = false;
 
-	if(vote_count < HISTOGRAM_THRESHOLD) {
+	/* flow vx histogram filter */
+	if(vote_x_count < HISTOGRAM_THRESHOLD) {
 		*flow_vx = 0;
-		*flow_vy = 0;
+		flow_detected = true;
+	} else {
+		predict_disp_x /= (float)vote_x_count;
+		*flow_vx = -((float)FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
+		gpio_on(LED_2); //flow detected
+	}
 
+	/* flow vy histogram filter */
+	if(vote_y_count < HISTOGRAM_THRESHOLD) {
+		*flow_vy = 0;
+		flow_detected = true;
+	} else {
+		predict_disp_y /= (float)vote_y_count;
+		*flow_vy = +((float)FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
+		gpio_on(LED_2); //flow detected
+	}
+
+	/* calculate flow quality */
+	int vote_count = (vote_x_count + vote_y_count) / 2;
+
+	if(!flow_detected) {
 		/* flow_quality */
 		*quality = 1.0f - ((float)vote_count / 1024.0);
 
@@ -426,13 +442,6 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 
 	/* flow quality */
 	*quality = (float)vote_count / 1024.0;
-
-	predict_disp_x /= (float)vote_count;
-	predict_disp_y /= (float)vote_count;
-
-	/* unscaled flow */
-	*flow_vx = -((float)FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
-	*flow_vy = +((float)FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
 
 	gpio_on(LED_2); //flow detected
 }
