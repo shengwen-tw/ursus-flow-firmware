@@ -412,25 +412,25 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	/* flow vx histogram filter */
 	if(vote_x_count < HISTOGRAM_THRESHOLD) { /* vx no flow detected  */
 		*flow_vx = 0;
-		flow_detected = true;
 		*quality_vx = 1.0f - ((float)vote_x_count / 1024.0);
 	} else { /* vx flow detected */
+		flow_detected = true;
 		predict_disp_x /= (float)vote_x_count;
 		*flow_vx = -((float)FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
 		*quality_vx = (float)vote_x_count / 1024.0;
-		gpio_on(LED_2); //flow detected
+		gpio_on(LED_2);
 	}
 
 	/* flow vy histogram filter */
 	if(vote_y_count < HISTOGRAM_THRESHOLD) { /* vy no flow detected  */
 		*flow_vy = 0;
-		flow_detected = true;
 		*quality_vy = 1.0f - ((float)vote_y_count / 1024.0);
 	} else { /* vy flow detected */
+		flow_detected = true;
 		predict_disp_y /= (float)vote_y_count;
 		*flow_vy = +((float)FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
 		*quality_vy = (float)vote_y_count / 1024.0;
-		gpio_on(LED_2); //flow detected
+		gpio_on(LED_2);
 	}
 
 	//no flow detected
@@ -530,6 +530,6 @@ void flow_estimate_task(void)
 		/* wait until image finished capturing */
 		mt9v034_wait_finish();
 
-		gpio_off(LED_1);
+		gpio_on(LED_1);
 	}
 }
