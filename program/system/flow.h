@@ -9,7 +9,7 @@
 
 #define FLOW_IMG_SIZE 32 //calculate optical flow for 32x32 points requires 40x40 pixels
 
-#define FOCAL_LENGTH_PX 40.0f //2000 [pixel size / cm]
+#define FOCAL_LENGTH_PX 0.15f //2000 [pixel size / cm]
 
 #define FLOW_COUNT          32 //number of optical flow point to be calculated
 #define TEMPLATE_SIZE       8  //sum of absolute difference template size
