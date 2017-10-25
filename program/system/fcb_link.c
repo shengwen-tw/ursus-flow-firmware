@@ -21,10 +21,11 @@ __attribute__((section(".itcmtext")))
 void send_flow_to_fcb(float *lidar_distance, float *lidar_velocity,
 		      float *flow_vx, float *flow_vy,
 		      float *accel_x, float *accel_y, float *accel_z,
-                      float *time, float *period, float *frequency, float *quality)
+                      float *time, float *period, float *frequency,
+		      float *quality_vx, float *quality_vy)
 {
 	/* pack message */
-	char start_byte = '$';
+	char start_byte = '+';
 	char message[PACKET_SIZE] = {0};
 	int append_size = 0;
 
@@ -63,8 +64,11 @@ void send_flow_to_fcb(float *lidar_distance, float *lidar_velocity,
 	memcpy(message + append_size, frequency, sizeof(float));
 	append_size += sizeof(float);
 
-	memcpy(message + append_size, quality, sizeof(float));
+	memcpy(message + append_size, quality_vx, sizeof(float));
 	append_size += sizeof(float);
+
+//	memcpy(message + append_size, quality_vy, sizeof(float));
+//	append_size += sizeof(float);
 
 	calculate_checksum(&checksum, (uint8_t *)message, PACKET_SIZE - 1);
 	memcpy(message + append_size, &checksum, sizeof(uint8_t));

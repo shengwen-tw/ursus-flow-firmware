@@ -272,7 +272,8 @@ void match_point_local_area_row_dp(uint16_t *previous_image, uint16_t *current_i
 
 __attribute__((section(".itcmtext")))
 void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
-                   float *flow_vx, float *flow_vy, float *quality, float delta_t)
+                   float *flow_vx, float *flow_vy,
+		   float *quality_vx, float *quality_vy, float delta_t)
 {
 	/* convert the 40x40 start address into 32*32 address */
 	int offset = EDGE_PRESERVE_SIZE;
@@ -409,41 +410,33 @@ void flow_estimate(uint16_t *previous_image, uint16_t *current_image,
 	bool flow_detected = false;
 
 	/* flow vx histogram filter */
-	if(vote_x_count < HISTOGRAM_THRESHOLD) {
+	if(vote_x_count < HISTOGRAM_THRESHOLD) { /* vx no flow detected  */
 		*flow_vx = 0;
 		flow_detected = true;
-	} else {
+		*quality_vx = 1.0f - ((float)vote_x_count / 1024.0);
+	} else { /* vx flow detected */
 		predict_disp_x /= (float)vote_x_count;
 		*flow_vx = -((float)FOCAL_LENGTH_PX * predict_disp_x) / delta_t;
+		*quality_vx = (float)vote_x_count / 1024.0;
 		gpio_on(LED_2); //flow detected
 	}
 
 	/* flow vy histogram filter */
-	if(vote_y_count < HISTOGRAM_THRESHOLD) {
+	if(vote_y_count < HISTOGRAM_THRESHOLD) { /* vy no flow detected  */
 		*flow_vy = 0;
 		flow_detected = true;
-	} else {
+		*quality_vy = 1.0f - ((float)vote_y_count / 1024.0);
+	} else { /* vy flow detected */
 		predict_disp_y /= (float)vote_y_count;
 		*flow_vy = +((float)FOCAL_LENGTH_PX * predict_disp_y) / delta_t;
+		*quality_vy = (float)vote_y_count / 1024.0;
 		gpio_on(LED_2); //flow detected
 	}
 
-	/* calculate flow quality */
-	int vote_count = (vote_x_count + vote_y_count) / 2;
-
+	//no flow detected
 	if(!flow_detected) {
-		/* flow_quality */
-		*quality = 1.0f - ((float)vote_count / 1024.0);
-
-		gpio_off(LED_2); //no flow
-
-		return;
+		gpio_off(LED_2);
 	}
-
-	/* flow quality */
-	*quality = (float)vote_count / 1024.0;
-
-	gpio_on(LED_2); //flow detected
 }
 
 __attribute__((section(".itcmtext")))
@@ -458,7 +451,7 @@ void flow_estimate_task(void)
 
 	float flow_vx = 0.0f, flow_vy = 0.0f;
 	float lpf_flow_vx = 0.0f, lpf_flow_vy = 0.0f;
-	float quality = 0.0f;
+	float quality_vx = 0.0f, quality_vy = 0.0f;
 
 	mt9v034_start_capture_image((uint32_t)flow.image[last].frame);
 	mt9v034_wait_finish();
@@ -486,7 +479,9 @@ void flow_estimate_task(void)
 		flow_estimate(
 		        (uint16_t *)flow.image[last].frame,
 		        (uint16_t *)flow.image[now].frame,
-		        &flow_vx, &flow_vy, &quality,
+		        &flow_vx, &flow_vy,
+			&quality_vx,
+			&quality_vy,
 			delta_t
 		);
 
@@ -514,14 +509,15 @@ void flow_estimate_task(void)
 		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.x, (uint32_t)sizeof(accel_data.x));
 		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.y, (uint32_t)sizeof(accel_data.y));
 		SCB_CleanDCache_by_Addr((uint32_t *)&accel_data.z, (uint32_t)sizeof(accel_data.z));
-		SCB_CleanDCache_by_Addr((uint32_t *)&quality, (uint32_t)sizeof(quality));
+		SCB_CleanDCache_by_Addr((uint32_t *)&quality_vx, (uint32_t)sizeof(quality_vx));
+		SCB_CleanDCache_by_Addr((uint32_t *)&quality_vy, (uint32_t)sizeof(quality_vy));
 		SCB_CleanDCache_by_Addr((uint32_t *)&current_time, (uint32_t)sizeof(current_time));
 		SCB_CleanDCache_by_Addr((uint32_t *)&delta_t, (uint32_t)sizeof(delta_t));
 		SCB_CleanDCache_by_Addr((uint32_t *)&fps, (uint32_t)sizeof(fps));
 
 		send_flow_to_fcb(&lidar_distance, &lidar_velocity, &lpf_flow_vx, &lpf_flow_vy,
 				 &accel_data.x, &accel_data.y, &accel_data.z,
-				 &current_time, &delta_t, &fps, &quality);
+				 &current_time, &delta_t, &fps, &quality_vx, &quality_vy);
 
 		//send_debug_message("lidar:%3d, vx:%+2.3f, vy:%+2.3f, time:%.1f, delta_t:%1f, fps:%.1f\n\r",
 		//                   lidar_distance, flow_vx, flow_vy, current_time, delta_t, fps);
