@@ -32,11 +32,11 @@ def generate_linear_weighting_2d(size):
 
 #Generate distance weighting functions
 linear = generate_linear_weighting_2d(9)
-gaussian = generate_gaussian_2d(9, 3.4, 25)
+gaussian = generate_gaussian_2d(9, 3.4, 35)
 
 #Print matrix
-#select_print = gaussian
-select_print = linear
+select_print = gaussian
+#select_print = linear
 
 #Print in C style syntax
 np.set_printoptions(formatter={'float': '{: .1f}'.format})
