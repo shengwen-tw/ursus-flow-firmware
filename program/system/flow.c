@@ -495,7 +495,7 @@ void flow_estimate_task(void)
 		accel_data.z *= 980.0f;
 
 		/* flow low-pass filtering */
-	        const float lpf_flow_alpha = 0.1f;
+	        const float lpf_flow_alpha = 1.0f;
 		lpf_flow_vx = low_pass_filter(flow_vx, lpf_flow_vx, lpf_flow_alpha);
         	lpf_flow_vy = low_pass_filter(flow_vy, lpf_flow_vy, lpf_flow_alpha);
 
