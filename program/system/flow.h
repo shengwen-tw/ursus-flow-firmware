@@ -14,7 +14,7 @@
 //calculate optical flow for 54x54 points requires 62x62 pixels
 #define FLOW_IMG_SIZE (FLOW_COUNT + 2 * EDGE_PRESERVE_SIZE)
 
-#define FOCAL_LENGTH_PX 360.0f //[pixel size / cm]
+#define FOCAL_LENGTH_PX 3.6f //[pixel size / cm]
 
 #define TEMPLATE_SIZE       8  //sum of absolute difference template size
 #define SEARCH_SUBAREA_SIZE 16 //only match the template in near -4 ~ +4 range
