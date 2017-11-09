@@ -182,7 +182,7 @@ static void lidar_receive_velocity_handler(I2C_HandleTypeDef *i2c)
 __attribute__((section(".itcmtext")))
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *i2c)
 {
-	mpu9250_read(&gyro_data, &accel_data);
+	//mpu9250_read(&gyro_data, &accel_data);
 	lidar_receive_distance_handler(i2c);
 
 #if 0
