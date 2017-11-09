@@ -9,7 +9,7 @@
 
 #define EDGE_PRESERVE_SIZE 4 //the offset from origin to middlemost template in the first subarea
 
-#define FLOW_COUNT 54 //number of optical flow point to be calculated
+#define FLOW_COUNT 56 //number of optical flow point to be calculated
 
 //calculate optical flow for 54x54 points requires 62x62 pixels
 #define FLOW_IMG_SIZE (FLOW_COUNT + 2 * EDGE_PRESERVE_SIZE)
